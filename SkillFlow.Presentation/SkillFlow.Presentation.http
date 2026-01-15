@@ -1,0 +1,6 @@
+@SkillFlow.Presentation_HostAddress = http://localhost:5031
+
+GET {{SkillFlow.Presentation_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="SkillFlow.Application/SkillFlow.Application.csproj" />
+  <Project Path="SkillFlow.Domain/SkillFlow.Domain.csproj" />
+  <Project Path="SkillFlow.Infrastructure/SkillFlow.Infrastructure.csproj" />
+  <Project Path="SkillFlow.Presentation/SkillFlow.Presentation.csproj" />
+  <Project Path="SkillFlow.Tests/SkillFlow.Tests.csproj" />
+</Solution>
