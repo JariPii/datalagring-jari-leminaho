@@ -6,7 +6,7 @@ namespace SkillFlow.Domain.Entities
 {
     public class Student
     {
-        public int AtendeeId { get; set; }
+        public Guid AttendeeId { get; set; }
         public Attendee Attendee { get; set; } = null!;
     }
 }

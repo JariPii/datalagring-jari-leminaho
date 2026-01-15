@@ -4,9 +4,8 @@ using System.Text;
 
 namespace SkillFlow.Domain.Entities
 {
-    public class Location
+    public class Location : BaseIdEntity<int>
     {
-        public int Id { get; set; }
         public string LocationName { get; set; } = null!;
     }
 }
