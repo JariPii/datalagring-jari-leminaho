@@ -6,9 +6,9 @@ namespace SkillFlow.Domain.Entities
 {
     public class InstructorCompetence
     {
-        public int Instructor_Id { get; set; }
+        public Guid InstructorId { get; set; }
         public Instructor Instructor { get; set; } = null!;
-        public int Competence_Id { get; set; }
+        public int CompetenceId { get; set; }
         public Competence Competence { get; set; } = null!;
     }
 }

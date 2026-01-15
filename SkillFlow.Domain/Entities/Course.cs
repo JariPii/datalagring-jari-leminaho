@@ -4,9 +4,8 @@ using System.Text;
 
 namespace SkillFlow.Domain.Entities
 {
-    public class Course
+    public class Course : BaseIdEntity<int>
     {
-        public int Id { get; set; }
         public string CourseCode { get; set; } = null!;
         public string CourseName { get; set; } = null!;
         public string CourseDescription { get; set; } = null!;

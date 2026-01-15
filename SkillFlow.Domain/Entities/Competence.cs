@@ -4,11 +4,10 @@ using System.Text;
 
 namespace SkillFlow.Domain.Entities
 {
-    public class Competence
+    public class Competence : BaseIdEntity<int>
     {
-        public int Id { get; set; }
         public string Name { get; set; } = null!;
 
-        public ICollection<InstructorCompetence> InstructorCompetences { get; set; }
+        public ICollection<InstructorCompetence> InstructorCompetences { get; set; } = [];
     }
 }

@@ -6,6 +6,6 @@ namespace SkillFlow.Domain.Enums
 {
     public enum Role
     {
-        Student, Instuctor
+        Student, Instructor
     }
 }

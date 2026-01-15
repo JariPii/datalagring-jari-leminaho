@@ -4,9 +4,8 @@ using System.Text;
 
 namespace SkillFlow.Domain.Entities
 {
-    public class CourseSession
+    public class CourseSession : BaseIdEntity<int>
     {
-        public int Id { get; set; }
         public string CourseCode { get; set; } = null!;
         public Course Course { get; set; } = null!;
 
@@ -15,7 +14,7 @@ namespace SkillFlow.Domain.Entities
         public int Capacity { get; set; }
         public int LocationId { get; set; }
         public Location Location { get; set; } = null!;
-        public ICollection<InstructorCourseSession> InstructorCourseSessions { get; set; } = new List<InstructorCourseSession>();
-        public ICollection<Enrollment> Enrollments { get; set; } = new List<Enrollment>();
+        public ICollection<InstructorCourseSession> InstructorCourseSessions { get; set; } = [];
+        public ICollection<Enrollment> Enrollments { get; set; } = [];
     }
 }
