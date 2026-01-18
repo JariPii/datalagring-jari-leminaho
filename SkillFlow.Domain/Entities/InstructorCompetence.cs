@@ -1,4 +1,6 @@
-﻿using System;
+﻿using SkillFlow.Domain.Attendees;
+using SkillFlow.Domain.Courses;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
