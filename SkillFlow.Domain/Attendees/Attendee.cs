@@ -8,41 +8,38 @@ namespace SkillFlow.Domain.Attendees
     public abstract class Attendee : BaseEntity
     {
 
-        public AttendeeId Id { get; private set; } = null!;
+        public AttendeeId Id { get; private set; }
         public Role Role { get; private set; }
 
         
-        public string Email { get; private set; } = null!;
+        public Email Email { get; private set; }
         public string FirstName { get; private set; } = null!;
         public string LastName { get; private set; } = null!;
         public string? PhoneNumber { get; private set; }
 
-        protected Attendee(AttendeeId id, string email, string firstName, string lastName, Role role, string phoneNumber = null)
+        protected Attendee(AttendeeId id, Email email, string firstName, string lastName, Role role, string? phoneNumber = null)
         {
-            if (string.IsNullOrWhiteSpace(email))
-                throw new ArgumentException("E-mail is required", nameof(email));
+            if (id.Value == Guid.Empty)
+                throw new ArgumentException("Attendee Id can not be empty", nameof(id));
 
             if (string.IsNullOrWhiteSpace(firstName))
                 throw new ArgumentException("First name is required", nameof(firstName));
 
             if (string.IsNullOrWhiteSpace(lastName))
-                throw new ArgumentException("E-mail is required", nameof(lastName));
+                throw new ArgumentException("Last name is required", nameof(lastName));
 
             Id = id;
             Email = email;
-            FirstName = firstName;
-            LastName = lastName;
+            FirstName = firstName.NormalizeName();
+            LastName = lastName.NormalizeName();
             Role = role;
             PhoneNumber = phoneNumber;
         }
 
         protected Attendee() { }
 
-        public void UpdateEmail(string newEmail)
+        public void UpdateEmail(Email newEmail)
         {
-            if (string.IsNullOrWhiteSpace(newEmail) || !newEmail.Contains("@"))
-                throw new ArgumentException("Invalid email format");
-
             if (Email == newEmail) return;
 
             Email = newEmail;
@@ -54,20 +51,24 @@ namespace SkillFlow.Domain.Attendees
             if (string.IsNullOrWhiteSpace(newFirstName))
                 throw new ArgumentException("Firstname is required");
 
-            if (FirstName == newFirstName) return;
+            var normalizedName = newFirstName.NormalizeName();
 
-            FirstName = newFirstName;
+            if (FirstName == normalizedName) return;
+
+            FirstName = normalizedName;
             UpdateTimeStamp();
         }
 
         public void UpdateLastName(string newLastName)
         {
             if (string.IsNullOrWhiteSpace(newLastName))
-                throw new ArgumentException("Firstname is required");
+                throw new ArgumentException("Lastname is required");
 
-            if (LastName == newLastName) return;
+            var normalizedName = newLastName.NormalizeName();
 
-            LastName = newLastName;
+            if (LastName == normalizedName) return;
+
+            LastName = normalizedName;
             UpdateTimeStamp();
         }
 

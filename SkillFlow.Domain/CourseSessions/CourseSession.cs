@@ -14,20 +14,33 @@ namespace SkillFlow.Domain.CourseSessions
         private readonly List<Enrollment> _enrollments = new();
         private readonly List<Instructor> _instructors = new();
 
-        public CourseSessionId Id { get; private set; } = null!;
+        public CourseSessionId Id { get; private set; }
         public CourseCode CourseCode { get; private set; }
         public Course Course { get; private set; } = null!;
 
         public DateTime StartDate { get; private set; }
         public DateTime EndDate { get; private set; }
         public int Capacity { get; private set; }
-        public LocationId LocationId { get; private set; } = null!;
+
+        public const int MaxCapacity = 40;
+        public LocationId LocationId { get; private set; }
         public virtual Location Location { get; private set; } = null!;
 
         public CourseSession(CourseSessionId id, CourseCode courseCode, DateTime startDate, DateTime endDate, int capacity, LocationId locationId)
         {
+            if (id.Value == Guid.Empty)
+                throw new ArgumentException("Course id can not be empty", nameof(id));
+
             if (endDate <= startDate) throw new ArgumentException("End date cannot be before the start date");
-            if (capacity > 40) throw new ArgumentException("Max capacity is 40 attendees");
+
+            if (capacity < 1)
+                throw new ArgumentOutOfRangeException(nameof(capacity), "You need atleast 1 attendee");
+
+            if (capacity > MaxCapacity)
+                throw new ArgumentOutOfRangeException(nameof(capacity), $"Max attendees is {MaxCapacity}");
+
+            if (locationId.Value == Guid.Empty)
+                throw new ArgumentException("Loctation is needed", nameof(locationId));
 
             Id = id;
             CourseCode = courseCode;

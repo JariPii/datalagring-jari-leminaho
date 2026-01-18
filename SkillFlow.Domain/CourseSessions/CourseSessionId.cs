@@ -4,5 +4,8 @@ using System.Text;
 
 namespace SkillFlow.Domain.CourseSessions
 {
-    public record CourseSessionId(Guid Value);
+    public readonly record struct CourseSessionId(Guid Value)
+    {
+        public static CourseSessionId New() => new(Guid.NewGuid());
+    }
 }

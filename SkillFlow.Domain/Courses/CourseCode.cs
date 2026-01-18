@@ -32,5 +32,7 @@ namespace SkillFlow.Domain.Courses
 
             return new CourseCode(value);
         }
+
+        public override string ToString() => Value;
     }
 }

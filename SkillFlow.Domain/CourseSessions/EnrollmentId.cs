@@ -5,7 +5,7 @@ using System.Text;
 
 namespace SkillFlow.Domain.CourseSessions
 {
-    public record EnrollmentId(Guid Value)
+    public readonly record struct EnrollmentId(Guid Value)
     {
         public static EnrollmentId New() => new(Guid.NewGuid());
     }

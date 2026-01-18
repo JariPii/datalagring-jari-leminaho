@@ -7,7 +7,7 @@ namespace SkillFlow.Domain.Attendees
 {
     public class Instructor : Attendee
     {
-        public Instructor(AttendeeId id, string email, string firstName, string lastName) : base(id, email, firstName, lastName, Role.Instructor) { }
+        public Instructor(AttendeeId id, Email email, string firstName, string lastName) : base(id, email, firstName, lastName, Role.Instructor) { }
 
         private Instructor () : base () { }
 
