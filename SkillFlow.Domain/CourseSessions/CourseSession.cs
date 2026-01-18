@@ -1,6 +1,5 @@
 ﻿using SkillFlow.Domain.Attendees;
 using SkillFlow.Domain.Courses;
-using SkillFlow.Domain.Entities;
 using SkillFlow.Domain.Locations;
 using SkillFlow.Domain.Primitives;
 using System;
@@ -17,7 +16,6 @@ namespace SkillFlow.Domain.CourseSessions
         public CourseSessionId Id { get; private set; }
         public CourseCode CourseCode { get; private set; }
         public Course Course { get; private set; } = null!;
-
         public DateTime StartDate { get; private set; }
         public DateTime EndDate { get; private set; }
         public int Capacity { get; private set; }
