@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace SkillFlow.Domain.Enums
+namespace SkillFlow.Domain.Attendees
 {
     public enum Role
     {
