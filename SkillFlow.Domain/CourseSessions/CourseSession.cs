@@ -56,8 +56,9 @@ namespace SkillFlow.Domain.CourseSessions
 
         public void AddInstructor(Instructor instructor)
         {
-            if (instructor == null) throw new ArgumentNullException(nameof(instructor));
-            if (!_instructors.Contains(instructor))
+            ArgumentNullException.ThrowIfNull(instructor);
+
+            if (!_instructors.Any(i => i.Id == instructor.Id))
             {
                 _instructors.Add(instructor);
                 UpdateTimeStamp();
@@ -66,17 +67,35 @@ namespace SkillFlow.Domain.CourseSessions
 
         public void AddStudent(Student student)
         {
-            if (!_instructors.Any())
+            if (_instructors.Count == 0)
                 throw new InvalidOperationException("Atleast one instructor is needed");
-
-            if (_enrollments.Count >= Capacity)
-                throw new InvalidOperationException("Course is fully booked");
 
             if (_enrollments.Any(e => e.StudentId == student.Id))
                 throw new InvalidOperationException("Student is allready enrolled");
 
             var enrollment = new Enrollment(EnrollmentId.New(), student.Id, this.Id);
             _enrollments.Add(enrollment);
+
+            UpdateTimeStamp();
+        }
+
+        public void SetEnrollmentStatus(AttendeeId studentId, EnrollmentStatus newStatus)
+        {
+            var enrollment = _enrollments.FirstOrDefault(e => e.StudentId == studentId) ?? throw new InvalidOperationException("Enrollment not found");
+
+            if (newStatus == EnrollmentStatus.Approved)
+            {
+                int approvedStudents = _enrollments.Count(e => e.Status == EnrollmentStatus.Approved);
+
+                if (approvedStudents >= MaxCapacity)
+                    throw new InvalidOperationException("Student can not be approved, max capacity reached");
+
+                enrollment.Approve();
+            }
+            else if (newStatus == EnrollmentStatus.Denied)
+            {
+                enrollment.Deny();
+            }
 
             UpdateTimeStamp();
         }

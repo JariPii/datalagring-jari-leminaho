@@ -1,5 +1,4 @@
 ﻿using SkillFlow.Domain.Attendees;
-using SkillFlow.Domain.Entities;
 using SkillFlow.Domain.Primitives;
 using System;
 using System.Collections.Generic;
