@@ -26,9 +26,6 @@ namespace SkillFlow.Domain.CourseSessions
 
         public CourseSession(CourseSessionId id, CourseCode courseCode, DateTime startDate, DateTime endDate, int capacity, LocationId locationId)
         {
-            if (id.Value == Guid.Empty)
-                throw new ArgumentException("Course id can not be empty", nameof(id));
-
             if (endDate <= startDate) throw new ArgumentException("End date cannot be before the start date");
 
             if (capacity < 1)
@@ -54,6 +51,24 @@ namespace SkillFlow.Domain.CourseSessions
         public virtual IReadOnlyCollection<Enrollment> Enrollments => _enrollments.AsReadOnly();
         public virtual IReadOnlyCollection<Instructor> Instructors => _instructors.AsReadOnly();
 
+        public void UpdateCapacity(int newCapacity)
+        {
+            if (newCapacity > MaxCapacity)
+                throw new ArgumentException(nameof(newCapacity), $"Max capacity for this course session is {MaxCapacity}");
+
+            if (newCapacity < 1)
+                throw new ArgumentOutOfRangeException(nameof(newCapacity), "Atleast 1 is needed");
+
+            int approvedStudents = _enrollments.Count(e => e.Status == EnrollmentStatus.Approved);
+            if (newCapacity < approvedStudents)
+                throw new ArgumentException($"Can not go below {newCapacity} because {approvedStudents} are allready approved");
+
+            if (Capacity == newCapacity) return;
+
+            Capacity = newCapacity;
+            UpdateTimeStamp();
+        }
+
         public void AddInstructor(Instructor instructor)
         {
             ArgumentNullException.ThrowIfNull(instructor);
@@ -67,6 +82,8 @@ namespace SkillFlow.Domain.CourseSessions
 
         public void AddStudent(Student student)
         {
+            ArgumentNullException.ThrowIfNull(student);
+
             if (_instructors.Count == 0)
                 throw new InvalidOperationException("Atleast one instructor is needed");
 
@@ -87,7 +104,7 @@ namespace SkillFlow.Domain.CourseSessions
             {
                 int approvedStudents = _enrollments.Count(e => e.Status == EnrollmentStatus.Approved);
 
-                if (approvedStudents >= MaxCapacity)
+                if (approvedStudents >= Capacity)
                     throw new InvalidOperationException("Student can not be approved, max capacity reached");
 
                 enrollment.Approve();

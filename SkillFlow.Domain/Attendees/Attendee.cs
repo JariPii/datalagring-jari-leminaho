@@ -1,45 +1,30 @@
 ﻿using SkillFlow.Domain.Primitives;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace SkillFlow.Domain.Attendees
 {
     public abstract class Attendee : BaseEntity
     {
-
         public AttendeeId Id { get; private set; }
         public Role Role { get; private set; }
-
-        
         public Email Email { get; private set; }
-        public string FirstName { get; private set; } = null!;
-        public string LastName { get; private set; } = null!;
-        public string? PhoneNumber { get; private set; }
+        public AttendeeName Name { get; private set; }
+        public PhoneNumber? PhoneNumber { get; private set; }
 
-        protected Attendee(AttendeeId id, Email email, string firstName, string lastName, Role role, string? phoneNumber = null)
+        protected Attendee(AttendeeId id, Email email, AttendeeName name, Role role, PhoneNumber? phoneNumber)
         {
-            if (id.Value == Guid.Empty)
-                throw new ArgumentException("Attendee Id can not be empty", nameof(id));
-
-            if (string.IsNullOrWhiteSpace(firstName))
-                throw new ArgumentException("First name is required", nameof(firstName));
-
-            if (string.IsNullOrWhiteSpace(lastName))
-                throw new ArgumentException("Last name is required", nameof(lastName));
-
             Id = id;
             Email = email;
-            FirstName = firstName.NormalizeName();
-            LastName = lastName.NormalizeName();
+            Name = name;
             Role = role;
             PhoneNumber = phoneNumber;
         }
 
         protected Attendee() { }
 
-        public void UpdateEmail(Email newEmail)
+        public void UpdateEmail(string newUpdatedEmail)
         {
+            var newEmail = Email.Create(newUpdatedEmail);
+
             if (Email == newEmail) return;
 
             Email = newEmail;
@@ -48,31 +33,24 @@ namespace SkillFlow.Domain.Attendees
 
         public void UpdateFirstName(string newFirstName)
         {
-            if (string.IsNullOrWhiteSpace(newFirstName))
-                throw new ArgumentException("Firstname is required");
+            var newName = AttendeeName.Create(newFirstName, Name.LastName);
 
-            var normalizedName = newFirstName.NormalizeName();
+            if (Name == newName) return;
 
-            if (FirstName == normalizedName) return;
-
-            FirstName = normalizedName;
+            Name = newName;
             UpdateTimeStamp();
         }
-
         public void UpdateLastName(string newLastName)
         {
-            if (string.IsNullOrWhiteSpace(newLastName))
-                throw new ArgumentException("Lastname is required");
+            var newName = AttendeeName.Create(Name.FirstName, newLastName);
 
-            var normalizedName = newLastName.NormalizeName();
+            if (Name == newName) return;
 
-            if (LastName == normalizedName) return;
-
-            LastName = normalizedName;
+            Name = newName;
             UpdateTimeStamp();
         }
 
-        public void UpdatePhoneNumber(string? newPhoneNumber)
+        public void UpdatePhoneNumber(PhoneNumber? newPhoneNumber)
         {
             if (PhoneNumber == newPhoneNumber) return;
 

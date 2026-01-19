@@ -9,32 +9,23 @@ namespace SkillFlow.Domain.Locations
     public class Location : BaseEntity
     {
         public LocationId Id { get; private set; }
-        public string LocationName { get; private set; } = null!;
+        public LocationName LocationName { get; private set; }
 
-        public Location(LocationId id, string locationName)
+        public Location(LocationId id, LocationName locationName)
         {
-            if (id.Value == Guid.Empty)
-                throw new ArgumentException("Location Id can not be empty", nameof(id));
-
-            if (string.IsNullOrWhiteSpace(locationName))
-                throw new ArgumentException("Location name is required", nameof(locationName));
-
             Id = id;
-            LocationName = locationName.NormalizeName();
+            LocationName = locationName;
         }
 
-        protected Location () { }
+        private Location () { }
 
-        public void UpdateLocationName(string newLocationName)
+        public void UpdateLocationName(string updatedLocationName)
         {
-            if (string.IsNullOrWhiteSpace(newLocationName))
-                throw new ArgumentException("Location name can not be empty", nameof(newLocationName));
+            var newLocationName = new LocationName(updatedLocationName);
 
-            var normalizedName = newLocationName.NormalizeName();
+            if (LocationName == newLocationName) return;
 
-            if (LocationName == normalizedName) return;
-
-            LocationName = normalizedName;
+            LocationName = newLocationName;
             UpdateTimeStamp();
         }
     }

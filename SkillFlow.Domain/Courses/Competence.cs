@@ -9,32 +9,21 @@ namespace SkillFlow.Domain.Courses
     public class Competence : BaseEntity
     {
         public CompetenceId Id { get; private set; }
-        public string Name { get; private set; } = null!;
+        public CompetenceName Name { get; private set; }
 
-        public Competence(CompetenceId id, string name)
+        public Competence(CompetenceId id, CompetenceName name)
         {
-            if (id.Value == Guid.Empty)
-                throw new ArgumentException("Competence Id can not be empty", nameof(id));
-
-            if (string.IsNullOrWhiteSpace(name))
-                throw new ArgumentException("Name is required", nameof(name));
-
             Id = id;
-            Name = name.NormalizeName();
+            Name = name;
         }
 
         protected Competence() { }
 
-        public void UpdateCompetenceName(string newName)
+        public void UpdateCompetenceName(CompetenceName newName)
         {
-            if (string.IsNullOrWhiteSpace(newName))
-                throw new ArgumentException("Name is required", nameof(newName));
+            if (Name == newName) return;            
 
-            var normalizedName = newName.NormalizeName();
-
-            if (Name == normalizedName) return;
-
-            Name = normalizedName;
+            Name = newName;
             UpdateTimeStamp();
 
         }

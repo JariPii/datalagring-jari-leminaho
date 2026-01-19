@@ -10,15 +10,6 @@ namespace SkillFlow.Domain.CourseSessions
     {
         public Enrollment(EnrollmentId id, AttendeeId studentId, CourseSessionId courseSessionId)
         {
-            if (id.Value == Guid.Empty)
-                throw new ArgumentException("Enrollment Id can not be empty", nameof(id));
-
-            if (studentId.Value == Guid.Empty)
-                throw new ArgumentException("Student Id can not be empty", nameof(studentId));
-
-            if (courseSessionId.Value == Guid.Empty)
-                throw new ArgumentException("Course session Id can not be empty", nameof(courseSessionId));
-
             Id = id;
             StudentId = studentId;
             CourseSessionId = courseSessionId;
