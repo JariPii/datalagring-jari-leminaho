@@ -21,16 +21,17 @@ namespace SkillFlow.Infrastructure.Configurations
                 .IsRequired();
             builder.HasIndex(a => a.Email).IsUnique();
 
-            builder.ComplexProperty(a => a.Name, name =>            {
+            builder.ComplexProperty(a => a.Name, name =>            
+            {
                 name.Property(p => p.FirstName)
                 .HasColumnName("FirstName")
                 .IsRequired()
-                .HasMaxLength(150);
+                .HasMaxLength(AttendeeName.MaxLength);
 
                 name.Property(p => p.LastName)
                 .HasColumnName("LastName")
                 .IsRequired()
-                .HasMaxLength(150);
+                .HasMaxLength(AttendeeName.MaxLength);
             });
 
             builder.Property(a => a.PhoneNumber)

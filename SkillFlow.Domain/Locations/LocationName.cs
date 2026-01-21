@@ -6,13 +6,20 @@ namespace SkillFlow.Domain.Locations
 {
     public readonly record struct LocationName
     {
-        public string Value { get; }       
+        public string Value { get; }
 
-        public LocationName(string value)
+        private LocationName(string value)
+        {
+            Value = value;
+        }
+
+        public static LocationName Create(string value)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(value, nameof(value));
 
-            Value = value.Trim();
+            value = value.Trim();
+
+            return new LocationName(value);
         }
 
         public override string ToString() => Value;
