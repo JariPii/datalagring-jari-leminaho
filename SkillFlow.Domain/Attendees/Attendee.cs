@@ -10,6 +10,7 @@ namespace SkillFlow.Domain.Attendees
         public AttendeeName Name { get; private set; }
         public PhoneNumber? PhoneNumber { get; private set; }
 
+
         protected Attendee(AttendeeId id, Email email, AttendeeName name, Role role, PhoneNumber? phoneNumber)
         {
             Id = id;

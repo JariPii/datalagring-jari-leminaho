@@ -8,6 +8,7 @@ namespace SkillFlow.Domain.Courses
 {
     public class Competence : BaseEntity
     {
+        private readonly List<Instructor> _instructors = new();
         public CompetenceId Id { get; private set; }
         public CompetenceName Name { get; private set; }
 
@@ -19,6 +20,8 @@ namespace SkillFlow.Domain.Courses
 
         protected Competence() { }
 
+        public virtual IReadOnlyCollection<Instructor> Instructors => _instructors.AsReadOnly();
+
         public void UpdateCompetenceName(CompetenceName newName)
         {
             if (Name == newName) return;            
@@ -26,6 +29,17 @@ namespace SkillFlow.Domain.Courses
             Name = newName;
             UpdateTimeStamp();
 
+        }
+
+        public void AddInstructor(Instructor instructor)
+        {
+            ArgumentNullException.ThrowIfNull(instructor);
+
+            if(!_instructors.Any(i => i.Id == instructor.Id))
+            {
+                _instructors.Add(instructor);
+                UpdateTimeStamp();
+            }
         }
 
     }
