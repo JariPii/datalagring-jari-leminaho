@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SkillFlow.Infrastructure;
 
@@ -12,9 +13,11 @@ using SkillFlow.Infrastructure;
 namespace SkillFlow.Infrastructure.Migrations
 {
     [DbContext(typeof(SkillFlowDbContext))]
-    partial class SkillFlowDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260122204606_ChangeAttendeeRoleToString")]
+    partial class ChangeAttendeeRoleToString
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
