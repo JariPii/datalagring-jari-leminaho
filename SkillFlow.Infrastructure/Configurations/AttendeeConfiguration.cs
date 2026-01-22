@@ -38,6 +38,11 @@ namespace SkillFlow.Infrastructure.Configurations
                 .HasConversion(p => p.HasValue ? p.Value.Value : null, v => PhoneNumber.Create(v))
                 .IsRequired(false);
 
+            builder.Property(a => a.Role)
+                .HasConversion<string>()
+                .HasMaxLength(20)
+                .IsRequired();
+
             builder.HasDiscriminator(a => a.Role)
                 .HasValue<Student>(Role.Student)
                 .HasValue<Instructor>(Role.Instructor);

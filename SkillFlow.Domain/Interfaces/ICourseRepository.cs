@@ -10,12 +10,14 @@ namespace SkillFlow.Domain.Interfaces
         Task<Course?> GetByIdAsync(CourseId id);
         Task<Course?> GetByCourseCodeAsync(CourseCode code);
 
+        Task<bool> ExistsByIdAsync(CourseId id);
+        Task<bool> ExistsByCourseCode(CourseCode code);
+
         Task<IEnumerable<Course>> GetAllAsync();
-        Task<IEnumerable<Course>> SearchByNameAsync(CourseName searhTerm);
+        Task<IEnumerable<Course>> SearchByNameAsync(string searchTerm);
 
         Task AddAsync(Course course);
         Task UpdateAsync(Course course);
         Task DeleteAsync(CourseId id);
-
     }
 }
