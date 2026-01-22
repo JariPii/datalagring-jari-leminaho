@@ -33,6 +33,8 @@ namespace SkillFlow.Domain.Courses
 
         public void AddInstructor(Instructor instructor)
         {
+            ArgumentNullException.ThrowIfNull(instructor);
+
             if(!_instructors.Any(i => i.Id == instructor.Id))
             {
                 _instructors.Add(instructor);

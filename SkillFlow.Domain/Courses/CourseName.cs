@@ -9,11 +9,7 @@ namespace SkillFlow.Domain.Courses
         public const int MaxLength = 200;
         public string Value { get; }
 
-        private CourseName(string value)
-        {
-            Value = value;
-        }
-
+        private CourseName(string value) => Value = value;
         public static CourseName Create(string value)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(value, nameof(value));
