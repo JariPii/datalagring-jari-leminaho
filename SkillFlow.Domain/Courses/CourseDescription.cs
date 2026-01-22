@@ -9,14 +9,22 @@ namespace SkillFlow.Domain.Courses
         public string Value { get; }
         public const int MaxLength = 1000;
 
-        public CourseDescription(string value)
+        private CourseDescription(string value)
+        {
+            Value = value;
+        }
+
+        public static CourseDescription Create(string value)
         {
             value ??= string.Empty;
 
-            if (value.Length > MaxLength)
+            var trimmedValue = value.Trim();
+
+            if (trimmedValue.Length > MaxLength)
                 throw new ArgumentException("Too long description", nameof(value));
 
-            Value = value.Trim();
+
+            return new CourseDescription(trimmedValue);
         }
 
         public override string ToString() => Value;

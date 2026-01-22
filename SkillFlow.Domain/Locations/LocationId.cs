@@ -18,6 +18,6 @@ namespace SkillFlow.Domain.Locations
         }
 
         public static LocationId New() => new(Guid.NewGuid());
-        public override string ToString() => Value.ToString();;
+        public override string ToString() => Value.ToString();
     }
 }

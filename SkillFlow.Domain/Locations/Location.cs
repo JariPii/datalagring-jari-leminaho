@@ -19,13 +19,12 @@ namespace SkillFlow.Domain.Locations
 
         private Location () { }
 
-        public void UpdateLocationName(string updatedLocationName)
-        {
-            var newLocationName = new LocationName(updatedLocationName);
+        public void UpdateLocationName(LocationName updatedLocationName)
+        {           
 
-            if (LocationName == newLocationName) return;
+            if (LocationName == updatedLocationName) return;
 
-            LocationName = newLocationName;
+            LocationName = updatedLocationName;
             UpdateTimeStamp();
         }
     }

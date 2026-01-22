@@ -6,13 +6,24 @@ namespace SkillFlow.Domain.Locations
 {
     public readonly record struct LocationName
     {
-        public string Value { get; }       
+        public string Value { get; }
+        public const int MaxLength = 150;
 
-        public LocationName(string value)
+        private LocationName(string value)
+        {
+            Value = value;
+        }
+
+        public static LocationName Create(string value)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(value, nameof(value));
 
-            Value = value.Trim();
+            var trimmedLocationName = value.Trim();
+
+            if (trimmedLocationName.Length > MaxLength)
+                throw new ArgumentException($"Location name cannot exceed {MaxLength} characters", nameof(value));
+
+            return new LocationName(trimmedLocationName);
         }
 
         public override string ToString() => Value;
