@@ -15,5 +15,5 @@ namespace SkillFlow.Domain.Exceptions
 
     public class InvalidCourseDescriptionException() : DomainException($"Invalid course description");
 
-    public class InvalidCourseNameException(string message) : DomainException($"Invalid name format: {message}");
+    public class InvalidCourseNameException(string message) : DomainException(message);
 }

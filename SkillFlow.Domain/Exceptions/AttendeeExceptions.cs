@@ -14,9 +14,11 @@ namespace SkillFlow.Domain.Exceptions
 
     public class InvalidRoleException(AttendeeId id, Role expectedRole) : DomainException($"Attendee {id.Value} does not have the required role: {expectedRole}");
 
-    public class InvalidPhoneNumberException(PhoneNumber number) : DomainException($"{number.Value} is in an invalid format");
+    public class InvalidPhoneNumberException(string message) : DomainException(message);
 
     public class InvalidNameException(string message) : DomainException($"Invalid naming format: {message}");
+
+    public class InvalidEmailException(string message) : DomainException(message);
 
     public class InstructorHasActiveSessionsException(AttendeeId id) : DomainException($"{id.Value} has active course sessions and can not be deleted");
 

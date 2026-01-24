@@ -12,6 +12,7 @@ namespace SkillFlow.Infrastructure.Configurations
         public void Configure(EntityTypeBuilder<Attendee> builder)
         {
             builder.HasKey(a => a.Id);
+
             builder.Property(a => a.Id)
                 .HasConversion(id => id.Value, v => new AttendeeId(v));
 
@@ -19,6 +20,7 @@ namespace SkillFlow.Infrastructure.Configurations
                 .HasConversion(e => e.Value, v => Email.Create(v))
                 .HasMaxLength(150)
                 .IsRequired();
+
             builder.HasIndex(a => a.Email).IsUnique();
 
             builder.ComplexProperty(a => a.Name, name =>            
