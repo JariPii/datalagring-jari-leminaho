@@ -1,10 +1,12 @@
-﻿using System;
+﻿using SkillFlow.Domain.Exceptions;
+using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace SkillFlow.Domain.Courses
 {
-    public readonly record struct CourseName
+    public readonly partial record struct CourseName
     {
         public const int MaxLength = 200;
         public string Value { get; }
@@ -12,16 +14,20 @@ namespace SkillFlow.Domain.Courses
         private CourseName(string value) => Value = value;
         public static CourseName Create(string value)
         {
-            ArgumentException.ThrowIfNullOrWhiteSpace(value, nameof(value));
+            if (string.IsNullOrWhiteSpace(value))
+                throw new InvalidCourseNameException("Course name is required");
 
-            var trimmedValue = value.Trim();
+            var genereatedCleanCourseName = MyRegex().Replace(value.Trim(), " ");
 
-            if (trimmedValue.Length > MaxLength)
-                throw new ArgumentException($"The course name can not exceed {MaxLength} characters", nameof(value));
+            if (genereatedCleanCourseName.Length > MaxLength)
+                throw new InvalidCourseNameException($"Course description can not contain more than {MaxLength} characters");
 
-            return new CourseName(trimmedValue);
+            return new CourseName(genereatedCleanCourseName);
         }
 
         public override string ToString() => Value;
+
+        [GeneratedRegex(@"\s+")]
+        private static partial Regex MyRegex();
     }
 }

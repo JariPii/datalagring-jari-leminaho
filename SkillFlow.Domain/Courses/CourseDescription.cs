@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace SkillFlow.Domain.Courses
 {
-    public readonly record struct CourseDescription
+    public readonly partial record struct CourseDescription
     {
         public string Value { get; }
         public const int MaxLength = 1000;
@@ -19,14 +20,18 @@ namespace SkillFlow.Domain.Courses
             value ??= string.Empty;
 
             var trimmedValue = value.Trim();
+            var generatedCleanCourseDescription = MyRegex().Replace(value.Trim(), " ");
 
-            if (trimmedValue.Length > MaxLength)
+            if (generatedCleanCourseDescription.Length > MaxLength)
                 throw new ArgumentException("Too long description", nameof(value));
 
 
-            return new CourseDescription(trimmedValue);
+            return new CourseDescription(generatedCleanCourseDescription);
         }
 
         public override string ToString() => Value;
+
+        [GeneratedRegex(@"\s+")]
+        private static partial Regex MyRegex();
     }
 }
