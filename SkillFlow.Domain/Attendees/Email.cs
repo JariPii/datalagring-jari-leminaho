@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SkillFlow.Domain.Exceptions;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -12,11 +13,12 @@ namespace SkillFlow.Domain.Attendees
 
         public static Email Create(string value)
         {
-            
-            ArgumentException.ThrowIfNullOrWhiteSpace(value, nameof(value));
+
+            if (string.IsNullOrWhiteSpace(value))
+                throw new InvalidEmailException($"Email is required");
 
             if (!value.Contains("@"))
-                throw new ArgumentException("Invalid email format", nameof(value));
+                throw new InvalidEmailException($"Invalid email format");
 
             return new Email(value.Trim().ToLowerInvariant());
         }

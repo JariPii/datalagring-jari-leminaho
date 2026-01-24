@@ -18,6 +18,6 @@ namespace SkillFlow.Domain.Interfaces
 
         Task AddAsync(Course course);
         Task UpdateAsync(Course course);
-        Task DeleteAsync(CourseId id);
+        Task<bool> DeleteAsync(CourseId id);
     }
 }
