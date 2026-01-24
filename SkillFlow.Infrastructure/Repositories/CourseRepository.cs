@@ -27,9 +27,10 @@ namespace SkillFlow.Infrastructure.Repositories
                 .ToListAsync();
         }
 
-        public Task AddAsync(Course course)
+        public async Task AddAsync(Course course)
         {
-            throw new NotImplementedException();
+            await _context.Courses.AddAsync(course);
+            await _context.SaveChangesAsync();
         }
 
         public async Task<bool> DeleteAsync(CourseId id)
@@ -50,29 +51,30 @@ namespace SkillFlow.Infrastructure.Repositories
             }           
         }
 
-        public Task<bool> ExistsByCourseCode(CourseCode code)
+        public async Task<bool> ExistsByCourseCodeAsync(CourseCode code)
         {
-            throw new NotImplementedException();
+            return await _context.Courses.AnyAsync(c => c.CourseCode == code);
         }
 
-        public Task<bool> ExistsByIdAsync(CourseId id)
+        public async Task<bool> ExistsByIdAsync(CourseId id)
         {
-            throw new NotImplementedException();
+            return await _context.Courses.AnyAsync(c => c.Id == id);
         }
 
-        public Task<IEnumerable<Course>> GetAllAsync()
+        public async Task<IEnumerable<Course>> GetAllAsync()
         {
-            throw new NotImplementedException();
+            return await _context.Courses.ToListAsync();
         }
 
-        public Task<Course?> GetByCourseCodeAsync(CourseCode code)
+        public async Task<Course?> GetByCourseCodeAsync(CourseCode code)
         {
-            throw new NotImplementedException();
+            return await _context.Courses.FirstOrDefaultAsync(c => c.CourseCode == code);
         }
 
-        public Task UpdateAsync(Course course)
+        public async Task UpdateAsync(Course course)
         {
-            throw new NotImplementedException();
+            _context.Courses.Update(course);
+            await _context.SaveChangesAsync();
         }
     }
 }
