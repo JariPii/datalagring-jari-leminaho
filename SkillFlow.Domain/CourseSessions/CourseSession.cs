@@ -1,5 +1,6 @@
 ﻿using SkillFlow.Domain.Attendees;
 using SkillFlow.Domain.Courses;
+using SkillFlow.Domain.Exceptions;
 using SkillFlow.Domain.Locations;
 using SkillFlow.Domain.Primitives;
 using System;
@@ -53,15 +54,10 @@ namespace SkillFlow.Domain.CourseSessions
 
         public void UpdateCapacity(int newCapacity)
         {
-            if (newCapacity > MaxCapacity)
-                throw new ArgumentException(nameof(newCapacity), $"Max capacity for this course session is {MaxCapacity}");
-
             if (newCapacity < 1)
-                throw new ArgumentOutOfRangeException(nameof(newCapacity), "Atleast 1 is needed");
+                throw new InvalidCapacityException("Capacity must be atleast 1");
 
-            int approvedStudents = _enrollments.Count(e => e.Status == EnrollmentStatus.Approved);
-            if (newCapacity < approvedStudents)
-                throw new ArgumentException($"Can not go below {newCapacity} because {approvedStudents} are allready approved");
+            CheckCapacity(newCapacity);
 
             if (Capacity == newCapacity) return;
 
@@ -71,24 +67,26 @@ namespace SkillFlow.Domain.CourseSessions
 
         public void AddInstructor(Instructor instructor)
         {
-            ArgumentNullException.ThrowIfNull(instructor);
+            if (instructor is null)
+                throw new InstructorIsRequiredException();
 
-            if (!_instructors.Any(i => i.Id == instructor.Id))
-            {
-                _instructors.Add(instructor);
-                UpdateTimeStamp();
-            }
+            if (_instructors.Any(i => i.Id == instructor.Id))
+                throw new InstructorAlreadyExistsException(instructor.Id, this.Id);
+
+            _instructors.Add(instructor);
+            UpdateTimeStamp();
         }
 
         public void AddStudent(Student student)
         {
-            ArgumentNullException.ThrowIfNull(student);
+            if (student is null)
+                throw new StudentIsRequiredException();
 
             if (_instructors.Count == 0)
-                throw new InvalidOperationException("Atleast one instructor is needed");
+                throw new InstructorMissingInSessionException(this.Id);
 
             if (_enrollments.Any(e => e.StudentId == student.Id))
-                throw new InvalidOperationException("Student is allready enrolled");
+                throw new StudentAllreadyEnrolledException(student.Id, this.Id);
 
             var enrollment = new Enrollment(EnrollmentId.New(), student.Id, this.Id);
             _enrollments.Add(enrollment);
@@ -96,16 +94,26 @@ namespace SkillFlow.Domain.CourseSessions
             UpdateTimeStamp();
         }
 
+        public void CheckCapacity(int requestedCapacity)
+        {
+            int approvedStudents = _enrollments.Count(e => e.Status == EnrollmentStatus.Approved);
+            if (requestedCapacity < approvedStudents)
+                throw new InvalidCapacityException($"Can not lower capacity to {requestedCapacity} because there is {approvedStudents}");
+
+            if (requestedCapacity > MaxCapacity)
+                throw new InvalidCapacityException($"Max capacity is {MaxCapacity}");
+        }
+
         public void SetEnrollmentStatus(AttendeeId studentId, EnrollmentStatus newStatus)
         {
-            var enrollment = _enrollments.FirstOrDefault(e => e.StudentId == studentId) ?? throw new InvalidOperationException("Enrollment not found");
+            var enrollment = _enrollments.FirstOrDefault(e => e.StudentId == studentId) ?? throw new StudentNotEnrolledException(studentId, this.Id);
 
             if (newStatus == EnrollmentStatus.Approved)
             {
                 int approvedStudents = _enrollments.Count(e => e.Status == EnrollmentStatus.Approved);
 
                 if (approvedStudents >= Capacity)
-                    throw new InvalidOperationException("Student can not be approved, max capacity reached");
+                    throw new CourseSessionFullException(Capacity);
 
                 enrollment.Approve();
             }
