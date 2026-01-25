@@ -44,9 +44,8 @@ namespace SkillFlow.Infrastructure.Repositories
                 await _context.SaveChangesAsync();
                 return true;
             }
-            catch (DbUpdateException ex)
+            catch (DbUpdateException)
             {
-                var errorMessage = ex.InnerException?.Message ?? ex.Message;
                 return false;
             }           
         }
