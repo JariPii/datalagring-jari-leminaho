@@ -22,6 +22,6 @@ namespace SkillFlow.Domain.Interfaces
 
         Task AddAsync(Attendee attendee);
         Task UpdateAsync(Attendee attendee);
-        Task DeleteAsync(AttendeeId id);
+        Task<bool> DeleteAsync(AttendeeId id);
     }
 }
