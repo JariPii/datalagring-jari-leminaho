@@ -6,7 +6,7 @@ namespace SkillFlow.Application.DTOs.Attendees
 {
     public record UpdateAttendeeDTO
     {
-        public Guid id { get; init; }
+        public Guid Id { get; init; }
 
         public string? Email { get; init; }
 
