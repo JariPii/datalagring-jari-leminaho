@@ -113,6 +113,24 @@ namespace SkillFlow.Infrastructure.Repositories
                 .ToListAsync();
         }
 
+        public async Task<IEnumerable<CourseSession>> SearchAsync(string searchTerm)
+        {
+            var searchPattern = $"%{searchTerm}%";
+            return await _context.CourseSessions
+                .FromSqlInterpolated($@"
+                    SELECT s.*
+                    FROM CourseSessions s
+                    JOIN Courses c ON s.CourseId = c.Id
+                    JOIN Locations l ON s.LocationId = l.Id
+                    WHERE c.CourseName LIKE {searchPattern}
+                        OR l.LocationName LIKE {searchPattern}
+                        OR s.CourseCode_Value LIKE {searchPattern}
+                    ")
+                .Include(s => s.Course)
+                .Include(s => s.Location)
+                .ToListAsync();
+        }
+
         public async Task UpdateAsync(CourseSession session)
         {
             _context.CourseSessions.Update(session);
