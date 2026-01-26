@@ -7,7 +7,7 @@ namespace SkillFlow.Application.Interfaces
 {
     public interface ILocationService
     {
-        Task<IEnumerable<LocationDTO>> GetAllLocationtsAsync();
+        Task<IEnumerable<LocationDTO>> GetAllLocationsAsync();
 
         Task<LocationDTO> GetLocationByIdAsync(Guid id);
 
