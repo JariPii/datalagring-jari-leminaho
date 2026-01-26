@@ -13,7 +13,6 @@ namespace SkillFlow.Infrastructure
         public DbSet<Attendee> Attendees { get; set; }
         public DbSet<Student> Students { get; set; }
         public DbSet<Instructor> Instructors { get; set; }
-
         public DbSet<Course> Courses { get; set; }
         public DbSet<Competence> Competences { get; set; }
         public DbSet<CourseSession> CourseSessions { get; set; }
