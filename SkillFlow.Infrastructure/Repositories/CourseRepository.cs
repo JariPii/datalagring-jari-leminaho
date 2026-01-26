@@ -44,7 +44,7 @@ namespace SkillFlow.Infrastructure.Repositories
                 await _context.SaveChangesAsync();
                 return true;
             }
-            catch (DbUpdateException)
+            catch
             {
                 return false;
             }           

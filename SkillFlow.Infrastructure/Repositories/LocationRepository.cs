@@ -25,6 +25,7 @@ namespace SkillFlow.Infrastructure.Repositories
         public async Task<bool> DeleteAsync(LocationId id)
         {
             var location = await _context.Locations.FindAsync(id);
+
             if (location is null) return false;
             try
             {

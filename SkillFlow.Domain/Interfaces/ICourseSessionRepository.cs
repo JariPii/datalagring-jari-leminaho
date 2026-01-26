@@ -12,7 +12,7 @@ namespace SkillFlow.Domain.Interfaces
         Task<CourseSession?> GetByIdAsync(CourseSessionId id);
         Task<CourseSession?> GetByIdWithInstructorsAndEnrollmentsAsync(CourseSessionId id);
 
-        Task<IEnumerable<CourseSession>> GetByCourseCodeAsync(CourseCode courseCode);
+        Task<IEnumerable<CourseSession>> GetByCourseCodeAsync(CourseCode code);
         Task<IEnumerable<CourseSession>> GetByLocationAsync(LocationId locationId);
         Task<IEnumerable<CourseSession>> SearchByStartDateAsync(DateTime startDate);
         Task<IEnumerable<CourseSession>> SearchByEndDateAsync(DateTime endDate);
@@ -23,6 +23,6 @@ namespace SkillFlow.Domain.Interfaces
 
         Task AddAsync(CourseSession session);
         Task UpdateAsync(CourseSession session);
-        Task DeleteAsync(CourseSessionId id);
+        Task<bool> DeleteAsync(CourseSessionId id);
     }
 }
