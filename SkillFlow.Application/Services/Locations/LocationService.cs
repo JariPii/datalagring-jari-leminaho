@@ -77,10 +77,11 @@ namespace SkillFlow.Application.Services.Locations
         public async Task UpdateLocationAsync(UpdateLocationDTO dto)
         {
             var locationId = new LocationId(dto.Id);
+
             var location = await repository.GetByIdAsync(locationId) ??
                 throw new LocationNotFoundException(locationId);
 
-            location.UpdateLocationName(LocationName.Create(dto.Name));
+            location.UpdateLocationName(LocationName.Create(dto.Name ?? location.LocationName.Value));
 
             await repository.UpdateAsync(location);
         }

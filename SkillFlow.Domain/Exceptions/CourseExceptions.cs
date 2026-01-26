@@ -5,7 +5,16 @@ using System.Text;
 
 namespace SkillFlow.Domain.Exceptions
 {
-    public class CourseNotFoundException(CourseId id) : DomainException($"Course {id.Value} could not be found");
+    //public class CourseNotFoundException(CourseCode code) : DomainException($"Course {code.Value} could not be found");
+
+    public class CourseNotFoundException : DomainException
+    {
+        public CourseNotFoundException(CourseCode code) : base($"Course {code.Value} could not be found") { }
+
+        public CourseNotFoundException(CourseId id) : base($"Course {id.Value} could not be found") { }
+
+        public CourseNotFoundException(CourseName name) : base($"Course {name.Value} could not be found") { }
+    }
 
     public class CourseCodeAllreadyExistsException(CourseCode code) : DomainException($"Course {code.Value} allready exists");
 

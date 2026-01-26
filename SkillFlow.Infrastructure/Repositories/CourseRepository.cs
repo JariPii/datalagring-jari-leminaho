@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SkillFlow.Domain.Courses;
+using SkillFlow.Domain.Exceptions;
 using SkillFlow.Domain.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -44,9 +45,9 @@ namespace SkillFlow.Infrastructure.Repositories
                 await _context.SaveChangesAsync();
                 return true;
             }
-            catch
+            catch (DbUpdateException)
             {
-                return false;
+                throw new CourseInUseException(course.CourseCode);
             }           
         }
 
@@ -74,6 +75,16 @@ namespace SkillFlow.Infrastructure.Repositories
         {
             _context.Courses.Update(course);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<bool> ExistsByCourseName(CourseName name)
+        {
+            return await _context.Courses.AnyAsync(c => c.CourseName == name);
+        }
+
+        public async Task<Course?> GetByCourseNameAsync(CourseName name)
+        {
+            return await _context.Courses.FirstOrDefaultAsync(c => c.CourseName == name);
         }
     }
 }
