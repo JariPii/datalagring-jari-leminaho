@@ -9,14 +9,14 @@ namespace SkillFlow.Domain.Interfaces
     {
         Task<Location?> GetByIdAsync(LocationId id);
 
-        Task<bool> ExistsAsync(LocationId id);
-        Task<bool> ExistsByNameAsync(string name);
+        Task<bool> ExistsByIdAsync(LocationId id);
+        Task<bool> ExistsByNameAsync(LocationName name);
 
         Task<IEnumerable<Location>> GetAllAsync();
         Task<IEnumerable<Location>> SearchByNameAsync(string searchTerm);
 
         Task AddAsync(Location location);
         Task UpdateAsync(Location location);
-        Task DeleteAsync(LocationId id);
+        Task<bool> DeleteAsync(LocationId id);
     }
 }
