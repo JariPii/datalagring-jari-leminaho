@@ -76,6 +76,14 @@ namespace SkillFlow.Infrastructure.Repositories
                 .ToListAsync();
         }
 
+        public async Task<IEnumerable<CourseSession>> GetSessionInDateRangeAsync(DateTime startDate, DateTime endDate)
+        {
+            return await _context.CourseSessions
+                .AsNoTracking()
+                .Where(s => s.StartDate >= startDate && s.StartDate <= endDate)
+                .ToListAsync();
+        }
+
         public async Task<IEnumerable<CourseSession>> GetSessionsWithAvailableCapacityAsync()
         {
             return await _context.CourseSessions

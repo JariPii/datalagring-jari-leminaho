@@ -16,6 +16,7 @@ namespace SkillFlow.Domain.Interfaces
         Task<IEnumerable<CourseSession>> GetByLocationAsync(LocationId locationId);
         Task<IEnumerable<CourseSession>> SearchByStartDateAsync(DateTime startDate);
         Task<IEnumerable<CourseSession>> SearchByEndDateAsync(DateTime endDate);
+        Task<IEnumerable<CourseSession>> GetSessionInDateRangeAsync(DateTime startDate, DateTime endDate);
 
         Task<IEnumerable<CourseSession>> GetSessionsWithAvailableCapacityAsync();
 
