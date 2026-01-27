@@ -14,6 +14,7 @@ namespace SkillFlow.Infrastructure.Configurations
         public void Configure(EntityTypeBuilder<CourseSession> builder)
         {
             builder.HasKey(c => c.Id);
+
             builder.Property(c => c.Id)
                 .HasConversion(id => id.Value, v => new CourseSessionId(v));
 
