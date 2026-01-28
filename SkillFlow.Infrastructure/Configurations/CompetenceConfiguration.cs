@@ -1,10 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using SkillFlow.Domain.Attendees;
 using SkillFlow.Domain.Courses;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using SkillFlow.Domain.Entities.Courses;
 
 namespace SkillFlow.Infrastructure.Configurations
 {

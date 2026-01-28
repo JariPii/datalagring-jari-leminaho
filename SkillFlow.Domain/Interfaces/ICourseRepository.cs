@@ -1,7 +1,5 @@
 ﻿using SkillFlow.Domain.Courses;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using SkillFlow.Domain.Entities.Courses;
 
 namespace SkillFlow.Domain.Interfaces
 {

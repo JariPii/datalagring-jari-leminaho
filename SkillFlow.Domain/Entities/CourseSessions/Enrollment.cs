@@ -1,10 +1,8 @@
-﻿using SkillFlow.Domain.Attendees;
+﻿using SkillFlow.Domain.Entities.Attendees;
+using SkillFlow.Domain.Enums;
 using SkillFlow.Domain.Primitives;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace SkillFlow.Domain.CourseSessions
+namespace SkillFlow.Domain.Entities.CourseSessions
 {
     public class Enrollment : BaseEntity
     {

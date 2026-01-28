@@ -1,13 +1,11 @@
-﻿using SkillFlow.Domain.Attendees;
-using SkillFlow.Domain.Courses;
+﻿using SkillFlow.Domain.Entities.Attendees;
+using SkillFlow.Domain.Entities.Courses;
+using SkillFlow.Domain.Entities.Locations;
+using SkillFlow.Domain.Enums;
 using SkillFlow.Domain.Exceptions;
-using SkillFlow.Domain.Locations;
 using SkillFlow.Domain.Primitives;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace SkillFlow.Domain.CourseSessions
+namespace SkillFlow.Domain.Entities.CourseSessions
 {
     public class CourseSession : BaseEntity
     {

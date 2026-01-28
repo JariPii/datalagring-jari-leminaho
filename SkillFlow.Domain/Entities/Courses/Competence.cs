@@ -1,10 +1,8 @@
-﻿using SkillFlow.Domain.Attendees;
+﻿using SkillFlow.Domain.Courses;
+using SkillFlow.Domain.Entities.Attendees;
 using SkillFlow.Domain.Primitives;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace SkillFlow.Domain.Courses
+namespace SkillFlow.Domain.Entities.Courses
 {
     public class Competence : BaseEntity
     {

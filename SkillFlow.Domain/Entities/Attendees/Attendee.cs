@@ -1,6 +1,8 @@
-﻿using SkillFlow.Domain.Primitives;
+﻿using SkillFlow.Domain.Attendees;
+using SkillFlow.Domain.Enums;
+using SkillFlow.Domain.Primitives;
 
-namespace SkillFlow.Domain.Attendees
+namespace SkillFlow.Domain.Entities.Attendees
 {
     public abstract class Attendee : BaseEntity
     {

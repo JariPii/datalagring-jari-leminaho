@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace SkillFlow.Domain.Locations
+﻿namespace SkillFlow.Domain.Entities.Locations
 {
     public readonly record struct LocationName
     {

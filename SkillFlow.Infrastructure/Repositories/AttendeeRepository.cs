@@ -1,9 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SkillFlow.Domain.Attendees;
+using SkillFlow.Domain.Entities.Attendees;
+using SkillFlow.Domain.Enums;
 using SkillFlow.Domain.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace SkillFlow.Infrastructure.Repositories
 {

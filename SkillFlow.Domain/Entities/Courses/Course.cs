@@ -1,9 +1,7 @@
-﻿using SkillFlow.Domain.Primitives;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using SkillFlow.Domain.Courses;
+using SkillFlow.Domain.Primitives;
 
-namespace SkillFlow.Domain.Courses
+namespace SkillFlow.Domain.Entities.Courses
 {
     public class Course : BaseEntity
     {

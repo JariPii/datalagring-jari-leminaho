@@ -1,9 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using SkillFlow.Domain.Locations;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using SkillFlow.Domain.Entities.Locations;
 
 namespace SkillFlow.Infrastructure.Configurations
 {

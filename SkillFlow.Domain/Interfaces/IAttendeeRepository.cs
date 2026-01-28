@@ -1,7 +1,5 @@
-﻿using SkillFlow.Domain.Attendees;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using SkillFlow.Domain.Entities.Attendees;
+using SkillFlow.Domain.Enums;
 
 namespace SkillFlow.Domain.Interfaces
 {

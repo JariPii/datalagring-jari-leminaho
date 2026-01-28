@@ -1,8 +1,6 @@
-﻿using SkillFlow.Domain.Attendees;
-using SkillFlow.Domain.Courses;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using SkillFlow.Domain.Courses;
+using SkillFlow.Domain.Entities.Attendees;
+using SkillFlow.Domain.Enums;
 
 namespace SkillFlow.Domain.Exceptions
 {

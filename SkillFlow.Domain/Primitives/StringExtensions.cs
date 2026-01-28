@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace SkillFlow.Domain.Primitives
+﻿namespace SkillFlow.Domain.Primitives
 {
     public static class StringExtensions
     {

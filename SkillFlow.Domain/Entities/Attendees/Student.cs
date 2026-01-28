@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using SkillFlow.Domain.Attendees;
+using SkillFlow.Domain.Enums;
 
-namespace SkillFlow.Domain.Attendees
+namespace SkillFlow.Domain.Entities.Attendees
 {
     public class Student : Attendee
     {

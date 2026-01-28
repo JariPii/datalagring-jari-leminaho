@@ -1,7 +1,4 @@
 ﻿using SkillFlow.Application.DTOs.CourseSessions;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace SkillFlow.Application.Interfaces
 {

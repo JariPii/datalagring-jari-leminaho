@@ -1,11 +1,8 @@
 ﻿using SkillFlow.Application.DTOs.Locations;
 using SkillFlow.Application.Interfaces;
+using SkillFlow.Domain.Entities.Locations;
 using SkillFlow.Domain.Exceptions;
 using SkillFlow.Domain.Interfaces;
-using SkillFlow.Domain.Locations;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace SkillFlow.Application.Services.Locations
 {

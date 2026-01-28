@@ -1,11 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using SkillFlow.Domain.Courses;
-using SkillFlow.Domain.CourseSessions;
-using SkillFlow.Domain.Locations;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using SkillFlow.Domain.Entities.Courses;
+using SkillFlow.Domain.Entities.CourseSessions;
+using SkillFlow.Domain.Entities.Locations;
 
 namespace SkillFlow.Infrastructure.Configurations
 {

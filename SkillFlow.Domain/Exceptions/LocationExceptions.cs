@@ -1,7 +1,4 @@
-﻿using SkillFlow.Domain.Locations;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using SkillFlow.Domain.Entities.Locations;
 
 namespace SkillFlow.Domain.Exceptions
 {

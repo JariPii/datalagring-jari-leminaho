@@ -1,10 +1,6 @@
-﻿using SkillFlow.Domain.Attendees;
-using SkillFlow.Domain.Primitives;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using SkillFlow.Domain.Primitives;
 
-namespace SkillFlow.Domain.Locations
+namespace SkillFlow.Domain.Entities.Locations
 {
     public class Location : BaseEntity
     {

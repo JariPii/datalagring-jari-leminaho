@@ -1,12 +1,10 @@
 ﻿using SkillFlow.Application.DTOs.CourseSessions;
 using SkillFlow.Application.Interfaces;
-using SkillFlow.Domain.Attendees;
-using SkillFlow.Domain.CourseSessions;
+using SkillFlow.Domain.Entities.Attendees;
+using SkillFlow.Domain.Entities.CourseSessions;
+using SkillFlow.Domain.Enums;
 using SkillFlow.Domain.Exceptions;
 using SkillFlow.Domain.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace SkillFlow.Application.Services
 {

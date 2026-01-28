@@ -1,9 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SkillFlow.Domain.Attendees;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using SkillFlow.Domain.Entities.Attendees;
+using SkillFlow.Domain.Enums;
 
 namespace SkillFlow.Infrastructure.Configurations
 {

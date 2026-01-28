@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace SkillFlow.Domain.Courses
+﻿namespace SkillFlow.Domain.Entities.Courses
 {
     public readonly record struct CourseId
     {
