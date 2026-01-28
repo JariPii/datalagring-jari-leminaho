@@ -17,32 +17,32 @@ namespace SkillFlow.Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task<Course?> GetByIdAsync(CourseId id) => await _context.Courses.FindAsync(id);
+        public async Task<Course?> GetByIdAsync(CourseId id, CancellationToken ct) => await _context.Courses.FirstOrDefaultAsync(c => c.Id == id, ct);
         
-        public async Task<IEnumerable<Course>> SearchByNameAsync(string searchTerm)
+        public async Task<IEnumerable<Course>> SearchByNameAsync(string searchTerm, CancellationToken ct)
         {
             var searchPattern = $"%{searchTerm}%";
 
             return await _context.Courses
                 .FromSqlInterpolated($"SELECT * FROM Courses WHERE CourseName LIKE {searchPattern}")
-                .ToListAsync();
+                .ToListAsync(ct);
         }
 
-        public async Task AddAsync(Course course)
+        public async Task AddAsync(Course course, CancellationToken ct)
         {
-            await _context.Courses.AddAsync(course);
-            await _context.SaveChangesAsync();
+            await _context.Courses.AddAsync(course, ct);
+            await _context.SaveChangesAsync(ct);
         }
 
-        public async Task<bool> DeleteAsync(CourseId id)
+        public async Task<bool> DeleteAsync(CourseId id, CancellationToken ct)
         {
-            var course = await _context.Courses.FindAsync(id);
+            var course = await _context.Courses.FirstOrDefaultAsync(c => c.Id == id, ct);
             if (course is null) return false;
 
             try
             {
                 _context.Courses.Remove(course);
-                await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync(ct);
                 return true;
             }
             catch (DbUpdateException)
@@ -51,40 +51,40 @@ namespace SkillFlow.Infrastructure.Repositories
             }           
         }
 
-        public async Task<bool> ExistsByCourseCodeAsync(CourseCode code)
+        public async Task<bool> ExistsByCourseCodeAsync(CourseCode code, CancellationToken ct)
         {
-            return await _context.Courses.AnyAsync(c => c.CourseCode == code);
+            return await _context.Courses.AnyAsync(c => c.CourseCode == code, ct);
         }
 
-        public async Task<bool> ExistsByIdAsync(CourseId id)
+        public async Task<bool> ExistsByIdAsync(CourseId id, CancellationToken ct)
         {
-            return await _context.Courses.AnyAsync(c => c.Id == id);
+            return await _context.Courses.AnyAsync(c => c.Id == id, ct);
         }
 
-        public async Task<IEnumerable<Course>> GetAllAsync()
+        public async Task<IEnumerable<Course>> GetAllAsync(CancellationToken ct)
         {
-            return await _context.Courses.ToListAsync();
+            return await _context.Courses.ToListAsync(ct);
         }
 
-        public async Task<Course?> GetByCourseCodeAsync(CourseCode code)
+        public async Task<Course?> GetByCourseCodeAsync(CourseCode code, CancellationToken ct)
         {
-            return await _context.Courses.FirstOrDefaultAsync(c => c.CourseCode == code);
+            return await _context.Courses.FirstOrDefaultAsync(c => c.CourseCode == code, ct);
         }
 
-        public async Task UpdateAsync(Course course)
+        public async Task UpdateAsync(Course course, CancellationToken ct)
         {
             _context.Courses.Update(course);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(ct);
         }
 
-        public async Task<bool> ExistsByCourseName(CourseName name)
+        public async Task<bool> ExistsByCourseName(CourseName name, CancellationToken ct)
         {
-            return await _context.Courses.AnyAsync(c => c.CourseName == name);
+            return await _context.Courses.AnyAsync(c => c.CourseName == name, ct);
         }
 
-        public async Task<Course?> GetByCourseNameAsync(CourseName name)
+        public async Task<Course?> GetByCourseNameAsync(CourseName name, CancellationToken ct)
         {
-            return await _context.Courses.FirstOrDefaultAsync(c => c.CourseName == name);
+            return await _context.Courses.FirstOrDefaultAsync(c => c.CourseName == name, ct);
         }
     }
 }

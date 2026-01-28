@@ -8,8 +8,8 @@ namespace SkillFlow.Domain.Exceptions
 {
     public class AttendeeNotFoundException : DomainException
     {
-        public AttendeeNotFoundException(AttendeeId id) : base($"Attendee {id.Value} not found") { };
-        public AttendeeNotFoundException(Email email) : base($"Attendee {email.Value} not found") { };
+        public AttendeeNotFoundException(AttendeeId id) : base($"Attendee {id.Value} not found") { }
+        public AttendeeNotFoundException(Email email) : base($"Attendee {email.Value} not found") { }
 
     }
 

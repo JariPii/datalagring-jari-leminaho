@@ -13,11 +13,11 @@ namespace SkillFlow.Application.Services.Attendees
 {
     public class AttendeeService(IAttendeeRepository repository) : IAttendeeService
     {
-        public async Task AddCompetenceToInstructorAsync(Guid instructorId, string competenceName)
+        public async Task AddCompetenceToInstructorAsync(Guid instructorId, string competenceName, CancellationToken ct)
         {
             var attendeeId = new AttendeeId(instructorId);
 
-            var attendee = await repository.GetByIdAsync(attendeeId) ??
+            var attendee = await repository.GetByIdAsync(attendeeId, ct) ??
                 throw new AttendeeNotFoundException(attendeeId);
 
             if (attendee is not Instructor instructor)
@@ -34,7 +34,7 @@ namespace SkillFlow.Application.Services.Attendees
             await repository.UpdateAsync(instructor);
         }
 
-        public async Task<AttendeeDTO> CreateAttendeeAsync(CreateAttendeeDTO dto)
+        public async Task<AttendeeDTO> CreateAttendeeAsync(CreateAttendeeDTO dto, CancellationToken ct)
         {
             var email = Email.Create(dto.Email);
             var name = AttendeeName.Create(dto.FirstName, dto.LastName);
@@ -52,7 +52,7 @@ namespace SkillFlow.Application.Services.Attendees
                 _ => throw new ArgumentException("Invalid role")
             };
 
-            await repository.AddAsync(attendee);
+            await repository.AddAsync(attendee, ct);
 
             return new AttendeeDTO
             {
@@ -62,108 +62,96 @@ namespace SkillFlow.Application.Services.Attendees
                 LastName = attendee.Name.LastName,
                 PhoneNumber = attendee.PhoneNumber?.Value,
                 Role = attendee is Instructor ? "Instructor" : "Student"
-            }; ;
+            };
         }
 
-        public async Task DeleteAttendeeAsync(Guid id)
+        public async Task DeleteAttendeeAsync(Guid id, CancellationToken ct)
         {
             var attendeeId = new AttendeeId(id);
 
-            var success = await repository.DeleteAsync(attendeeId);
+            var success = await repository.DeleteAsync(attendeeId, ct);
 
             if (!success)
                 throw new AttendeeNotFoundException(attendeeId);
         }
 
-        public async Task<IEnumerable<AttendeeDTO>> GetAllAttendeesAsync()
+        public async Task<IEnumerable<AttendeeDTO>> GetAllAttendeesAsync(CancellationToken ct)
         {
-            var attendees = await repository.GetAllAsync();
+            var attendees = await repository.GetAllAsync(ct);
             return MapToDTOList(attendees);
         }
 
-        public async Task<IEnumerable<InstructorDTO>> GetAllInstructorsAsync()
+        public async Task<IEnumerable<InstructorDTO>> GetAllInstructorsAsync(CancellationToken ct)
         {
-            var instructors = await repository.GetAllInstructorsAsync();
+            var instructors = await repository.GetAllInstructorsAsync(ct);
 
-            return instructors.Select(i => new InstructorDTO
-            {
-                Id = i.Id.Value,
-                Email = i.Email.Value,
-                FirstName = i.Name.FirstName,
-                LastName = i.Name.LastName,
-                PhoneNumber = i.PhoneNumber?.Value,
-                Role = "Instructor",
-                Competences = i.Competences.Select(c => new CompetenceDTO
-                {
-                    Id = c.Id.Value,
-                    Name = c.Name.Value
-                }).ToList()
-            });
+            return [.. MapToDTOList(instructors).Cast<InstructorDTO>()];
+
         }
 
-        public async Task<AttendeeDTO> GetAttendeeByEmailAsync(string email)
+        public async Task<AttendeeDTO> GetAttendeeByEmailAsync(string email, CancellationToken ct)
         {
             var attendeeEmail = Email.Create(email);
 
-            var attendee = await repository.GetByEmailAsync(attendeeEmail) ??
+            var attendee = await repository.GetByEmailAsync(attendeeEmail, ct) ??
                 throw new AttendeeNotFoundException(attendeeEmail);
 
             return MapToDTOList([attendee]).First();
         }
 
-        public async Task<AttendeeDTO> GetAttendeeByIdAsync(Guid id)
+        public async Task<AttendeeDTO> GetAttendeeByIdAsync(Guid id, CancellationToken ct)
         {
             var attendeeId = new AttendeeId(id);
 
-            var attendee = await repository.GetByIdAsync(attendeeId) ??
+            var attendee = await repository.GetByIdAsync(attendeeId, ct) ??
                 throw new AttendeeNotFoundException(attendeeId);
 
             return MapToDTOList([attendee]).First();
         }
 
-        public async Task<IEnumerable<AttendeeDTO>> GetAttendeesByFirstNameAsync(string firstName)
-         => await SearchAttendeesByNameAsync(firstName);
+        public async Task<IEnumerable<AttendeeDTO>> GetAttendeesByFirstNameAsync(string firstName, CancellationToken ct)
+         => await SearchAttendeesByNameAsync(firstName, ct);
 
-        public async Task<IEnumerable<AttendeeDTO>> GetAttendeesByLastNameAsync(string lastName)
-         => await SearchAttendeesByNameAsync(lastName);
+        public async Task<IEnumerable<AttendeeDTO>> GetAttendeesByLastNameAsync(string lastName, CancellationToken ct)
+         => await SearchAttendeesByNameAsync(lastName, ct);
 
-        public async Task<IEnumerable<AttendeeDTO>> GetAttendeesByRoleAsync(string role)
+        public async Task<IEnumerable<AttendeeDTO>> GetAttendeesByRoleAsync(string role, CancellationToken ct)
         {
             if(string.IsNullOrWhiteSpace(role) || !Enum.TryParse<Role>(role, true, out var parsedRole))
             {
                 throw new InvalidRoleException(role ?? "Unknown");
             }
 
-            var attendees = await repository.SearchByRoleAsync(parsedRole);
+            var attendees = await repository.SearchByRoleAsync(parsedRole, ct);
             return MapToDTOList(attendees);
         }
 
-        public async Task<IEnumerable<InstructorDTO>> GetInstructorsByCompetenceAsync(string competence)
+        public async Task<IEnumerable<InstructorDTO>> GetInstructorsByCompetenceAsync(string competence, CancellationToken ct)
         {
-            var instructors = await repository.GetInstructorsByCompetenceAsync(competence);
+            var instructors = await repository.GetInstructorsByCompetenceAsync(competence, ct);
 
             return MapToDTOList(instructors).Cast<InstructorDTO>();
         }
 
-        public async Task<IEnumerable<AttendeeDTO>> SearchAttendeesByNameAsync(string searchTerm)
+        public async Task<IEnumerable<AttendeeDTO>> SearchAttendeesByNameAsync(string searchTerm, CancellationToken ct)
         {
-            var attendees = await repository.SearchByNameAsync(searchTerm);
+            var attendees = await repository.SearchByNameAsync(searchTerm, ct);
             return MapToDTOList(attendees);
 
         }
 
-        public async Task UpdateAttendeeAsync(UpdateAttendeeDTO dto)
+        public async Task UpdateAttendeeAsync(UpdateAttendeeDTO dto, CancellationToken ct)
         {
             var attendeeId = new AttendeeId(dto.Id);
 
-            var attendee = await repository.GetByIdAsync(attendeeId) ??
+            var attendee = await repository.GetByIdAsync(attendeeId, ct) ??
                 throw new AttendeeNotFoundException(attendeeId);
 
             if (!string.IsNullOrWhiteSpace(dto.Email) && dto.Email != attendee.Email.Value)
             {
                 var newEmail = Email.Create(dto.Email);
 
-                if(await repository.ExistsByEmailAsync(newEmail))
+                if(await repository.ExistsByEmailAsync(newEmail, ct))
                 {
                     throw new EmailAlreadyExistsException(newEmail);
                 }
@@ -179,10 +167,10 @@ namespace SkillFlow.Application.Services.Attendees
                 attendee.UpdatePhoneNumber(PhoneNumber.Create(dto.PhoneNumber));
             }
 
-            await repository.UpdateAsync(attendee);
+            await repository.UpdateAsync(attendee, ct);
         }
 
-        private IEnumerable<AttendeeDTO> MapToDTOList(IEnumerable<Attendee> attendees)
+        private static IEnumerable<AttendeeDTO> MapToDTOList(IEnumerable<Attendee> attendees)
         {
             return attendees.Select(a => a switch
             {
@@ -194,11 +182,11 @@ namespace SkillFlow.Application.Services.Attendees
                     LastName = i.Name.LastName,
                     PhoneNumber = i.PhoneNumber?.Value,
                     Role = "Instructor",
-                    Competences = i.Competences.Select(c => new CompetenceDTO
+                    Competences = [.. i.Competences.Select(c => new CompetenceDTO
                     {
                         Id = c.Id.Value,
                         Name = c.Name.Value
-                    }).ToList(),
+                    })],
                     
                 },
                 _ => new AttendeeDTO

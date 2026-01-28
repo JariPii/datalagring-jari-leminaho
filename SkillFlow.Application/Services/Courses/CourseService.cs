@@ -11,7 +11,7 @@ namespace SkillFlow.Application.Services.Courses
 {
     public class CourseService(ICourseRepository repository) : ICourseService
     {
-        public async Task<CourseDTO> CreateCourseAsync(CreateCourseDTO dto)
+        public async Task<CourseDTO> CreateCourseAsync(CreateCourseDTO dto, CancellationToken ct)
         {
             var courseName = CourseName.Create(dto.CourseName);
             var courseDescription = CourseDescription.Create(dto.CourseDescription);
@@ -38,16 +38,17 @@ namespace SkillFlow.Application.Services.Courses
 
             await repository.AddAsync(course);
 
-            return new CourseDTO()
-            {
-                Id = course.Id.Value,
-                CourseCode = course.CourseCode.Value,
-                CourseName = course.CourseName.Value,
-                CourseDescription = course.CourseDescription.Value
-            };
+            return MatToDTO(course);
+            //return new CourseDTO()
+            //{
+            //    Id = course.Id.Value,
+            //    CourseCode = course.CourseCode.Value,
+            //    CourseName = course.CourseName.Value,
+            //    CourseDescription = course.CourseDescription.Value
+            //};
         }
 
-        public async Task DeleteCourseAsync(Guid id)
+        public async Task DeleteCourseAsync(Guid id, CancellationToken ct)
         {
             var courseId = new CourseId(id);
 
@@ -57,82 +58,87 @@ namespace SkillFlow.Application.Services.Courses
                 throw new CourseNotFoundException(courseId);
         }
 
-        public async Task<IEnumerable<CourseDTO>> GetAllCoursesAsync()
+        public async Task<IEnumerable<CourseDTO>> GetAllCoursesAsync(CancellationToken ct)
         {
             var courses = await repository.GetAllAsync();
 
-            return courses.Select(c => new CourseDTO
-            {
-                Id = c.Id.Value,
-                CourseCode = c.CourseCode.Value,
-                CourseName = c.CourseName.Value,
-                CourseDescription = c.CourseDescription.Value
-            });
+            return [.. courses.Select(MatToDTO)];
+            //return courses.Select(c => new CourseDTO
+            //{
+            //    Id = c.Id.Value,
+            //    CourseCode = c.CourseCode.Value,
+            //    CourseName = c.CourseName.Value,
+            //    CourseDescription = c.CourseDescription.Value
+            //});
         }
 
-        public async Task<CourseDTO> GetByCourseCodeAsync(string code)
+        public async Task<CourseDTO> GetByCourseCodeAsync(string code, CancellationToken ct)
         {
             var parsedCode = CourseCode.FromValue(code);
 
             var course = await repository.GetByCourseCodeAsync(parsedCode) ??
                 throw new CourseNotFoundException(parsedCode);
 
-            return new CourseDTO
-            {
-                Id = course.Id.Value,
-                CourseCode = course.CourseCode.Value,
-                CourseName = course.CourseName.Value,
-                CourseDescription = course.CourseDescription.Value
-            };
+            return MatToDTO(course);
+            //return new CourseDTO
+            //{
+            //    Id = course.Id.Value,
+            //    CourseCode = course.CourseCode.Value,
+            //    CourseName = course.CourseName.Value,
+            //    CourseDescription = course.CourseDescription.Value
+            //};
         }
 
-        public async Task<CourseDTO> GetCourseByIdAsync(Guid id)
+        public async Task<CourseDTO> GetCourseByIdAsync(Guid id, CancellationToken ct)
         {
             var courseId = new CourseId(id);
 
             var course = await repository.GetByIdAsync(courseId) ??
                 throw new CourseNotFoundException(courseId);
 
-            return new CourseDTO
-            {
-                Id = course.Id.Value,
-                CourseCode = course.CourseCode.Value,
-                CourseName = course.CourseName.Value,
-                CourseDescription = course.CourseDescription.Value
-            };
+            return MatToDTO(course);
+            //return new CourseDTO
+            //{
+            //    Id = course.Id.Value,
+            //    CourseCode = course.CourseCode.Value,
+            //    CourseName = course.CourseName.Value,
+            //    CourseDescription = course.CourseDescription.Value
+            //};
         }
 
-        public async Task<CourseDTO> GetCourseByNameAsync(string name)
+        public async Task<CourseDTO> GetCourseByNameAsync(string name, CancellationToken ct)
         {
             var courseName = CourseName.Create(name);
 
             var course = await repository.GetByCourseNameAsync(courseName) ??
                 throw new CourseNotFoundException(courseName);
 
-            return new CourseDTO
-            {
-                Id = course.Id.Value,
-                CourseCode = course.CourseCode.Value,
-                CourseName = course.CourseName.Value,
-                CourseDescription = course.CourseDescription.Value
-            };
+            return MatToDTO(course);
+            //return new CourseDTO
+            //{
+            //    Id = course.Id.Value,
+            //    CourseCode = course.CourseCode.Value,
+            //    CourseName = course.CourseName.Value,
+            //    CourseDescription = course.CourseDescription.Value
+            //};
 
         }
 
-        public async Task<IEnumerable<CourseDTO>> SearchCoursesAsync(string searchTerm)
+        public async Task<IEnumerable<CourseDTO>> SearchCoursesAsync(string searchTerm, CancellationToken ct)
         {
             var courses = await repository.SearchByNameAsync(searchTerm);
 
-            return courses.Select(c => new CourseDTO
-            {
-                Id = c.Id.Value,
-                CourseCode = c.CourseCode.Value,
-                CourseName = c.CourseName.Value,
-                CourseDescription = c.CourseDescription.Value
-            });
+            return [.. courses.Select(MatToDTO)];
+            //return courses.Select(c => new CourseDTO
+            //{
+            //    Id = c.Id.Value,
+            //    CourseCode = c.CourseCode.Value,
+            //    CourseName = c.CourseName.Value,
+            //    CourseDescription = c.CourseDescription.Value
+            //});
         }
 
-        public async Task UpdateCourseAsync(UpdateCourseDTO dto)
+        public async Task UpdateCourseAsync(UpdateCourseDTO dto, CancellationToken ct)
         {
             var courseId = new CourseId(dto.Id);
 
@@ -152,6 +158,17 @@ namespace SkillFlow.Application.Services.Courses
             course.UpdateCourseDescription(newDescription);
 
             await repository.UpdateAsync(course);
+        }
+
+        private static CourseDTO MatToDTO(Course course)
+        {
+            return new CourseDTO
+            {
+                Id = course.Id.Value,
+                CourseCode = course.CourseCode.Value,
+                CourseName = course.CourseName.Value,
+                CourseDescription = course.CourseDescription.Value
+            };
         }
     }
 }

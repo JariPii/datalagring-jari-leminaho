@@ -8,10 +8,12 @@ using System.Text;
 
 namespace SkillFlow.Infrastructure.Configurations
 {
-    public class CompetenceConfiguration : IEntityTypeConfiguration<Competence>
+    public class CompetenceConfiguration : BaseEntityConfiguration<Competence>
     {
-        public void Configure(EntityTypeBuilder<Competence> builder)
+        public override void Configure(EntityTypeBuilder<Competence> builder)
         {
+            base.Configure(builder);
+
             builder.HasKey(c => c.Id);
             builder.Property(c => c.Id)
                 .HasConversion(id => id.Value, v => new CompetenceId(v));
@@ -22,11 +24,13 @@ namespace SkillFlow.Infrastructure.Configurations
 
             builder.HasMany(c => c.Instructors)
                 .WithMany(i => i.Competences)
-                .UsingEntity(j => j.ToTable("InstructorCompetence"));
+                .UsingEntity(j => j.ToTable("InstructorCompetences"));
 
             builder.Metadata
                 .FindNavigation(nameof(Competence.Instructors))?
                 .SetPropertyAccessMode(PropertyAccessMode.Field);
+
+            builder.HasIndex(c => c.Name).IsUnique();
         }
     }
 }

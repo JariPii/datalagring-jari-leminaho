@@ -7,10 +7,12 @@ using System.Text;
 
 namespace SkillFlow.Infrastructure.Configurations
 {
-    public class CourseConfiguration : IEntityTypeConfiguration<Course>
+    public class CourseConfiguration : BaseEntityConfiguration<Course>
     {
-        public void Configure(EntityTypeBuilder<Course> builder)
+        public override void Configure(EntityTypeBuilder<Course> builder)
         {
+            base.Configure(builder);
+
             builder.HasKey(c => c.Id);
             builder.Property(c => c.Id).HasConversion(id => id.Value, v => new CourseId(v));
 

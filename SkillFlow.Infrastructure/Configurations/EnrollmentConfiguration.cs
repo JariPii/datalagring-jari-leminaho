@@ -8,10 +8,12 @@ using System.Text;
 
 namespace SkillFlow.Infrastructure.Configurations
 {
-    public class EnrollmentConfiguration : IEntityTypeConfiguration<Enrollment>
+    public class EnrollmentConfiguration : BaseEntityConfiguration<Enrollment>
     {
-        public void Configure(EntityTypeBuilder<Enrollment> builder)
+        public override void Configure(EntityTypeBuilder<Enrollment> builder)
         {
+            base.Configure(builder);
+
             builder.HasKey(e => e.Id);
             builder.Property(e => e.Id)
                 .HasConversion(id => id.Value, v => new EnrollmentId(v));
@@ -34,6 +36,8 @@ namespace SkillFlow.Infrastructure.Configurations
             builder.HasOne(e => e.CourseSession)
                 .WithMany(s => s.Enrollments)
                 .HasForeignKey(e => e.CourseSessionId);
+
+            builder.HasIndex(e => new { e.StudentId, e.CourseSessionId }).IsUnique();
         }
     }
 }

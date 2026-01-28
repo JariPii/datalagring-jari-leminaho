@@ -7,16 +7,16 @@ namespace SkillFlow.Application.Interfaces
 {
     public interface ILocationService
     {
-        Task<IEnumerable<LocationDTO>> GetAllLocationsAsync();
+        Task<IEnumerable<LocationDTO>> GetAllLocationsAsync(CancellationToken ct = default);
 
-        Task<LocationDTO> GetLocationByIdAsync(Guid id);
+        Task<LocationDTO> GetLocationByIdAsync(Guid id, CancellationToken ct = default);
 
-        Task<LocationDTO> CreateLocationAsync(CreateLocationDTO dto);
+        Task<LocationDTO> CreateLocationAsync(CreateLocationDTO dto, CancellationToken ct = default);
 
-        Task<IEnumerable<LocationDTO>> SearchLocationsAsync(string searchTerm);
+        Task<IEnumerable<LocationDTO>> SearchLocationsAsync(string searchTerm, CancellationToken ct = default);
 
-        Task UpdateLocationAsync(UpdateLocationDTO dto);
+        Task UpdateLocationAsync(UpdateLocationDTO dto, CancellationToken ct = default);
 
-        Task DeleteLocationAsync(Guid id);
+        Task DeleteLocationAsync(Guid id, CancellationToken ct = default);
     }
 }

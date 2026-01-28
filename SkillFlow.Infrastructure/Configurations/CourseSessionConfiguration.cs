@@ -9,10 +9,12 @@ using System.Text;
 
 namespace SkillFlow.Infrastructure.Configurations
 {
-    public class CourseSessionConfiguration : IEntityTypeConfiguration<CourseSession>
+    public class CourseSessionConfiguration : BaseEntityConfiguration<CourseSession>
     {
-        public void Configure(EntityTypeBuilder<CourseSession> builder)
+        public override void Configure(EntityTypeBuilder<CourseSession> builder)
         {
+            base.Configure(builder);
+
             builder.HasKey(c => c.Id);
 
             builder.Property(c => c.Id)
@@ -55,6 +57,10 @@ namespace SkillFlow.Infrastructure.Configurations
             builder.Property(t => t.StartDate).IsRequired();
             builder.Property(t => t.EndDate).IsRequired();
             builder.Property(c => c.Capacity).IsRequired();
+
+            builder.HasIndex(s => s.StartDate);
+            builder.HasIndex(s => s.EndDate);
+            builder.HasIndex(s => s.CourseCode);
         }
     }
 }

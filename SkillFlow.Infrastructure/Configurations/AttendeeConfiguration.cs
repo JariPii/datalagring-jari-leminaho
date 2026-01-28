@@ -7,10 +7,12 @@ using System.Text;
 
 namespace SkillFlow.Infrastructure.Configurations
 {
-    public class AttendeeConfiguration : IEntityTypeConfiguration<Attendee>
+    public class AttendeeConfiguration : BaseEntityConfiguration<Attendee>
     {
-        public void Configure(EntityTypeBuilder<Attendee> builder)
+        public override void Configure(EntityTypeBuilder<Attendee> builder)
         {
+            base.Configure(builder);
+            
             builder.HasKey(a => a.Id);
 
             builder.Property(a => a.Id)
