@@ -1,4 +1,5 @@
-﻿using SkillFlow.Application.DTOs.Attendees;
+﻿using Microsoft.EntityFrameworkCore;
+using SkillFlow.Application.DTOs.Attendees;
 using SkillFlow.Application.DTOs.Courses;
 using SkillFlow.Application.Interfaces;
 using SkillFlow.Domain.Attendees;
@@ -8,6 +9,7 @@ using SkillFlow.Domain.Entities.Courses;
 using SkillFlow.Domain.Enums;
 using SkillFlow.Domain.Exceptions;
 using SkillFlow.Domain.Interfaces;
+using SkillFlow.Infrastructure;
 
 namespace SkillFlow.Application.Services.Attendees
 {
@@ -31,7 +33,7 @@ namespace SkillFlow.Application.Services.Attendees
 
             instructor.AddCompetence(competence);
 
-            await repository.UpdateAsync(instructor);
+            await repository.UpdateAsync(instructor, ct);
         }
 
         public async Task<AttendeeDTO> CreateAttendeeAsync(CreateAttendeeDTO dto, CancellationToken ct)
@@ -42,27 +44,19 @@ namespace SkillFlow.Application.Services.Attendees
                 PhoneNumber.Create(dto.PhoneNumber)
                 : null;
 
-            if (await repository.ExistsByEmailAsync(email))
+            if (await repository.ExistsByEmailAsync(email, ct))
                 throw new EmailAlreadyExistsException(email);
 
-            Attendee attendee = dto.Role.ToLower() switch
+            Attendee attendee = dto.Role switch
             {
-                "instructor" => new Instructor(AttendeeId.New(), email, name, phone),
-                "student" => new Student(AttendeeId.New(), email, name, phone),
+                Role.Instructor => new Instructor(AttendeeId.New(), email, name, phone),
+                Role.Student => new Student(AttendeeId.New(), email, name, phone),
                 _ => throw new ArgumentException("Invalid role")
             };
 
             await repository.AddAsync(attendee, ct);
 
-            return new AttendeeDTO
-            {
-                Id = attendee.Id.Value,
-                Email = attendee.Email.Value,
-                FirstName = attendee.Name.FirstName,
-                LastName = attendee.Name.LastName,
-                PhoneNumber = attendee.PhoneNumber?.Value,
-                Role = attendee is Instructor ? "Instructor" : "Student"
-            };
+            return MapToDTOList([attendee]).First();
         }
 
         public async Task DeleteAttendeeAsync(Guid id, CancellationToken ct)
@@ -181,13 +175,13 @@ namespace SkillFlow.Application.Services.Attendees
                     FirstName = i.Name.FirstName,
                     LastName = i.Name.LastName,
                     PhoneNumber = i.PhoneNumber?.Value,
-                    Role = "Instructor",
+                    Role = i.Role,
                     Competences = [.. i.Competences.Select(c => new CompetenceDTO
                     {
                         Id = c.Id.Value,
                         Name = c.Name.Value
                     })],
-                    
+
                 },
                 _ => new AttendeeDTO
                 {
@@ -196,9 +190,46 @@ namespace SkillFlow.Application.Services.Attendees
                     FirstName = a.Name.FirstName,
                     LastName = a.Name.LastName,
                     PhoneNumber = a.PhoneNumber?.Value,
-                    Role = a is Student ? "Student" : "Attendee"
+                    Role = a.Role
                 }
             });
         }
+
+        //private static List<AttendeeDTO> MapToDTOList(IEnumerable<Attendee> attendees)
+        //{
+        //    return [.. attendees.Select(a =>
+        //    {
+        //        if (a is Instructor instructor)
+        //        {
+
+        //            return new InstructorDTO
+        //            {
+        //                Id = instructor.Id.Value,
+        //                Email = instructor.Email.Value,
+        //                FirstName = instructor.Name.FirstName,
+        //                LastName = instructor.Name.LastName,
+        //                PhoneNumber = instructor.PhoneNumber?.Value,
+        //                Role = instructor.Role,
+        //                Competences = [.. instructor.Competences
+        //                    .Select(c => new CompetenceDTO
+        //                    {
+        //                        Id = c.Id.Value,
+        //                        Name = c.Name.Value
+        //                    })]
+        //            } as AttendeeDTO;
+        //        }
+
+        //        return new AttendeeDTO
+        //        {
+        //            Id = a.Id.Value,
+        //            Email = a.Email.Value,
+        //            FirstName = a.Name.FirstName,
+        //            LastName = a.Name.LastName,
+        //            PhoneNumber = a.PhoneNumber?.Value,
+        //            Role = a.Role
+        //        };
+        //    })];
+        //}
     }
+
 }

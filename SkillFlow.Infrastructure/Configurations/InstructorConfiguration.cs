@@ -12,9 +12,13 @@ namespace SkillFlow.Infrastructure.Configurations
                 .WithMany(c => c.Instructors)
                 .UsingEntity(j => j.ToTable("InstructorCompetences"));
 
-            builder.Metadata
-                .FindNavigation(nameof(Instructor.Competences))?
-                .SetPropertyAccessMode(PropertyAccessMode.Field);
+            //builder.Metadata
+            //    .FindNavigation(nameof(Instructor.Competences))?
+            //    .SetPropertyAccessMode(PropertyAccessMode.Field);
+
+            builder.Navigation(i => i.Competences)
+        .HasField("_competences")
+        .UsePropertyAccessMode(PropertyAccessMode.Field);
         }
     }
 }

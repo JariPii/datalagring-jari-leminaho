@@ -4,7 +4,7 @@ using SkillFlow.Domain.Interfaces;
 
 namespace SkillFlow.Infrastructure.Repositories
 {
-    internal class LocationRepository : ILocationRepository
+    public class LocationRepository : ILocationRepository
     {
         private readonly SkillFlowDbContext _context;
 

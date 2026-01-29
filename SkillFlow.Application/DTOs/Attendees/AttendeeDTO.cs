@@ -1,9 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using SkillFlow.Domain.Enums;
+using System.Text.Json.Serialization;
 
 namespace SkillFlow.Application.DTOs.Attendees
 {
+    [JsonDerivedType(typeof(AttendeeDTO))]
+    [JsonDerivedType(typeof(InstructorDTO))]
     public record AttendeeDTO
     {
         public Guid Id { get; init; }
@@ -13,9 +14,9 @@ namespace SkillFlow.Application.DTOs.Attendees
 
         public string LastName { get; init; } = string.Empty;
 
-        public string? PhoneNumber { get; init; } = string.Empty;
+        public string? PhoneNumber { get; init; }
 
-        public string Role { get; init; } = string.Empty;
+        public Role Role { get; init; }
 
     }
 }

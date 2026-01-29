@@ -8,7 +8,7 @@ namespace SkillFlow.Domain.Interfaces
     {
         Task<CourseSession?> GetByIdAsync(CourseSessionId id, CancellationToken ct = default);
         Task<CourseSession?> GetByIdWithInstructorsAndEnrollmentsAsync(CourseSessionId id, CancellationToken ct = default);
-
+        Task<IEnumerable<CourseSession>> GetAllAsync(CancellationToken ct = default);
         Task<IEnumerable<CourseSession>> GetByCourseCodeAsync(CourseCode code, CancellationToken ct = default);
         Task<IEnumerable<CourseSession>> GetByLocationAsync(LocationId locationId, CancellationToken ct = default);
         Task<IEnumerable<CourseSession>> SearchByStartDateAsync(DateTime startDate, CancellationToken ct = default);
@@ -23,5 +23,6 @@ namespace SkillFlow.Domain.Interfaces
         Task AddAsync(CourseSession session, CancellationToken ct = default);
         Task UpdateAsync(CourseSession session, CancellationToken ct = default);
         Task<bool> DeleteAsync(CourseSessionId id, CancellationToken ct = default);
+        Task<int> CountSessionsForCourseAndYear(string cityPart,string coursePart, int year, CancellationToken ct = default);
     }
 }

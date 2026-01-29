@@ -1,4 +1,6 @@
-﻿namespace SkillFlow.Application.DTOs.Attendees
+﻿using SkillFlow.Domain.Enums;
+
+namespace SkillFlow.Application.DTOs.Attendees
 {
     public record CreateAttendeeDTO
     {
@@ -10,6 +12,6 @@
 
         public string? PhoneNumber { get; init; }
 
-        public string Role { get; init; } = string.Empty;
+        public Role Role { get; init; }
     }
 }

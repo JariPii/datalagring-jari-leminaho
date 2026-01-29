@@ -47,9 +47,28 @@ namespace SkillFlow.Infrastructure.Repositories
             return await _context.Attendees.AnyAsync(a => a.Id == id, ct);
         }
 
+        //public async Task<IEnumerable<Attendee>> GetAllAsync(CancellationToken ct)
+        //{
+        //    return await _context.Attendees
+        //        .AsNoTracking()
+        //        .Include(a => ((Instructor)a).Competences!)
+        //        .ToListAsync(ct);
+        //}
+
         public async Task<IEnumerable<Attendee>> GetAllAsync(CancellationToken ct)
         {
-            return await _context.Attendees.ToListAsync(ct);
+            var instructors = await _context.Attendees
+                .OfType<Instructor>()
+                .Include(i => i.Competences)
+                .AsNoTracking()
+                .ToListAsync(ct);
+
+            var students = await _context.Attendees
+                .OfType<Student>()
+                .AsNoTracking()
+                .ToListAsync(ct);
+
+            return instructors.Cast<Attendee>().Concat(students);
         }
 
         public async Task<IEnumerable<Instructor>> GetAllInstructorsAsync(CancellationToken ct)
@@ -65,8 +84,24 @@ namespace SkillFlow.Infrastructure.Repositories
         public async Task<Attendee?> GetByEmailAsync(Email email, CancellationToken ct) 
             => await _context.Attendees.FirstOrDefaultAsync(e => e.Email == email, ct);
 
-        public async Task<Attendee?> GetByIdAsync(AttendeeId id, CancellationToken ct) 
-            => await _context.Attendees.FirstOrDefaultAsync(a => a.Id == id, ct);
+        //public async Task<Attendee?> GetByIdAsync(AttendeeId id, CancellationToken ct) 
+        //    => await _context.Attendees.FirstOrDefaultAsync(a => a.Id == id, ct);
+
+        public async Task<Attendee?> GetByIdAsync(AttendeeId id, CancellationToken ct)
+        {
+            // Vi försöker hämta som Instructor först för att få med kompetenser
+            var instructor = await _context.Attendees
+                .OfType<Instructor>()
+                .Include(i => i.Competences)
+                .FirstOrDefaultAsync(a => a.Id == id, ct);
+
+            if (instructor is not null) return instructor;
+
+            // Om ingen lärare hittades, sök bland studenter
+            return await _context.Attendees
+                .OfType<Student>()
+                .FirstOrDefaultAsync(a => a.Id == id, ct);
+        }
 
         public async Task<IEnumerable<Instructor>> GetInstructorsByCompetenceAsync(string competenceName, CancellationToken ct)
         {

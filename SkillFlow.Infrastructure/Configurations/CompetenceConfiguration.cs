@@ -23,9 +23,13 @@ namespace SkillFlow.Infrastructure.Configurations
                 .WithMany(i => i.Competences)
                 .UsingEntity(j => j.ToTable("InstructorCompetences"));
 
-            builder.Metadata
-                .FindNavigation(nameof(Competence.Instructors))?
-                .SetPropertyAccessMode(PropertyAccessMode.Field);
+            builder.Navigation(c => c.Instructors)
+                .HasField("_instructors")
+                .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+            //builder.Metadata
+            //    .FindNavigation(nameof(Competence.Instructors))?
+            //    .SetPropertyAccessMode(PropertyAccessMode.Field);
 
             builder.HasIndex(c => c.Name).IsUnique();
         }

@@ -20,11 +20,6 @@ namespace SkillFlow.Application.Services.Locations
             await repository.AddAsync(location, ct);
 
             return MatToDTO(location);
-            //return new LocationDTO
-            //{
-            //    Id = location.Id.Value,
-            //    LocationName = location.LocationName.Value
-            //};
         }
 
         public async Task DeleteLocationAsync(Guid id, CancellationToken ct)
@@ -42,11 +37,6 @@ namespace SkillFlow.Application.Services.Locations
             var locations = await repository.GetAllAsync(ct);
 
             return [.. locations.Select(MatToDTO)];
-            //return locations.Select(l => new LocationDTO
-            //{
-            //    Id = l.Id.Value,
-            //    LocationName = l.LocationName.Value
-            //});
         }
 
         public async Task<LocationDTO> GetLocationByIdAsync(Guid id, CancellationToken ct)
@@ -56,11 +46,6 @@ namespace SkillFlow.Application.Services.Locations
                 throw new LocationNotFoundException(locationId);
 
             return MatToDTO(location);
-            //return new LocationDTO
-            //{
-            //    Id = location.Id.Value,
-            //    LocationName = location.LocationName.Value
-            //};
         }
 
         public async Task<IEnumerable<LocationDTO>> SearchLocationsAsync(string searchTerm, CancellationToken ct)
@@ -68,11 +53,6 @@ namespace SkillFlow.Application.Services.Locations
             var locations = await repository.SearchByNameAsync(searchTerm, ct);
 
             return [.. locations.Select(MatToDTO)];
-            //return locations.Select(l => new LocationDTO
-            //{
-            //    Id = l.Id.Value,
-            //    LocationName = l.LocationName.Value
-            //});
         }
 
         public async Task UpdateLocationAsync(UpdateLocationDTO dto, CancellationToken ct)
