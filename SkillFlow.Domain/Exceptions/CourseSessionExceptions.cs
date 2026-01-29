@@ -1,8 +1,5 @@
-﻿using SkillFlow.Domain.Attendees;
-using SkillFlow.Domain.CourseSessions;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using SkillFlow.Domain.Entities.Attendees;
+using SkillFlow.Domain.Entities.CourseSessions;
 
 namespace SkillFlow.Domain.Exceptions
 {
@@ -21,6 +18,8 @@ namespace SkillFlow.Domain.Exceptions
     public class InvalidSessionDatesException(DateTime startDate, DateTime endDate) : DomainException($"{endDate} can not be before {startDate}");
 
     public class InvalidCapacityException(string message) : DomainException(message);
+
+    public class ConcurrencyException() : DomainException("Someone just updated the session, please try again");
 
 
 }

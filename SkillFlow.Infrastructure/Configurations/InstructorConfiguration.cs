@@ -1,9 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using SkillFlow.Domain.Attendees;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using SkillFlow.Domain.Entities.Attendees;
 
 namespace SkillFlow.Infrastructure.Configurations
 {
@@ -15,9 +12,13 @@ namespace SkillFlow.Infrastructure.Configurations
                 .WithMany(c => c.Instructors)
                 .UsingEntity(j => j.ToTable("InstructorCompetences"));
 
-            builder.Metadata
-                .FindNavigation(nameof(Instructor.Competences))?
-                .SetPropertyAccessMode(PropertyAccessMode.Field);
+            //builder.Metadata
+            //    .FindNavigation(nameof(Instructor.Competences))?
+            //    .SetPropertyAccessMode(PropertyAccessMode.Field);
+
+            builder.Navigation(i => i.Competences)
+        .HasField("_competences")
+        .UsePropertyAccessMode(PropertyAccessMode.Field);
         }
     }
 }

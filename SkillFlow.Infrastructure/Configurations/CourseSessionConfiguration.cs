@@ -1,19 +1,19 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using SkillFlow.Domain.Courses;
-using SkillFlow.Domain.CourseSessions;
-using SkillFlow.Domain.Locations;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using SkillFlow.Domain.Entities.Courses;
+using SkillFlow.Domain.Entities.CourseSessions;
+using SkillFlow.Domain.Entities.Locations;
 
 namespace SkillFlow.Infrastructure.Configurations
 {
-    public class CourseSessionConfiguration : IEntityTypeConfiguration<CourseSession>
+    public class CourseSessionConfiguration : BaseEntityConfiguration<CourseSession>
     {
-        public void Configure(EntityTypeBuilder<CourseSession> builder)
+        public override void Configure(EntityTypeBuilder<CourseSession> builder)
         {
+            base.Configure(builder);
+
             builder.HasKey(c => c.Id);
+
             builder.Property(c => c.Id)
                 .HasConversion(id => id.Value, v => new CourseSessionId(v));
 
@@ -54,6 +54,10 @@ namespace SkillFlow.Infrastructure.Configurations
             builder.Property(t => t.StartDate).IsRequired();
             builder.Property(t => t.EndDate).IsRequired();
             builder.Property(c => c.Capacity).IsRequired();
+
+            builder.HasIndex(s => s.StartDate);
+            builder.HasIndex(s => s.EndDate);
+            builder.HasIndex(s => s.CourseCode);
         }
     }
 }

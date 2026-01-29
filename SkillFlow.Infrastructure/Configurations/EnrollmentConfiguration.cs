@@ -1,17 +1,16 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using SkillFlow.Domain.Attendees;
-using SkillFlow.Domain.CourseSessions;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using SkillFlow.Domain.Entities.Attendees;
+using SkillFlow.Domain.Entities.CourseSessions;
 
 namespace SkillFlow.Infrastructure.Configurations
 {
-    public class EnrollmentConfiguration : IEntityTypeConfiguration<Enrollment>
+    public class EnrollmentConfiguration : BaseEntityConfiguration<Enrollment>
     {
-        public void Configure(EntityTypeBuilder<Enrollment> builder)
+        public override void Configure(EntityTypeBuilder<Enrollment> builder)
         {
+            base.Configure(builder);
+
             builder.HasKey(e => e.Id);
             builder.Property(e => e.Id)
                 .HasConversion(id => id.Value, v => new EnrollmentId(v));
@@ -34,6 +33,8 @@ namespace SkillFlow.Infrastructure.Configurations
             builder.HasOne(e => e.CourseSession)
                 .WithMany(s => s.Enrollments)
                 .HasForeignKey(e => e.CourseSessionId);
+
+            builder.HasIndex(e => new { e.StudentId, e.CourseSessionId }).IsUnique();
         }
     }
 }

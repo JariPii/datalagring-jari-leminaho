@@ -1,12 +1,11 @@
 ﻿using SkillFlow.Application.DTOs.Courses;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Text.Json.Serialization;
 
 namespace SkillFlow.Application.DTOs.Attendees
 {
     public record InstructorDTO : AttendeeDTO
     {
-        public List<CompetenceDTO> Competences { get; init; } = new();
+        [JsonPropertyOrder(100)]
+        public List<CompetenceDTO> Competences { get; init; } = [];
     }
 }

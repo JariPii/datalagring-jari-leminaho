@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SkillFlow.Domain.Attendees;
-using SkillFlow.Domain.Courses;
-using SkillFlow.Domain.CourseSessions;
-using SkillFlow.Domain.Locations;
+using SkillFlow.Domain.Entities.Attendees;
+using SkillFlow.Domain.Entities.Courses;
+using SkillFlow.Domain.Entities.CourseSessions;
+using SkillFlow.Domain.Entities.Locations;
 
 namespace SkillFlow.Infrastructure
 {

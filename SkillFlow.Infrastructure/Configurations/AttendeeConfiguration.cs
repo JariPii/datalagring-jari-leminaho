@@ -1,16 +1,17 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SkillFlow.Domain.Attendees;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using SkillFlow.Domain.Entities.Attendees;
+using SkillFlow.Domain.Enums;
 
 namespace SkillFlow.Infrastructure.Configurations
 {
-    public class AttendeeConfiguration : IEntityTypeConfiguration<Attendee>
+    public class AttendeeConfiguration : BaseEntityConfiguration<Attendee>
     {
-        public void Configure(EntityTypeBuilder<Attendee> builder)
+        public override void Configure(EntityTypeBuilder<Attendee> builder)
         {
+            base.Configure(builder);
+            
             builder.HasKey(a => a.Id);
 
             builder.Property(a => a.Id)

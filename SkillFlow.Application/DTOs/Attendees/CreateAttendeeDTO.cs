@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Text;
+﻿using SkillFlow.Domain.Enums;
 
 namespace SkillFlow.Application.DTOs.Attendees
 {
@@ -15,6 +12,6 @@ namespace SkillFlow.Application.DTOs.Attendees
 
         public string? PhoneNumber { get; init; }
 
-        public string Role { get; init; } = string.Empty;
+        public Role Role { get; init; }
     }
 }

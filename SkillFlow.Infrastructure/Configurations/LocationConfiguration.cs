@@ -1,17 +1,16 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using SkillFlow.Domain.Locations;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using SkillFlow.Domain.Entities.Locations;
 
 namespace SkillFlow.Infrastructure.Configurations
 {
-    public class LocationConfiguration : IEntityTypeConfiguration<Location>
+    public class LocationConfiguration : BaseEntityConfiguration<Location>
     {
-        public void Configure(EntityTypeBuilder<Location> builder)
+        public override void Configure(EntityTypeBuilder<Location> builder)
         {
+            base.Configure(builder);
+
             builder.HasKey(l => l.Id);
+
             builder.Property(l => l.Id)
                 .HasConversion(id => id.Value, v => new LocationId(v));
 
