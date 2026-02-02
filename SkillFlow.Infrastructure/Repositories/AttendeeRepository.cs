@@ -5,22 +5,10 @@ using SkillFlow.Domain.Interfaces;
 
 namespace SkillFlow.Infrastructure.Repositories
 {
-    public class AttendeeRepository : IAttendeeRepository
+    public class AttendeeRepository(SkillFlowDbContext context) : BaseRespository<Attendee, AttendeeId>(context), IAttendeeRepository
     {
-        private readonly SkillFlowDbContext _context;
 
-        public AttendeeRepository(SkillFlowDbContext context)
-        {
-            _context = context;
-        }
-
-        public async Task AddAsync(Attendee attendee, CancellationToken ct)
-        {
-            await _context.Attendees.AddAsync(attendee, ct);
-            await _context.SaveChangesAsync(ct);
-        }
-
-        public async Task<bool> DeleteAsync(AttendeeId id, CancellationToken ct)
+        public override async Task<bool> DeleteAsync(AttendeeId id, CancellationToken ct)
         {
             var attendee = await _context.Attendees.FirstOrDefaultAsync(a => a.Id == id, ct);
             if (attendee is null) return false;
@@ -42,20 +30,7 @@ namespace SkillFlow.Infrastructure.Repositories
             return await _context.Attendees.AnyAsync(e => e.Email == email, ct);
         }
 
-        public async Task<bool> ExistsByIdAsync(AttendeeId id, CancellationToken ct)
-        {
-            return await _context.Attendees.AnyAsync(a => a.Id == id, ct);
-        }
-
-        //public async Task<IEnumerable<Attendee>> GetAllAsync(CancellationToken ct)
-        //{
-        //    return await _context.Attendees
-        //        .AsNoTracking()
-        //        .Include(a => ((Instructor)a).Competences!)
-        //        .ToListAsync(ct);
-        //}
-
-        public async Task<IEnumerable<Attendee>> GetAllAsync(CancellationToken ct)
+        public override async Task<IEnumerable<Attendee>> GetAllAsync(CancellationToken ct)
         {
             var instructors = await _context.Attendees
                 .OfType<Instructor>()
@@ -73,21 +48,21 @@ namespace SkillFlow.Infrastructure.Repositories
 
         public async Task<IEnumerable<Instructor>> GetAllInstructorsAsync(CancellationToken ct)
         {
-            return await _context.Instructors.ToListAsync(ct);
+            return await _context.Instructors
+                .Include(i => i.Competences)
+                .AsNoTracking()
+                .ToListAsync(ct);
         }
 
         public async Task<IEnumerable<Student>> GetAllStudentsAsync(CancellationToken ct)
         {
-            return await _context.Students.ToListAsync(ct);
+            return await _context.Students.AsNoTracking().ToListAsync(ct);
         }
 
         public async Task<Attendee?> GetByEmailAsync(Email email, CancellationToken ct) 
             => await _context.Attendees.FirstOrDefaultAsync(e => e.Email == email, ct);
 
-        //public async Task<Attendee?> GetByIdAsync(AttendeeId id, CancellationToken ct) 
-        //    => await _context.Attendees.FirstOrDefaultAsync(a => a.Id == id, ct);
-
-        public async Task<Attendee?> GetByIdAsync(AttendeeId id, CancellationToken ct)
+        public override async Task<Attendee?> GetByIdAsync(AttendeeId id, CancellationToken ct)
         {
             var instructor = await _context.Attendees
                 .OfType<Instructor>()
@@ -133,12 +108,6 @@ namespace SkillFlow.Infrastructure.Repositories
                 .FromSqlInterpolated($@"
                     SELECT * FROM Attendees WHERE Role = {roleName}")
                 .ToListAsync(ct);
-        }
-
-        public async Task UpdateAsync(Attendee attendee, CancellationToken ct)
-        {
-            _context.Attendees.Update(attendee);
-            await _context.SaveChangesAsync(ct);
         }
     }
 }

@@ -7,22 +7,10 @@ using SkillFlow.Domain.Interfaces;
 
 namespace SkillFlow.Infrastructure.Repositories;
 
-public class CourseSessionRepository : ICourseSessionRepository
+public class CourseSessionRepository(SkillFlowDbContext context) : BaseRespository<CourseSession, CourseSessionId>(context), ICourseSessionRepository
 {
-    private readonly SkillFlowDbContext _context;
 
-    public CourseSessionRepository(SkillFlowDbContext context)
-    {
-        _context = context;
-    }
-
-    public async Task AddAsync(CourseSession session, CancellationToken ct)
-    {
-        await _context.CourseSessions.AddAsync(session, ct);
-        await _context.SaveChangesAsync(ct);
-    }
-
-    public async Task<bool> DeleteAsync(CourseSessionId id, CancellationToken ct)
+    public override async Task<bool> DeleteAsync(CourseSessionId id, CancellationToken ct)
     {
         var courseSession = await _context.CourseSessions.FirstOrDefaultAsync(s => s.Id == id, ct);
 
@@ -40,11 +28,6 @@ public class CourseSessionRepository : ICourseSessionRepository
         }
     }
 
-    public async Task<bool> ExistsByIdAsync(CourseSessionId id, CancellationToken ct)
-    {
-        return await _context.CourseSessions.AnyAsync(c => c.Id == id, ct);
-    }
-
     public async Task<IEnumerable<CourseSession>> GetByCourseCodeAsync(CourseCode code, CancellationToken ct)
     {
         return await _context.CourseSessions
@@ -53,7 +36,7 @@ public class CourseSessionRepository : ICourseSessionRepository
             .ToListAsync(ct);
     }
 
-    public async Task<CourseSession?> GetByIdAsync(CourseSessionId id, CancellationToken ct)
+    public override async Task<CourseSession?> GetByIdAsync(CourseSessionId id, CancellationToken ct)
         => await _context.CourseSessions.FirstOrDefaultAsync(c => c.Id == id, ct);
 
     public async Task<CourseSession?> GetByIdWithInstructorsAndEnrollmentsAsync(CourseSessionId id, CancellationToken ct)
@@ -130,13 +113,7 @@ public class CourseSessionRepository : ICourseSessionRepository
             .ToListAsync(ct);
     }
 
-    public async Task UpdateAsync(CourseSession session, CancellationToken ct)
-    {
-        _context.CourseSessions.Update(session);
-        await _context.SaveChangesAsync(ct);
-    }
-
-    public async Task<IEnumerable<CourseSession>> GetAllAsync(CancellationToken ct = default)
+    public override async Task<IEnumerable<CourseSession>> GetAllAsync(CancellationToken ct = default)
     {
         return await _context.CourseSessions
             .AsNoTracking()
