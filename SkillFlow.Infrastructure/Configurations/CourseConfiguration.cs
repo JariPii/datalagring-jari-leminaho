@@ -4,7 +4,7 @@ using SkillFlow.Domain.Entities.Courses;
 
 namespace SkillFlow.Infrastructure.Configurations
 {
-    public class CourseConfiguration : BaseEntityConfiguration<Course>
+    public class CourseConfiguration : BaseEntityConfiguration<Course, CourseId>
     {
         public override void Configure(EntityTypeBuilder<Course> builder)
         {

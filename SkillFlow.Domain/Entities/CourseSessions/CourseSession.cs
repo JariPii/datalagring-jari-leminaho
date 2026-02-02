@@ -3,16 +3,17 @@ using SkillFlow.Domain.Entities.Courses;
 using SkillFlow.Domain.Entities.Locations;
 using SkillFlow.Domain.Enums;
 using SkillFlow.Domain.Exceptions;
+using SkillFlow.Domain.Interfaces;
 using SkillFlow.Domain.Primitives;
 
 namespace SkillFlow.Domain.Entities.CourseSessions
 {
-    public class CourseSession : BaseEntity
+    public class CourseSession : BaseEntity<CourseSessionId>, IAggregateRoot
     {
         private readonly List<Enrollment> _enrollments = new();
         private readonly List<Instructor> _instructors = new();
 
-        public CourseSessionId Id { get; private set; }
+        //public CourseSessionId Id { get; private set; }
         public CourseCode CourseCode { get; private set; }
         public Course Course { get; private set; } = null!;
         public DateTime StartDate { get; private set; }

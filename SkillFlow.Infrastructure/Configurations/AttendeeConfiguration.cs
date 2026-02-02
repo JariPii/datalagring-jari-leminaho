@@ -6,7 +6,7 @@ using SkillFlow.Domain.Enums;
 
 namespace SkillFlow.Infrastructure.Configurations
 {
-    public class AttendeeConfiguration : BaseEntityConfiguration<Attendee>
+    public class AttendeeConfiguration : BaseEntityConfiguration<Attendee, AttendeeId>
     {
         public override void Configure(EntityTypeBuilder<Attendee> builder)
         {

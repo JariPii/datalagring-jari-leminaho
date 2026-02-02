@@ -3,7 +3,7 @@ using SkillFlow.Domain.Entities.Locations;
 
 namespace SkillFlow.Infrastructure.Configurations
 {
-    public class LocationConfiguration : BaseEntityConfiguration<Location>
+    public class LocationConfiguration : BaseEntityConfiguration<Location, LocationId>
     {
         public override void Configure(EntityTypeBuilder<Location> builder)
         {

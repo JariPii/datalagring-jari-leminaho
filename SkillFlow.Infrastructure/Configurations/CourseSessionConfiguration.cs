@@ -6,7 +6,7 @@ using SkillFlow.Domain.Entities.Locations;
 
 namespace SkillFlow.Infrastructure.Configurations
 {
-    public class CourseSessionConfiguration : BaseEntityConfiguration<CourseSession>
+    public class CourseSessionConfiguration : BaseEntityConfiguration<CourseSession, CourseSessionId>
     {
         public override void Configure(EntityTypeBuilder<CourseSession> builder)
         {

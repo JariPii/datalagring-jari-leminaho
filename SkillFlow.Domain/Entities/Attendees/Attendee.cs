@@ -1,12 +1,13 @@
 ﻿using SkillFlow.Domain.Attendees;
 using SkillFlow.Domain.Enums;
+using SkillFlow.Domain.Interfaces;
 using SkillFlow.Domain.Primitives;
 
 namespace SkillFlow.Domain.Entities.Attendees
 {
-    public abstract class Attendee : BaseEntity
+    public abstract class Attendee : BaseEntity<AttendeeId>, IAggregateRoot
     {
-        public AttendeeId Id { get; private set; }
+        //public AttendeeId Id { get; private set; }
         public Role Role { get; private set; }
         public Email Email { get; private set; }
         public AttendeeName Name { get; private set; }
