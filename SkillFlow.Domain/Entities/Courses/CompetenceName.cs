@@ -15,8 +15,6 @@ namespace SkillFlow.Domain.Courses
             if(string.IsNullOrWhiteSpace(value))
                 throw new InvalidCompetenceNameException("A competence name is required");
 
-            //var trimmedValue = value.Trim();
-
             var generatedValue = MyRegEx().Replace(value.Trim(), " ");
 
             if (generatedValue.Length > MaxLength)
