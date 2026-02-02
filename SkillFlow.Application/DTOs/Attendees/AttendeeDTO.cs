@@ -3,8 +3,9 @@ using System.Text.Json.Serialization;
 
 namespace SkillFlow.Application.DTOs.Attendees
 {
-    [JsonDerivedType(typeof(AttendeeDTO))]
-    [JsonDerivedType(typeof(InstructorDTO))]
+    [JsonPolymorphic(TypeDiscriminatorPropertyName = "$type")]
+    [JsonDerivedType(typeof(AttendeeDTO), "student")]
+    [JsonDerivedType(typeof(InstructorDTO), "instructor")]
     public record AttendeeDTO
     {
         public Guid Id { get; init; }
@@ -16,6 +17,7 @@ namespace SkillFlow.Application.DTOs.Attendees
 
         public string? PhoneNumber { get; init; }
 
+        [JsonConverter(typeof(JsonStringEnumConverter))]
         public Role Role { get; init; }
 
     }

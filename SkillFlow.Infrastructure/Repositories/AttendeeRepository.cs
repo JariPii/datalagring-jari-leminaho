@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SkillFlow.Domain.Courses;
 using SkillFlow.Domain.Entities.Attendees;
+using SkillFlow.Domain.Entities.Courses;
 using SkillFlow.Domain.Enums;
 using SkillFlow.Domain.Interfaces;
 
@@ -76,12 +78,18 @@ namespace SkillFlow.Infrastructure.Repositories
                 .FirstOrDefaultAsync(a => a.Id == id, ct);
         }
 
+        public async Task<Competence?> GetCompetenceByNameAsync(CompetenceName name, CancellationToken ct = default)
+        {
+            return await _context.Set<Competence>()
+                .FirstOrDefaultAsync(c => c.Name == name, ct);
+        }
+
         public async Task<IEnumerable<Instructor>> GetInstructorsByCompetenceAsync(string competenceName, CancellationToken ct)
         {
             var pattern = $"%{competenceName}%";
             return await _context.Instructors
                 .FromSqlInterpolated($@"
-                    SELECT a.* FROM Attendees a 
+                    SELECT a.*, FirstName AS Name_FirstName, LastName AS Name_LastName FROM Attendees a 
                     JOIN InstructorCompetences ic ON a.Id = ic.InstructorsId
                     JOIN Competences c ON ic.CompetencesId = c.id
                     WHERE c.Name LIKE {pattern}")
@@ -94,7 +102,8 @@ namespace SkillFlow.Infrastructure.Repositories
 
             return await _context.Attendees
                 .FromSqlInterpolated($@"
-                    SELECT * FROM Attendees 
+                    SELECT *, FirstName AS Name_FirstName, LastName AS Name_LastName
+                    FROM Attendees 
                     WHERE FirstName LIKE {searchPattern}
                     OR LastName LIKE {searchPattern} ")
                 .ToListAsync(ct);
@@ -106,7 +115,8 @@ namespace SkillFlow.Infrastructure.Repositories
 
             return await _context.Attendees
                 .FromSqlInterpolated($@"
-                    SELECT * FROM Attendees WHERE Role = {roleName}")
+                    SELECT *, FirstName AS Name_FirstName, LastName AS Name_LastName 
+                    FROM Attendees WHERE Role = {roleName}")
                 .ToListAsync(ct);
         }
     }
