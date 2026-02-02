@@ -42,11 +42,18 @@ if(app.Environment.IsDevelopment())
 }
 
 #region Attendees
+
 app.MapGet("/api/attendees", async (IAttendeeService service, CancellationToken ct) =>
 {
     var attendees = await service.GetAllAttendeesAsync(ct);
     return Results.Ok(attendees);
 });
+
+app.MapGet("/api/attendees/instructors", async (IAttendeeService service, CancellationToken ct)
+    => Results.Ok(await service.GetAllInstructorsAsync(ct)));
+
+app.MapGet("/api/attendees/students", async (IAttendeeService service, CancellationToken ct)
+    => Results.Ok(await service.GetAllStudentsAsync(ct)));
 
 app.MapGet("/api/attendees/{id:guid}", async (Guid id, IAttendeeService service, CancellationToken ct) =>
 {
@@ -66,13 +73,16 @@ app.MapPost("/api/attendees", async (CreateAttendeeDTO dto, IAttendeeService ser
     }
 });
 
-#endregion
 
 app.MapPost("/api/attendees/{id:guid}/competences", async (Guid id, AddCompetenceRequest request, IAttendeeService service, CancellationToken ct) =>
 {
     await service.AddCompetenceToInstructorAsync(id, request.CompetenceName, ct);
     return Results.Ok(new { message = $"Competence '{request.CompetenceName}' added successfully." });
 });
+
+
+#endregion
+
 
 app.MapPost("/api/courses", async (CreateCourseDTO dto, ICourseService service, CancellationToken ct) =>
 {

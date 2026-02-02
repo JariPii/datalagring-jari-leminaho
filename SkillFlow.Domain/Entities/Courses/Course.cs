@@ -1,11 +1,12 @@
 ﻿using SkillFlow.Domain.Courses;
+using SkillFlow.Domain.Interfaces;
 using SkillFlow.Domain.Primitives;
 
 namespace SkillFlow.Domain.Entities.Courses
 {
-    public class Course : BaseEntity
+    public class Course : BaseEntity<CourseId>, IAggregateRoot
     {
-        public CourseId Id { get; private set; }
+        //public CourseId Id { get; private set; }
         public CourseCode CourseCode { get; private set; }
         public CourseName CourseName { get; private set; }
         public CourseDescription CourseDescription { get; private set; }

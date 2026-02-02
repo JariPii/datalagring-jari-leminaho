@@ -5,7 +5,7 @@ using SkillFlow.Domain.Entities.CourseSessions;
 
 namespace SkillFlow.Infrastructure.Configurations
 {
-    public class EnrollmentConfiguration : BaseEntityConfiguration<Enrollment>
+    public class EnrollmentConfiguration : BaseEntityConfiguration<Enrollment, EnrollmentId>
     {
         public override void Configure(EntityTypeBuilder<Enrollment> builder)
         {

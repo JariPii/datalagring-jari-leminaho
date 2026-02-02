@@ -4,8 +4,8 @@ using SkillFlow.Domain.Primitives;
 
 namespace SkillFlow.Infrastructure.Configurations
 {
-    public abstract class BaseEntityConfiguration<TEntity> : IEntityTypeConfiguration<TEntity>
-        where TEntity : BaseEntity
+    public abstract class BaseEntityConfiguration<TEntity, TId> : IEntityTypeConfiguration<TEntity>
+        where TEntity : BaseEntity<TId>
     {
         public virtual void Configure(EntityTypeBuilder<TEntity> builder)
         {

@@ -194,6 +194,13 @@ namespace SkillFlow.Application.Services.Attendees
                 }
             });
         }
+
+        public async Task<IEnumerable<AttendeeDTO>> GetAllStudentsAsync(CancellationToken ct = default)
+        {
+            var students = await repository.GetAllStudentsAsync(ct);
+
+            return MapToDTOList(students);
+        }
     }
 
 }
