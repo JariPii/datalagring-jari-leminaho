@@ -194,42 +194,6 @@ namespace SkillFlow.Application.Services.Attendees
                 }
             });
         }
-
-        //private static List<AttendeeDTO> MapToDTOList(IEnumerable<Attendee> attendees)
-        //{
-        //    return [.. attendees.Select(a =>
-        //    {
-        //        if (a is Instructor instructor)
-        //        {
-
-        //            return new InstructorDTO
-        //            {
-        //                Id = instructor.Id.Value,
-        //                Email = instructor.Email.Value,
-        //                FirstName = instructor.Name.FirstName,
-        //                LastName = instructor.Name.LastName,
-        //                PhoneNumber = instructor.PhoneNumber?.Value,
-        //                Role = instructor.Role,
-        //                Competences = [.. instructor.Competences
-        //                    .Select(c => new CompetenceDTO
-        //                    {
-        //                        Id = c.Id.Value,
-        //                        Name = c.Name.Value
-        //                    })]
-        //            } as AttendeeDTO;
-        //        }
-
-        //        return new AttendeeDTO
-        //        {
-        //            Id = a.Id.Value,
-        //            Email = a.Email.Value,
-        //            FirstName = a.Name.FirstName,
-        //            LastName = a.Name.LastName,
-        //            PhoneNumber = a.PhoneNumber?.Value,
-        //            Role = a.Role
-        //        };
-        //    })];
-        //}
     }
 
 }

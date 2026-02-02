@@ -63,6 +63,18 @@ namespace SkillFlow.Domain.Entities.CourseSessions
             UpdateTimeStamp();
         }
 
+        public void UpdateDates(DateTime start, DateTime end)
+        {
+            if (end <= start)
+                throw new InvalidSessionDatesException(start, end);
+
+            if (StartDate == start && EndDate == end) return;
+
+            StartDate = start;
+            EndDate = end;
+            UpdateTimeStamp();
+        }
+
         public void AddInstructor(Instructor instructor)
         {
             if (instructor is null)

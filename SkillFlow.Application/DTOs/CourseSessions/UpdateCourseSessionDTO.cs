@@ -12,5 +12,7 @@
         public DateTime? EndDate { get; init; }
 
         public int? Capacity { get; init; }
+
+        public byte[] RowVersion { get; init; } = [];
     }
 }

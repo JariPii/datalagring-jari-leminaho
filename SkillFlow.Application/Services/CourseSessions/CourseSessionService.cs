@@ -115,34 +115,55 @@ namespace SkillFlow.Application.Services.CourseSessions
             return [.. courseSessions.Select(MapToDTO)];
         }
 
-        public Task<IEnumerable<CourseSessionDTO>> GetAvailableCourseSessionsAsync(CancellationToken ct)
+        public async Task<IEnumerable<CourseSessionDTO>> GetAvailableCourseSessionsAsync(CancellationToken ct)
         {
-            throw new NotImplementedException();
+            var sessions = await sessionRepository.GetSessionsWithAvailableCapacityAsync(ct);
+
+            return [.. sessions.Select(MapToDTO)];
         }
 
-        public Task<CourseSessionDTO> GetCourseSessionByIdAsync(Guid id, CancellationToken ct)
+        public async Task<CourseSessionDTO> GetCourseSessionByIdAsync(Guid id, CancellationToken ct)
         {
-            throw new NotImplementedException();
+            var sessionId = new CourseSessionId(id);
+
+            var session = await sessionRepository.GetByIdWithInstructorsAndEnrollmentsAsync(sessionId, ct) ??
+                throw new CourseSessionNotFoundException(sessionId);
+
+            return MapToDTO(session);
         }
 
-        public Task<IEnumerable<CourseSessionDTO>> GetCourseSessionsByDateAsync(DateTime date, CancellationToken ct)
+        public async Task<IEnumerable<CourseSessionDTO>> GetCourseSessionsByDateAsync(DateTime date, CancellationToken ct)
         {
-            throw new NotImplementedException();
+            var sessions = await sessionRepository.SearchByStartDateAsync(date, ct);
+
+            return [.. sessions.Select(MapToDTO)];
         }
 
-        public Task<IEnumerable<CourseSessionDTO>> GetCourseSessionsByLocationAsync(Guid locationId, CancellationToken ct)
+        public async Task<IEnumerable<CourseSessionDTO>> GetCourseSessionsByLocationAsync(Guid locationId, CancellationToken ct)
         {
-            throw new NotImplementedException();
+            var id = new LocationId(locationId);
+            var sessions = await sessionRepository.GetByLocationAsync(id, ct);
+
+            return [.. sessions.Select(MapToDTO)];
         }
 
-        public Task<IReadOnlyList<EnrollmentDTO>> GetEnrollmentsBySessionIdAsync(Guid sessionId, CancellationToken ct = default)
+        public async Task<IReadOnlyList<EnrollmentDTO>> GetEnrollmentsBySessionIdAsync(Guid sessionId, CancellationToken ct = default)
         {
-            throw new NotImplementedException();
+            var id = new CourseSessionId(sessionId);
+            var session = await sessionRepository.GetByIdWithInstructorsAndEnrollmentsAsync(id, ct) ??
+                throw new CourseSessionNotFoundException(id);
+
+            return [.. session.Enrollments.Select(e => new EnrollmentDTO {
+                StudentId = e.StudentId.Value,
+                Status = e.Status,
+                EnrolledAt = e.CreatedAt
+            })];
         }
 
-        public Task<IEnumerable<CourseSessionDTO>> SearchCourseSessionsAsync(string searchTerm, CancellationToken ct)
+        public async Task<IEnumerable<CourseSessionDTO>> SearchCourseSessionsAsync(string searchTerm, CancellationToken ct)
         {
-            throw new NotImplementedException();
+            var sessions = await sessionRepository.SearchAsync(searchTerm, ct);
+            return [.. sessions.Select(MapToDTO)];
         }
 
         public async Task SetEnrollmentStatusAsync(Guid sessionId, Guid studentId, EnrollmentStatus status, CancellationToken ct)
@@ -167,9 +188,21 @@ namespace SkillFlow.Application.Services.CourseSessions
             }
         }
 
-        public Task UpdateCourseSessionAsync(UpdateCourseSessionDTO dto, CancellationToken ct)
+        public async Task UpdateCourseSessionAsync(UpdateCourseSessionDTO dto, CancellationToken ct)
         {
-            throw new NotImplementedException();
+            var id = new CourseSessionId(dto.Id);
+            var session = await sessionRepository.GetByIdWithInstructorsAndEnrollmentsAsync(id, ct) ??
+                throw new CourseSessionNotFoundException(id);
+
+            context.Entry(session).Property("RowVersion").OriginalValue = dto.RowVersion;
+
+            if (dto.Capacity.HasValue)
+                session.UpdateCapacity(dto.Capacity.Value);
+
+            if (dto.StartDate.HasValue || dto.EndDate.HasValue)
+                session.UpdateDates(dto.StartDate ?? session.StartDate, dto.EndDate ?? session.EndDate);
+
+            await sessionRepository.UpdateAsync(session, ct);
         }
 
         private static CourseSessionDTO MapToDTO(CourseSession courseSession)

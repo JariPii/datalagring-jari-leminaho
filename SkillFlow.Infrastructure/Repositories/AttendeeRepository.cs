@@ -89,7 +89,6 @@ namespace SkillFlow.Infrastructure.Repositories
 
         public async Task<Attendee?> GetByIdAsync(AttendeeId id, CancellationToken ct)
         {
-            // Vi försöker hämta som Instructor först för att få med kompetenser
             var instructor = await _context.Attendees
                 .OfType<Instructor>()
                 .Include(i => i.Competences)
@@ -97,7 +96,6 @@ namespace SkillFlow.Infrastructure.Repositories
 
             if (instructor is not null) return instructor;
 
-            // Om ingen lärare hittades, sök bland studenter
             return await _context.Attendees
                 .OfType<Student>()
                 .FirstOrDefaultAsync(a => a.Id == id, ct);
