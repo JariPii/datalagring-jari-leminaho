@@ -28,8 +28,9 @@ namespace SkillFlow.Application.Services.Attendees
             }
 
             var cName = CompetenceName.Create(competenceName);
-            var cId = CompetenceId.New();
-            var competence = new Competence(cId, cName);
+
+            var competence = await repository.GetCompetenceByNameAsync(cName, ct) ??
+                throw new CompetenceNotFoundException(cName);
 
             instructor.AddCompetence(competence);
 

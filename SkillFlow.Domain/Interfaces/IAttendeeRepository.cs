@@ -1,4 +1,6 @@
-﻿using SkillFlow.Domain.Entities.Attendees;
+﻿using SkillFlow.Domain.Courses;
+using SkillFlow.Domain.Entities.Attendees;
+using SkillFlow.Domain.Entities.Courses;
 using SkillFlow.Domain.Enums;
 
 namespace SkillFlow.Domain.Interfaces
@@ -21,5 +23,6 @@ namespace SkillFlow.Domain.Interfaces
         Task AddAsync(Attendee attendee, CancellationToken ct = default);
         Task UpdateAsync(Attendee attendee, CancellationToken ct = default);
         Task<bool> DeleteAsync(AttendeeId id, CancellationToken ct = default);
+        Task<Competence?> GetCompetenceByNameAsync(CompetenceName name, CancellationToken ct = default);
     }
 }

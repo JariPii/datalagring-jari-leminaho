@@ -11,12 +11,16 @@ using SkillFlow.Domain.Entities.Courses;
 using SkillFlow.Domain.Interfaces;
 using SkillFlow.Infrastructure;
 using SkillFlow.Infrastructure.Repositories;
+using SkillFlow.Presentation.Exceptions;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 
 builder.Services.AddOpenApi();
+
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
 
 builder.Services.AddDbContext<SkillFlowDbContext>(options =>
 {
@@ -35,6 +39,8 @@ builder.Services.AddScoped<ICourseSessionService, CourseSessionService>();
 
 var app = builder.Build();
 
+app.UseExceptionHandler();
+
 if(app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
@@ -43,24 +49,33 @@ if(app.Environment.IsDevelopment())
 
 #region Attendees
 
-app.MapGet("/api/attendees", async (IAttendeeService service, CancellationToken ct) =>
-{
-    var attendees = await service.GetAllAttendeesAsync(ct);
-    return Results.Ok(attendees);
-});
+var attendees = app.MapGroup("/api/attendees");
 
-app.MapGet("/api/attendees/instructors", async (IAttendeeService service, CancellationToken ct)
+attendees.MapGet("/", async (IAttendeeService service, CancellationToken ct)
+    => Results.Ok(await service.GetAllAttendeesAsync(ct)));
+
+attendees.MapGet("/instructors", async (IAttendeeService service, CancellationToken ct)
     => Results.Ok(await service.GetAllInstructorsAsync(ct)));
 
-app.MapGet("/api/attendees/students", async (IAttendeeService service, CancellationToken ct)
+attendees.MapGet("/students", async (IAttendeeService service, CancellationToken ct)
     => Results.Ok(await service.GetAllStudentsAsync(ct)));
 
-app.MapGet("/api/attendees/{id:guid}", async (Guid id, IAttendeeService service, CancellationToken ct) =>
-{
-    return Results.Ok(await service.GetAttendeeByIdAsync(id, ct));
-});
+attendees.MapGet("/search", async (string searchTerm, IAttendeeService service, CancellationToken ct)
+    => Results.Ok(await service.SearchAttendeesByNameAsync(searchTerm, ct)));
 
-app.MapPost("/api/attendees", async (CreateAttendeeDTO dto, IAttendeeService service, CancellationToken ct) =>
+attendees.MapGet("/instructors/competence/{name}", async (string name, IAttendeeService service, CancellationToken ct)
+    => Results.Ok(await service.GetInstructorsByCompetenceAsync(name, ct)));
+
+attendees.MapGet("/role/{role}", async (string role, IAttendeeService service, CancellationToken ct)
+    => Results.Ok(await service.GetAttendeesByRoleAsync(role, ct)));
+
+attendees.MapGet("/email/{email}", async (string email, IAttendeeService service, CancellationToken ct)
+    => Results.Ok(await service.GetAttendeeByEmailAsync(email, ct)));
+
+attendees.MapGet("/{id:guid}", async (Guid id, IAttendeeService service, CancellationToken ct) 
+    => Results.Ok(await service.GetAttendeeByIdAsync(id, ct)));
+
+attendees.MapPost("/", async (CreateAttendeeDTO dto, IAttendeeService service, CancellationToken ct) =>
 {
     try
     {
@@ -73,8 +88,22 @@ app.MapPost("/api/attendees", async (CreateAttendeeDTO dto, IAttendeeService ser
     }
 });
 
+attendees.MapPut("/{id:guid}", async (Guid id, UpdateAttendeeDTO dto, IAttendeeService service, CancellationToken ct)
+    =>
+{
+    if (id != dto.Id) return Results.BadRequest("Id mismatch");
 
-app.MapPost("/api/attendees/{id:guid}/competences", async (Guid id, AddCompetenceRequest request, IAttendeeService service, CancellationToken ct) =>
+    await service.UpdateAttendeeAsync(dto, ct);
+    return Results.NoContent();
+});
+
+attendees.MapDelete("/{id:guid}", async (Guid id, IAttendeeService service, CancellationToken ct) =>
+{
+    await service.DeleteAttendeeAsync(id, ct);
+    return Results.NoContent();
+});
+
+attendees.MapPost("/{id:guid}/competences", async (Guid id, AddCompetenceRequest request, IAttendeeService service, CancellationToken ct) =>
 {
     await service.AddCompetenceToInstructorAsync(id, request.CompetenceName, ct);
     return Results.Ok(new { message = $"Competence '{request.CompetenceName}' added successfully." });
