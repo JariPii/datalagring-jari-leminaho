@@ -7,7 +7,10 @@ using SkillFlow.Domain.Interfaces;
 
 namespace SkillFlow.Infrastructure.Repositories
 {
-    public class AttendeeRepository(SkillFlowDbContext context) : BaseRespository<Attendee, AttendeeId>(context), IAttendeeRepository
+    public class AttendeeRepository(SkillFlowDbContext context)
+        : BaseRespository<Attendee, AttendeeId>(context),
+          IAttendeeRepository,
+          IAttendeeQueries
     {
 
         public override async Task<bool> DeleteAsync(AttendeeId id, CancellationToken ct)

@@ -7,7 +7,6 @@ namespace SkillFlow.Domain.Entities.Attendees
 {
     public abstract class Attendee : BaseEntity<AttendeeId>, IAggregateRoot
     {
-        //public AttendeeId Id { get; private set; }
         public Role Role { get; private set; }
         public Email Email { get; private set; }
         public AttendeeName Name { get; private set; }

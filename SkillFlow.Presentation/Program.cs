@@ -6,8 +6,6 @@ using SkillFlow.Application.Interfaces;
 using SkillFlow.Application.Services.Attendees;
 using SkillFlow.Application.Services.Courses;
 using SkillFlow.Application.Services.CourseSessions;
-using SkillFlow.Domain.Courses;
-using SkillFlow.Domain.Entities.Courses;
 using SkillFlow.Domain.Interfaces;
 using SkillFlow.Infrastructure;
 using SkillFlow.Infrastructure.Repositories;
@@ -27,7 +25,10 @@ builder.Services.AddDbContext<SkillFlowDbContext>(options =>
     options.UseSqlServer(connectionString);
 });
 
+#region AddScoped
+
 builder.Services.AddScoped<IAttendeeRepository, AttendeeRepository>();
+builder.Services.AddScoped<IAttendeeQueries, AttendeeRepository>();
 builder.Services.AddScoped<ICourseRepository, CourseRepository>();
 builder.Services.AddScoped<ICourseSessionRepository, CourseSessionRepository>();
 builder.Services.AddScoped<ILocationRepository, LocationRepository>();
@@ -36,6 +37,7 @@ builder.Services.AddScoped<IAttendeeService, AttendeeService>();
 builder.Services.AddScoped<ICourseService, CourseService>();
 builder.Services.AddScoped<ICourseSessionService, CourseSessionService>();
 
+#endregion
 
 var app = builder.Build();
 
@@ -112,6 +114,7 @@ attendees.MapPost("/{id:guid}/competences", async (Guid id, AddCompetenceRequest
 
 #endregion
 
+#region Courses
 
 app.MapPost("/api/courses", async (CreateCourseDTO dto, ICourseService service, CancellationToken ct) =>
 {
@@ -126,11 +129,22 @@ app.MapPost("/api/courses", async (CreateCourseDTO dto, ICourseService service, 
     }
 });
 
-// Hämta alla kurser
 app.MapGet("/api/courses", async (ICourseService service, CancellationToken ct) =>
     Results.Ok(await service.GetAllCoursesAsync(ct)));
 
+#endregion
 
+#region Location
+
+
+
+#endregion
+
+#region CourseSessions
+
+
+
+#endregion
 
 app.Run();
 

@@ -7,7 +7,6 @@ namespace SkillFlow.Domain.Entities.Courses
     public class Competence : BaseEntity<CompetenceId>
     {
         private readonly List<Instructor> _instructors = new();
-        //public CompetenceId Id { get; private set; }
         public CompetenceName Name { get; private set; }
 
         public Competence(CompetenceId id, CompetenceName name)

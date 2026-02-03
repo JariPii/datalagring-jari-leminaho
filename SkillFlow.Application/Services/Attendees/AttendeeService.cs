@@ -5,15 +5,13 @@ using SkillFlow.Application.Interfaces;
 using SkillFlow.Domain.Attendees;
 using SkillFlow.Domain.Courses;
 using SkillFlow.Domain.Entities.Attendees;
-using SkillFlow.Domain.Entities.Courses;
 using SkillFlow.Domain.Enums;
 using SkillFlow.Domain.Exceptions;
 using SkillFlow.Domain.Interfaces;
-using SkillFlow.Infrastructure;
 
 namespace SkillFlow.Application.Services.Attendees
 {
-    public class AttendeeService(IAttendeeRepository repository) : IAttendeeService
+    public class AttendeeService(IAttendeeRepository repository, IAttendeeQueries queries) : IAttendeeService
     {
         public async Task AddCompetenceToInstructorAsync(Guid instructorId, string competenceName, CancellationToken ct)
         {
@@ -29,7 +27,7 @@ namespace SkillFlow.Application.Services.Attendees
 
             var cName = CompetenceName.Create(competenceName);
 
-            var competence = await repository.GetCompetenceByNameAsync(cName, ct) ??
+            var competence = await queries.GetCompetenceByNameAsync(cName, ct) ??
                 throw new CompetenceNotFoundException(cName);
 
             instructor.AddCompetence(competence);
@@ -72,13 +70,13 @@ namespace SkillFlow.Application.Services.Attendees
 
         public async Task<IEnumerable<AttendeeDTO>> GetAllAttendeesAsync(CancellationToken ct)
         {
-            var attendees = await repository.GetAllAsync(ct);
+            var attendees = await queries.GetAllAsync(ct);
             return MapToDTOList(attendees);
         }
 
         public async Task<IEnumerable<InstructorDTO>> GetAllInstructorsAsync(CancellationToken ct)
         {
-            var instructors = await repository.GetAllInstructorsAsync(ct);
+            var instructors = await queries.GetAllInstructorsAsync(ct);
 
             return [.. MapToDTOList(instructors).Cast<InstructorDTO>()];
 
@@ -117,20 +115,20 @@ namespace SkillFlow.Application.Services.Attendees
                 throw new InvalidRoleException(role ?? "Unknown");
             }
 
-            var attendees = await repository.SearchByRoleAsync(parsedRole, ct);
+            var attendees = await queries.SearchByRoleAsync(parsedRole, ct);
             return MapToDTOList(attendees);
         }
 
         public async Task<IEnumerable<InstructorDTO>> GetInstructorsByCompetenceAsync(string competence, CancellationToken ct)
         {
-            var instructors = await repository.GetInstructorsByCompetenceAsync(competence, ct);
+            var instructors = await queries.GetInstructorsByCompetenceAsync(competence, ct);
 
             return MapToDTOList(instructors).Cast<InstructorDTO>();
         }
 
         public async Task<IEnumerable<AttendeeDTO>> SearchAttendeesByNameAsync(string searchTerm, CancellationToken ct)
         {
-            var attendees = await repository.SearchByNameAsync(searchTerm, ct);
+            var attendees = await queries.SearchByNameAsync(searchTerm, ct);
             return MapToDTOList(attendees);
 
         }
@@ -198,7 +196,7 @@ namespace SkillFlow.Application.Services.Attendees
 
         public async Task<IEnumerable<AttendeeDTO>> GetAllStudentsAsync(CancellationToken ct = default)
         {
-            var students = await repository.GetAllStudentsAsync(ct);
+            var students = await queries.GetAllStudentsAsync(ct);
 
             return MapToDTOList(students);
         }
