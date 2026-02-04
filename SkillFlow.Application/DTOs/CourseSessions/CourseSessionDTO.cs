@@ -17,5 +17,7 @@
         public int Capacity { get; init; }
 
         public int ApprovedEnrollmentsCount { get; init; }
+
+        public byte[] RowVersion { get; init; } = [];
     }
 }

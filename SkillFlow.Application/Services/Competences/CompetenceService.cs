@@ -24,9 +24,13 @@ namespace SkillFlow.Application.Services.Competences
             return MapToDTO(competence);
         }
 
-        public Task DeleteCompetenceAsync(Guid id, CancellationToken ct = default)
+        public async Task DeleteCompetenceAsync(Guid id, CancellationToken ct = default)
         {
-            throw new NotImplementedException();
+            var competenceId = new CompetenceId(id);
+            var competence = await repository.GetByIdAsync(competenceId, ct) ??
+                throw new CompetenceNotFoundException(competenceId);
+
+            await repository.DeleteAsync(competenceId, ct);
         }
 
         public async Task<IEnumerable<CompetenceDetailsDTO>> GetAllCompetencesAsync(CancellationToken ct = default)
@@ -35,14 +39,32 @@ namespace SkillFlow.Application.Services.Competences
             return MapToDTODetails(competences);
         }
 
-        public Task<CompetenceDetailsDTO> GetCompetenceDetailsAsync(Guid id, CancellationToken ct = default)
+        public async Task<CompetenceDetailsDTO> GetCompetenceDetailsAsync(Guid id, CancellationToken ct = default)
         {
-            throw new NotImplementedException();
+            var competenceId = new CompetenceId(id);
+
+            var competence = await repository.GetByIdAsync(competenceId, ct) ??
+                throw new CompetenceNotFoundException(competenceId);
+
+            return MapToDTODetails([competence]).First();
         }
 
-        public Task UpdateCompetenceAsync(UpdateCompetenceDTO dto, CancellationToken ct = default)
+        public async Task<CompetenceDTO> UpdateCompetenceAsync(UpdateCompetenceDTO dto, CancellationToken ct = default)
         {
-            throw new NotImplementedException();
+            var competenceId = new CompetenceId(dto.Id);
+            var competence = await repository.GetByIdAsync(competenceId, ct) ??
+                throw new CompetenceNotFoundException(competenceId);
+
+            var newName = CompetenceName.Create(dto.Name);
+
+            if (competence.Name != newName && await repository.ExistsByNameAsync(newName, ct))
+                throw new CompetenceNameAllreadyExistsException(newName);
+
+            competence.UpdateCompetenceName(newName);
+
+            await repository.UpdateAsync(competence, dto.RowVersion, ct);
+
+            return MapToDTO(competence);
         }
 
         private static CompetenceDTO MapToDTO(Competence competence)
@@ -50,7 +72,8 @@ namespace SkillFlow.Application.Services.Competences
             return new CompetenceDTO()
             {
                 Id = competence.Id.Value,
-                Name = competence.Name.Value
+                Name = competence.Name.Value,
+                RowVersion = competence.RowVersion
             };
         }
 
@@ -60,6 +83,7 @@ namespace SkillFlow.Application.Services.Competences
             {
                 Id = c.Id.Value,
                 Name = c.Name.Value,
+                RowVersion = c.RowVersion,
 
                 Instructors = [.. c.Instructors.Select(i => MapAttendeeToDTO(i))]
             }
@@ -75,7 +99,8 @@ namespace SkillFlow.Application.Services.Competences
                 LastName = a.Name.LastName,
                 Email = a.Email.Value,
                 Role = a.Role,
-                PhoneNumber = a.PhoneNumber?.Value
+                PhoneNumber = a.PhoneNumber?.Value,
+                RowVersion = a.RowVersion
             };
         }
     }

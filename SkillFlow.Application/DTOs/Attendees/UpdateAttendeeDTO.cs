@@ -11,5 +11,7 @@
         public string? LastName { get; init; }
 
         public string? PhoneNumber { get; init; }
+
+        public byte[] RowVersion { get; init; } = [];
     }
 }

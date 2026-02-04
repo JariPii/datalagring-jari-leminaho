@@ -13,7 +13,7 @@ namespace SkillFlow.Application.Services.Attendees
 {
     public class AttendeeService(IAttendeeRepository repository, IAttendeeQueries queries, ICompetenceRepository competenceRepository) : IAttendeeService
     {
-        public async Task AddCompetenceToInstructorAsync(Guid instructorId, string competenceName, CancellationToken ct)
+        public async Task AddCompetenceToInstructorAsync(Guid instructorId, string competenceName, byte[] rowVersion, CancellationToken ct)
         {
             var attendeeId = new AttendeeId(instructorId);
 
@@ -32,7 +32,7 @@ namespace SkillFlow.Application.Services.Attendees
 
             instructor.AddCompetence(competence);
 
-            await repository.UpdateAsync(instructor, ct);
+            await repository.UpdateAsync(instructor, instructor.RowVersion ,ct);
         }
 
         public async Task<AttendeeDTO> CreateAttendeeAsync(CreateAttendeeDTO dto, CancellationToken ct)
@@ -105,12 +105,13 @@ namespace SkillFlow.Application.Services.Attendees
 
         public async Task<IEnumerable<AttendeeDTO>> GetAttendeesByRoleAsync(string role, CancellationToken ct)
         {
-            if(string.IsNullOrWhiteSpace(role) || !Enum.TryParse<Role>(role, true, out var parsedRole))
+            if (!Enum.TryParse<Role>(role, true, out var parsedRole) || !Enum.IsDefined(parsedRole))
             {
-                throw new InvalidRoleException(role ?? "Unknown");
+                throw new InvalidRoleException(role);
             }
 
             var attendees = await queries.SearchByRoleAsync(parsedRole, ct);
+
             return MapToDTOList(attendees);
         }
 
@@ -128,7 +129,7 @@ namespace SkillFlow.Application.Services.Attendees
 
         }
 
-        public async Task UpdateAttendeeAsync(UpdateAttendeeDTO dto, CancellationToken ct)
+        public async Task<AttendeeDTO> UpdateAttendeeAsync(UpdateAttendeeDTO dto, CancellationToken ct)
         {
             var attendeeId = new AttendeeId(dto.Id);
 
@@ -144,7 +145,7 @@ namespace SkillFlow.Application.Services.Attendees
                     throw new EmailAlreadyExistsException(newEmail);
                 }
 
-                attendee.UpdateEmail(dto.Email);
+                attendee.UpdateEmail(newEmail);
             }
 
             attendee.UpdateFirstName(dto.FirstName ?? attendee.Name.FirstName);
@@ -155,7 +156,8 @@ namespace SkillFlow.Application.Services.Attendees
                 attendee.UpdatePhoneNumber(PhoneNumber.Create(dto.PhoneNumber));
             }
 
-            await repository.UpdateAsync(attendee, ct);
+            await repository.UpdateAsync(attendee, dto.RowVersion ,ct);
+            return MapToDTOList([attendee]).First();
         }
 
   
@@ -175,8 +177,10 @@ namespace SkillFlow.Application.Services.Attendees
                     Competences = [.. i.Competences.Select(c => new CompetenceDTO
                     {
                         Id = c.Id.Value,
-                        Name = c.Name.Value
+                        Name = c.Name.Value,
+                        RowVersion = c.RowVersion
                     })],
+                    RowVersion = i.RowVersion
 
                 },
                 _ => new AttendeeDTO
@@ -186,7 +190,8 @@ namespace SkillFlow.Application.Services.Attendees
                     FirstName = a.Name.FirstName,
                     LastName = a.Name.LastName,
                     PhoneNumber = a.PhoneNumber?.Value,
-                    Role = a.Role
+                    Role = a.Role,
+                    RowVersion = a.RowVersion
                 }
             });
         }

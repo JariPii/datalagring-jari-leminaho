@@ -5,5 +5,7 @@
         public Guid Id { get; init; }
 
         public string LocationName { get; init; } = string.Empty;
+
+        public byte[] RowVersion { get; init; } = [];
     }
 }

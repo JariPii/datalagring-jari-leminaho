@@ -10,7 +10,7 @@ namespace SkillFlow.Application.Interfaces
         Task<CourseDTO> GetCourseByNameAsync(string name, CancellationToken ct = default);
         Task<IEnumerable<CourseDTO>> SearchCoursesAsync(string searchTerm, CancellationToken ct = default);
         Task<CourseDTO> CreateCourseAsync(CreateCourseDTO dto, CancellationToken ct = default);
-        Task UpdateCourseAsync(UpdateCourseDTO dto, CancellationToken ct = default);
+        Task<CourseDTO> UpdateCourseAsync(UpdateCourseDTO dto, CancellationToken ct = default);
         Task DeleteCourseAsync(Guid id, CancellationToken ct = default);
     }
 }

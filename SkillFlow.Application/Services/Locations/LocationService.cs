@@ -64,7 +64,7 @@ namespace SkillFlow.Application.Services.Locations
 
             location.UpdateLocationName(LocationName.Create(dto.Name ?? location.LocationName.Value));
 
-            await repository.UpdateAsync(location, ct);
+            await repository.UpdateAsync(location, dto.RowVersion, ct);
         }
 
         private static LocationDTO MatToDTO(Location location)

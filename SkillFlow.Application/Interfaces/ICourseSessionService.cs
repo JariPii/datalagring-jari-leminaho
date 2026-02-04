@@ -15,8 +15,8 @@ namespace SkillFlow.Application.Interfaces
         Task UpdateCourseSessionAsync(UpdateCourseSessionDTO dto, CancellationToken ct = default);
         Task DeleteCourseSessionAsync(Guid id, CancellationToken ct = default);
         Task EnrollStudentAsync(Guid sessionId, Guid studentId, CancellationToken ct = default);
-        Task SetEnrollmentStatusAsync(Guid sessionId, Guid studentId, EnrollmentStatus status, CancellationToken ct = default);
-        Task AddInstructorToCourseSessionAsync(Guid sessionId, Guid instructorId, CancellationToken ct = default);
+        Task SetEnrollmentStatusAsync(Guid sessionId, Guid studentId, EnrollmentStatus status, byte[] rowVersion, CancellationToken ct = default);
+        Task AddInstructorToCourseSessionAsync(Guid sessionId, Guid instructorId, byte[] rowVersion, CancellationToken ct = default);
         Task<IReadOnlyList<EnrollmentDTO>> GetEnrollmentsBySessionIdAsync(Guid sessionId, CancellationToken ct = default);
     }
 }

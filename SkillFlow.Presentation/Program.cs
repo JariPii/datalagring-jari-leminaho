@@ -83,15 +83,8 @@ attendees.MapGet("/{id:guid}", async (Guid id, IAttendeeService service, Cancell
 
 attendees.MapPost("/", async (CreateAttendeeDTO dto, IAttendeeService service, CancellationToken ct) =>
 {
-    try
-    {
         var result = await service.CreateAttendeeAsync(dto, ct);
         return Results.Created($"/api/attendees/{result.Id}", result);
-    }
-    catch (Exception ex)
-    {
-        return Results.BadRequest(new { error = ex.Message });
-    }
 });
 
 attendees.MapPut("/{id:guid}", async (Guid id, UpdateAttendeeDTO dto, IAttendeeService service, CancellationToken ct)
@@ -99,8 +92,8 @@ attendees.MapPut("/{id:guid}", async (Guid id, UpdateAttendeeDTO dto, IAttendeeS
 {
     if (id != dto.Id) return Results.BadRequest("Id mismatch");
 
-    await service.UpdateAttendeeAsync(dto, ct);
-    return Results.NoContent();
+    var updatedAttendee = await service.UpdateAttendeeAsync(dto, ct);
+    return Results.Ok(updatedAttendee);
 });
 
 attendees.MapDelete("/{id:guid}", async (Guid id, IAttendeeService service, CancellationToken ct) =>
@@ -111,7 +104,7 @@ attendees.MapDelete("/{id:guid}", async (Guid id, IAttendeeService service, Canc
 
 attendees.MapPost("/{id:guid}/competences", async (Guid id, AddCompetenceRequest request, IAttendeeService service, CancellationToken ct) =>
 {
-    await service.AddCompetenceToInstructorAsync(id, request.CompetenceName, ct);
+    await service.AddCompetenceToInstructorAsync(id, request.CompetenceName, request.RowVersion, ct);
     return Results.Ok(new { message = $"Competence '{request.CompetenceName}' added successfully." });
 });
 

@@ -7,5 +7,7 @@
         public string CourseName { get; init; } = string.Empty;
 
         public string CourseDescription { get; init; } = string.Empty;
+
+        public byte[] RowVersion { get; init; } = [];
     }
 }

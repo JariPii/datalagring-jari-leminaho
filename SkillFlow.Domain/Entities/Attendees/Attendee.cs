@@ -3,7 +3,6 @@ using SkillFlow.Domain.Enums;
 using SkillFlow.Domain.Exceptions;
 using SkillFlow.Domain.Interfaces;
 using SkillFlow.Domain.Primitives;
-using System.Numerics;
 
 namespace SkillFlow.Domain.Entities.Attendees
 {
@@ -22,7 +21,7 @@ namespace SkillFlow.Domain.Entities.Attendees
             {
                 Role.Instructor => new Instructor(id, email, name, phoneNumber),
                 Role.Student => new Student(id, email, name, phoneNumber),
-                _ => throw new InvalidRoleException(id.ToString())
+                _ => throw new InvalidRoleException(role)
             };
         }
 

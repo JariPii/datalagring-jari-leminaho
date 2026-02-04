@@ -24,7 +24,8 @@ namespace SkillFlow.Domain.Exceptions
     public class InvalidRoleException : DomainException
     {
         public InvalidRoleException(AttendeeId id, Role expectedRole) : base($"Attendee {id.Value} does not have the required role: {expectedRole}") { }
-        public InvalidRoleException(string role) : base($"{role} is not a valid role, use Student or Instructor") { }
+        public InvalidRoleException(Role role) : base($"{role} is not a valid role, use Student or Instructor") { }
+        public InvalidRoleException(string inputValue) : base($"{inputValue} is not a valid role, use Student or Instructor") { }
 
     }
 

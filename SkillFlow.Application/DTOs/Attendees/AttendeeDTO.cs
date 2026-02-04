@@ -25,6 +25,7 @@ namespace SkillFlow.Application.DTOs.Attendees
         [JsonConverter(typeof(JsonStringEnumConverter))]
         [JsonPropertyOrder(-10)]
         public Role Role { get; init; }
+        public byte[] RowVersion { get; init; } = [];
 
     }
 }
