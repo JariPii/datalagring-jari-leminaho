@@ -6,7 +6,6 @@ namespace SkillFlow.Domain.Entities.Courses
 {
     public class Course : BaseEntity<CourseId>, IAggregateRoot
     {
-        //public CourseCode CourseCode { get; private set; }
         public CourseName CourseName { get; private set; }
         public CourseDescription CourseDescription { get; private set; }
 

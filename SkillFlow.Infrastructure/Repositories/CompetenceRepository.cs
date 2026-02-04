@@ -23,7 +23,6 @@ namespace SkillFlow.Infrastructure.Repositories
         {
             return await _context.Competences
                 .Include(c => c.Instructors)
-                .AsNoTracking()
                 .FirstOrDefaultAsync(c => c.Id == id, ct);
         }
 

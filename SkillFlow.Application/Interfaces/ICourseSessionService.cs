@@ -12,7 +12,7 @@ namespace SkillFlow.Application.Interfaces
         Task<IEnumerable<CourseSessionDTO>> GetAvailableCourseSessionsAsync(CancellationToken ct = default);
         Task<IEnumerable<CourseSessionDTO>> SearchCourseSessionsAsync(string searchTerm, CancellationToken ct = default);
         Task<CourseSessionDTO> CreateCourseSessionAsync(CreateCourseSessionDTO dto, CancellationToken ct = default);
-        Task UpdateCourseSessionAsync(UpdateCourseSessionDTO dto, CancellationToken ct = default);
+        Task<CourseSessionDTO> UpdateCourseSessionAsync(UpdateCourseSessionDTO dto, CancellationToken ct = default);
         Task DeleteCourseSessionAsync(Guid id, CancellationToken ct = default);
         Task EnrollStudentAsync(Guid sessionId, Guid studentId, CancellationToken ct = default);
         Task SetEnrollmentStatusAsync(Guid sessionId, Guid studentId, EnrollmentStatus status, byte[] rowVersion, CancellationToken ct = default);

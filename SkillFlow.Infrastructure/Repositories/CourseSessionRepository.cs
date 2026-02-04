@@ -120,6 +120,7 @@ public class CourseSessionRepository(SkillFlowDbContext context) : BaseResposito
             .Include(s => s.Course)
             .Include(s => s.Location)
             .Include(s => s.Enrollments)
+            .Include(s => s.Instructors)
             .ToListAsync(ct);
     }
 

@@ -188,13 +188,12 @@ namespace SkillFlow.Application.Services.CourseSessions
             }
         }
 
-        public async Task UpdateCourseSessionAsync(UpdateCourseSessionDTO dto, CancellationToken ct)
+        public async Task<CourseSessionDTO> UpdateCourseSessionAsync(UpdateCourseSessionDTO dto, CancellationToken ct)
         {
             var id = new CourseSessionId(dto.Id);
+
             var session = await sessionRepository.GetByIdWithInstructorsAndEnrollmentsAsync(id, ct) ??
                 throw new CourseSessionNotFoundException(id);
-
-            context.Entry(session).Property("RowVersion").OriginalValue = dto.RowVersion;
 
             if (dto.Capacity.HasValue)
                 session.UpdateCapacity(dto.Capacity.Value);
@@ -203,6 +202,8 @@ namespace SkillFlow.Application.Services.CourseSessions
                 session.UpdateDates(dto.StartDate ?? session.StartDate, dto.EndDate ?? session.EndDate);
 
             await sessionRepository.UpdateAsync(session, dto.RowVersion, ct);
+
+            return MapToDTO(session);
         }
 
         private static CourseSessionDTO MapToDTO(CourseSession courseSession)

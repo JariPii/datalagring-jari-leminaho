@@ -16,7 +16,7 @@ namespace SkillFlow.Domain.Exceptions
 
     public class CourseCodeAllreadyExistsException(CourseCode code) : DomainException($"Course {code.Value} allready exists");
 
-    public class CourseInUseException(CourseCode code) : DomainException($"Course {code.Value} can not be deleted because it has active sessions");
+    public class CourseInUseException(CourseName name) : DomainException($"Course {name.Value} can not be deleted because it has active sessions");
 
     public class CourseNameAllreadyExistsException(CourseName name) : DomainException($"Course {name.Value} allready exists");
 
