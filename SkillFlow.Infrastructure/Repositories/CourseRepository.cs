@@ -21,29 +21,33 @@ namespace SkillFlow.Infrastructure.Repositories
 
         public override async Task<bool> DeleteAsync(CourseId id, CancellationToken ct)
         {
-            var course = await _context.Courses.FirstOrDefaultAsync(c => c.Id == id, ct);
-            if (course is null) return false;
+            //var course = await _context.Courses.FirstOrDefaultAsync(c => c.Id == id, ct);
+            //if (course is null) return false;
 
-            try
-            {
-                _context.Courses.Remove(course);
-                await _context.SaveChangesAsync(ct);
-                return true;
-            }
-            catch (DbUpdateException)
-            {
-                throw new CourseInUseException(course.CourseCode);
-            }           
+            //try
+            //{
+            //    _context.Courses.Remove(course);
+            //    await _context.SaveChangesAsync(ct);
+            //    return true;
+            //}
+            //catch (DbUpdateException)
+            //{
+            //    throw new CourseInUseException(course.CourseCode);
+            //}
+            //
+            throw new NotImplementedException();
         }
 
         public async Task<bool> ExistsByCourseCodeAsync(CourseCode code, CancellationToken ct)
         {
-            return await _context.Courses.AnyAsync(c => c.CourseCode == code, ct);
+            //return await _context.Courses.AnyAsync(c => c.CourseCode == code, ct);
+            throw new NotImplementedException();
         }
 
         public async Task<Course?> GetByCourseCodeAsync(CourseCode code, CancellationToken ct)
         {
-            return await _context.Courses.FirstOrDefaultAsync(c => c.CourseCode == code, ct);
+            //return await _context.Courses.FirstOrDefaultAsync(c => c.CourseCode == code, ct);
+            throw new NotImplementedException();
         }
 
         public async Task<bool> ExistsByCourseName(CourseName name, CancellationToken ct)

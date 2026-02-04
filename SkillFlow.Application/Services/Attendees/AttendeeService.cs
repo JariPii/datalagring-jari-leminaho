@@ -1,17 +1,17 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SkillFlow.Application.DTOs.Attendees;
-using SkillFlow.Application.DTOs.Courses;
+using SkillFlow.Application.DTOs.Competences;
 using SkillFlow.Application.Interfaces;
 using SkillFlow.Domain.Attendees;
-using SkillFlow.Domain.Courses;
 using SkillFlow.Domain.Entities.Attendees;
+using SkillFlow.Domain.Entities.Competences;
 using SkillFlow.Domain.Enums;
 using SkillFlow.Domain.Exceptions;
 using SkillFlow.Domain.Interfaces;
 
 namespace SkillFlow.Application.Services.Attendees
 {
-    public class AttendeeService(IAttendeeRepository repository, IAttendeeQueries queries) : IAttendeeService
+    public class AttendeeService(IAttendeeRepository repository, IAttendeeQueries queries, ICompetenceRepository competenceRepository) : IAttendeeService
     {
         public async Task AddCompetenceToInstructorAsync(Guid instructorId, string competenceName, CancellationToken ct)
         {
@@ -27,7 +27,7 @@ namespace SkillFlow.Application.Services.Attendees
 
             var cName = CompetenceName.Create(competenceName);
 
-            var competence = await queries.GetCompetenceByNameAsync(cName, ct) ??
+            var competence = await competenceRepository.GetByNameAsync(cName, ct) ??
                 throw new CompetenceNotFoundException(cName);
 
             instructor.AddCompetence(competence);
@@ -46,12 +46,7 @@ namespace SkillFlow.Application.Services.Attendees
             if (await repository.ExistsByEmailAsync(email, ct))
                 throw new EmailAlreadyExistsException(email);
 
-            Attendee attendee = dto.Role switch
-            {
-                Role.Instructor => new Instructor(AttendeeId.New(), email, name, phone),
-                Role.Student => new Student(AttendeeId.New(), email, name, phone),
-                _ => throw new ArgumentException("Invalid role")
-            };
+            var attendee = Attendee.Create(email, name, dto.Role, phone);
 
             await repository.AddAsync(attendee, ct);
 
@@ -162,6 +157,8 @@ namespace SkillFlow.Application.Services.Attendees
 
             await repository.UpdateAsync(attendee, ct);
         }
+
+  
 
         private static IEnumerable<AttendeeDTO> MapToDTOList(IEnumerable<Attendee> attendees)
         {

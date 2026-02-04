@@ -1,7 +1,9 @@
 ﻿using SkillFlow.Domain.Attendees;
 using SkillFlow.Domain.Enums;
+using SkillFlow.Domain.Exceptions;
 using SkillFlow.Domain.Interfaces;
 using SkillFlow.Domain.Primitives;
+using System.Numerics;
 
 namespace SkillFlow.Domain.Entities.Attendees
 {
@@ -11,6 +13,18 @@ namespace SkillFlow.Domain.Entities.Attendees
         public Email Email { get; private set; }
         public AttendeeName Name { get; private set; }
         public PhoneNumber? PhoneNumber { get; private set; }
+
+        public static Attendee Create(Email email, AttendeeName name, Role role, PhoneNumber? phoneNumber)
+        {
+            var id = AttendeeId.New();
+
+            return role switch
+            {
+                Role.Instructor => new Instructor(id, email, name, phoneNumber),
+                Role.Student => new Student(id, email, name, phoneNumber),
+                _ => throw new InvalidRoleException(id.ToString())
+            };
+        }
 
 
         protected Attendee(AttendeeId id, Email email, AttendeeName name, Role role, PhoneNumber? phoneNumber)
@@ -24,9 +38,8 @@ namespace SkillFlow.Domain.Entities.Attendees
 
         protected Attendee() { }
 
-        public void UpdateEmail(string newUpdatedEmail)
+        public void UpdateEmail(Email newEmail)
         {
-            var newEmail = Email.Create(newUpdatedEmail);
 
             if (Email == newEmail) return;
 
@@ -34,24 +47,18 @@ namespace SkillFlow.Domain.Entities.Attendees
             UpdateTimeStamp();
         }
 
+        public void UpdateName(AttendeeName newName)
+        {
+            if (Name == newName) return;
+            Name = newName;
+            UpdateTimeStamp();
+        }
+
         public void UpdateFirstName(string newFirstName)
-        {
-            var newName = AttendeeName.Create(newFirstName, Name.LastName);
+            => UpdateName(AttendeeName.Create(newFirstName, Name.LastName));
 
-            if (Name == newName) return;
-
-            Name = newName;
-            UpdateTimeStamp();
-        }
-        public void UpdateLastName(string newLastName)
-        {
-            var newName = AttendeeName.Create(Name.FirstName, newLastName);
-
-            if (Name == newName) return;
-
-            Name = newName;
-            UpdateTimeStamp();
-        }
+        public void UpdateLastName(string newLastName) 
+            => UpdateName(AttendeeName.Create(Name.FirstName, newLastName));
 
         public void UpdatePhoneNumber(PhoneNumber? newPhoneNumber)
         {

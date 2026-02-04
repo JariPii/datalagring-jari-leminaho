@@ -9,6 +9,9 @@ namespace SkillFlow.Infrastructure.Configurations
     {
         public virtual void Configure(EntityTypeBuilder<TEntity> builder)
         {
+            builder.HasKey(e => e.Id);
+            builder.Property(e => e.Id).ValueGeneratedNever();
+
             builder.Property(e => e.CreatedAt).HasColumnType("datetime2").IsRequired();
             builder.Property(e => e.UpdatedAt).HasColumnType("datetime2").IsRequired(false);
 

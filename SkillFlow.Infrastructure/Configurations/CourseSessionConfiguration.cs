@@ -12,16 +12,14 @@ namespace SkillFlow.Infrastructure.Configurations
         {
             base.Configure(builder);
 
-            builder.HasKey(c => c.Id);
-
             builder.Property(c => c.Id)
                 .HasConversion(id => id.Value, v => new CourseSessionId(v));
 
-            builder.HasOne(c => c.Course)
-                .WithMany()
-                .HasPrincipalKey(c => c.CourseCode)
-                .HasForeignKey(c => c.CourseCode)
-                .IsRequired();
+            //builder.HasOne(c => c.Course)
+            //    .WithMany()
+            //    .HasPrincipalKey(c => c.CourseCode)
+            //    .HasForeignKey(c => c.CourseCode)
+            //    .IsRequired();
 
             builder.Property(c => c.CourseCode)
                 .HasConversion(c => c.Value, v => CourseCode.FromValue(v))

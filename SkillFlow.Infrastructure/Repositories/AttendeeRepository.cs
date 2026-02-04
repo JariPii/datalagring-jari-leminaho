@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SkillFlow.Domain.Courses;
 using SkillFlow.Domain.Entities.Attendees;
-using SkillFlow.Domain.Entities.Courses;
+using SkillFlow.Domain.Entities.Competences;
 using SkillFlow.Domain.Enums;
 using SkillFlow.Domain.Interfaces;
 

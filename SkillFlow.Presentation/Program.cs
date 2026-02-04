@@ -1,9 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 using SkillFlow.Application.DTOs.Attendees;
+using SkillFlow.Application.DTOs.Competences;
 using SkillFlow.Application.DTOs.Courses;
 using SkillFlow.Application.Interfaces;
 using SkillFlow.Application.Services.Attendees;
+using SkillFlow.Application.Services.Competences;
 using SkillFlow.Application.Services.Courses;
 using SkillFlow.Application.Services.CourseSessions;
 using SkillFlow.Domain.Interfaces;
@@ -32,10 +34,12 @@ builder.Services.AddScoped<IAttendeeQueries, AttendeeRepository>();
 builder.Services.AddScoped<ICourseRepository, CourseRepository>();
 builder.Services.AddScoped<ICourseSessionRepository, CourseSessionRepository>();
 builder.Services.AddScoped<ILocationRepository, LocationRepository>();
+builder.Services.AddScoped<ICompetenceRepository, CompetenceRepository>();
 
 builder.Services.AddScoped<IAttendeeService, AttendeeService>();
 builder.Services.AddScoped<ICourseService, CourseService>();
 builder.Services.AddScoped<ICourseSessionService, CourseSessionService>();
+builder.Services.AddScoped<ICompetenceService, CompetenceService>();
 
 #endregion
 
@@ -114,19 +118,27 @@ attendees.MapPost("/{id:guid}/competences", async (Guid id, AddCompetenceRequest
 
 #endregion
 
+#region Competences
+
+var competences = app.MapGroup("/api/competences");
+
+competences.MapPost("/", async (CreateCompetenceDTO dto, ICompetenceService service, CancellationToken ct) =>
+{
+    var result = await service.CreateCompetenceAsync(dto, ct);
+    return Results.Created($"/api/competences/{result.Id}", result);
+});
+
+competences.MapGet("/", async (ICompetenceService service, CancellationToken ct) =>
+Results.Ok(await service.GetAllCompetencesAsync(ct)));
+
+#endregion
+
 #region Courses
 
 app.MapPost("/api/courses", async (CreateCourseDTO dto, ICourseService service, CancellationToken ct) =>
 {
-    try
-    {
         var result = await service.CreateCourseAsync(dto, ct);
         return Results.Created($"/api/courses/{result.Id}", result);
-    }
-    catch (Exception ex)
-    {
-        return Results.BadRequest(new { error = ex.Message });
-    }
 });
 
 app.MapGet("/api/courses", async (ICourseService service, CancellationToken ct) =>

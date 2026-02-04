@@ -11,7 +11,6 @@ namespace SkillFlow.Infrastructure.Configurations
         {
             base.Configure(builder);
 
-            builder.HasKey(e => e.Id);
             builder.Property(e => e.Id)
                 .HasConversion(id => id.Value, v => new EnrollmentId(v));
 

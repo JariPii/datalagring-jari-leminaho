@@ -15,24 +15,9 @@ namespace SkillFlow.Application.Services.Courses
             var courseDescription = CourseDescription.Create(dto.CourseDescription);
 
             if (await repository.ExistsByCourseName(courseName, ct))
-                throw new CourseNameAllreadyExistsException(courseName);
+                throw new CourseNameAllreadyExistsException(courseName);            
 
-            int suffix = 1;
-
-            var code = CourseCode.Create(dto.CityPart, dto.CourseName, dto.Year, suffix);
-
-            while (await repository.ExistsByCourseCodeAsync(code, ct))
-            {
-                suffix++;
-                code = CourseCode.Create(dto.CityPart, dto.CourseName, dto.Year, suffix);
-            }
-
-            var course = new Course(
-                CourseId.New(),
-                code,
-                courseName,
-                courseDescription
-                );
+            var course = Course.Create(courseName, courseDescription);
 
             await repository.AddAsync(course, ct);
 
@@ -121,7 +106,6 @@ namespace SkillFlow.Application.Services.Courses
             return new CourseDTO
             {
                 Id = course.Id.Value,
-                CourseCode = course.CourseCode.Value,
                 CourseName = course.CourseName.Value,
                 CourseDescription = course.CourseDescription.Value
             };

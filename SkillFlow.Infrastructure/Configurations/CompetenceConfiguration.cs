@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SkillFlow.Domain.Courses;
-using SkillFlow.Domain.Entities.Courses;
+using SkillFlow.Domain.Entities.Competences;
 
 namespace SkillFlow.Infrastructure.Configurations
 {
@@ -11,7 +11,6 @@ namespace SkillFlow.Infrastructure.Configurations
         {
             base.Configure(builder);
 
-            builder.HasKey(c => c.Id);
             builder.Property(c => c.Id)
                 .HasConversion(id => id.Value, v => new CompetenceId(v));
 

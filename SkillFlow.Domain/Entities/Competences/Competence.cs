@@ -1,21 +1,27 @@
 ﻿using SkillFlow.Domain.Courses;
 using SkillFlow.Domain.Entities.Attendees;
+using SkillFlow.Domain.Interfaces;
 using SkillFlow.Domain.Primitives;
 
-namespace SkillFlow.Domain.Entities.Courses
+namespace SkillFlow.Domain.Entities.Competences
 {
-    public class Competence : BaseEntity<CompetenceId>
+    public class Competence : BaseEntity<CompetenceId>, IAggregateRoot
     {
         private readonly List<Instructor> _instructors = new();
         public CompetenceName Name { get; private set; }
 
-        public Competence(CompetenceId id, CompetenceName name)
+        protected Competence(CompetenceId id, CompetenceName name)
         {
             Id = id;
             Name = name;
         }
 
         protected Competence() { }
+
+        public static Competence Create(CompetenceName name)
+        {
+            return new Competence(CompetenceId.New(), name);
+        }
 
         public virtual IReadOnlyCollection<Instructor> Instructors => _instructors.AsReadOnly();
 

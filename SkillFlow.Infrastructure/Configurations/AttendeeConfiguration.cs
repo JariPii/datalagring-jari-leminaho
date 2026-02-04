@@ -11,8 +11,6 @@ namespace SkillFlow.Infrastructure.Configurations
         public override void Configure(EntityTypeBuilder<Attendee> builder)
         {
             base.Configure(builder);
-            
-            builder.HasKey(a => a.Id);
 
             builder.Property(a => a.Id)
                 .HasConversion(id => id.Value, v => new AttendeeId(v));
@@ -38,7 +36,7 @@ namespace SkillFlow.Infrastructure.Configurations
             });
 
             builder.Property(a => a.PhoneNumber)
-                .HasConversion(p => p.HasValue ? p.Value.Value : null, v => PhoneNumber.Create(v))
+                .HasConversion(p => p.HasValue ? p.Value.Value : null, v => v != null ? PhoneNumber.Create(v) : null)
                 .IsRequired(false);
 
             builder.Property(a => a.Role)
