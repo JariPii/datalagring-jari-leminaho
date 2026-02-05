@@ -41,16 +41,6 @@ namespace SkillFlow.Application.Services.Courses
             return [.. courses.Select(MapToDTO)];
         }
 
-        //public async Task<CourseDTO> GetByCourseCodeAsync(string code, CancellationToken ct)
-        //{
-        //    var parsedCode = CourseCode.FromValue(code);
-
-        //    var course = await repository.GetByCourseCodeAsync(parsedCode, ct) ??
-        //        throw new CourseNotFoundException(parsedCode);
-
-        //    return MapToDTO(course);
-        //}
-
         public async Task<CourseDTO> GetCourseByIdAsync(Guid id, CancellationToken ct)
         {
             var courseId = new CourseId(id);

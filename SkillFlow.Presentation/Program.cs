@@ -152,10 +152,26 @@ courses.MapGet("/", async (ICourseService service, CancellationToken ct) =>
 courses.MapGet("/{name}", async (string name, ICourseService service, CancellationToken ct)
     => Results.Ok(await service.GetCourseByNameAsync(name, ct)));
 
+courses.MapGet("/search", async (string searchTerm, ICourseService service, CancellationToken ct)
+    => Results.Ok(await service.SearchCoursesAsync(searchTerm, ct)));
+
 courses.MapPost("/", async (CreateCourseDTO dto, ICourseService service, CancellationToken ct) =>
 {
         var result = await service.CreateCourseAsync(dto, ct);
         return Results.Created($"/api/courses/{result.Id}", result);
+});
+
+courses.MapPut("/{id:guid}", async (Guid id, UpdateCourseDTO dto, ICourseService service, CancellationToken ct) =>
+{
+    if (id != dto.Id) return Results.BadRequest("Id mismatch");
+    var updateCourse = await service.UpdateCourseAsync(dto, ct);
+    return Results.Ok(updateCourse);
+});
+
+courses.MapDelete("/{id:guid}", async (Guid id, ICourseService service, CancellationToken ct) =>
+{
+    await service.DeleteCourseAsync(id, ct);
+    return Results.NoContent();
 });
 
 #endregion
