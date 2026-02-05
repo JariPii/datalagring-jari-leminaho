@@ -8,6 +8,8 @@
         {
             if (value == Guid.Empty)
                 throw new ArgumentException("Course id can not be empty", nameof(value));
+
+            Value = value;
         }
         public static CourseId New() => new(Guid.NewGuid());
         public override string ToString() => Value.ToString();

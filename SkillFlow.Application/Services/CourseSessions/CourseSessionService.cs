@@ -20,7 +20,7 @@ namespace SkillFlow.Application.Services.CourseSessions
         SkillFlowDbContext context
         ) : ICourseSessionService
     {
-        public async Task AddInstructorToCourseSessionAsync(Guid sessionId, Guid instructorId, CancellationToken ct)
+        public async Task AddInstructorToCourseSessionAsync(Guid sessionId, Guid instructorId, byte[] rowVersion, CancellationToken ct)
         {
             var courseSessionId = new CourseSessionId(sessionId);
             var attendeeId = new AttendeeId(instructorId);
@@ -38,7 +38,7 @@ namespace SkillFlow.Application.Services.CourseSessions
 
             courseSession.AddInstructor(instructor);
 
-            await sessionRepository.UpdateAsync(courseSession, ct);
+            await sessionRepository.UpdateAsync(courseSession, rowVersion, ct);
 
         }
 
@@ -166,7 +166,7 @@ namespace SkillFlow.Application.Services.CourseSessions
             return [.. sessions.Select(MapToDTO)];
         }
 
-        public async Task SetEnrollmentStatusAsync(Guid sessionId, Guid studentId, EnrollmentStatus status, CancellationToken ct)
+        public async Task SetEnrollmentStatusAsync(Guid sessionId, Guid studentId, EnrollmentStatus status, byte[] rowVersion, CancellationToken ct)
         {
             using var transaction = await context.Database.BeginTransactionAsync(ct);
 
@@ -177,7 +177,7 @@ namespace SkillFlow.Application.Services.CourseSessions
 
                 session.SetEnrollmentStatus(new AttendeeId(studentId), status);
 
-                await sessionRepository.UpdateAsync(session, ct);
+                await sessionRepository.UpdateAsync(session, rowVersion, ct);
 
                 await transaction.CommitAsync(ct);
             }
@@ -188,13 +188,12 @@ namespace SkillFlow.Application.Services.CourseSessions
             }
         }
 
-        public async Task UpdateCourseSessionAsync(UpdateCourseSessionDTO dto, CancellationToken ct)
+        public async Task<CourseSessionDTO> UpdateCourseSessionAsync(UpdateCourseSessionDTO dto, CancellationToken ct)
         {
             var id = new CourseSessionId(dto.Id);
+
             var session = await sessionRepository.GetByIdWithInstructorsAndEnrollmentsAsync(id, ct) ??
                 throw new CourseSessionNotFoundException(id);
-
-            context.Entry(session).Property("RowVersion").OriginalValue = dto.RowVersion;
 
             if (dto.Capacity.HasValue)
                 session.UpdateCapacity(dto.Capacity.Value);
@@ -202,7 +201,9 @@ namespace SkillFlow.Application.Services.CourseSessions
             if (dto.StartDate.HasValue || dto.EndDate.HasValue)
                 session.UpdateDates(dto.StartDate ?? session.StartDate, dto.EndDate ?? session.EndDate);
 
-            await sessionRepository.UpdateAsync(session, ct);
+            await sessionRepository.UpdateAsync(session, dto.RowVersion, ct);
+
+            return MapToDTO(session);
         }
 
         private static CourseSessionDTO MapToDTO(CourseSession courseSession)
@@ -216,7 +217,8 @@ namespace SkillFlow.Application.Services.CourseSessions
                 Capacity = courseSession.Capacity,
                 ApprovedEnrollmentsCount = courseSession.Enrollments.Count,
                 StartDate = courseSession.StartDate.ToLocalTime(),
-                EndDate = courseSession.EndDate.ToLocalTime()
+                EndDate = courseSession.EndDate.ToLocalTime(),
+                RowVersion = courseSession.RowVersion
             };
         }
     }

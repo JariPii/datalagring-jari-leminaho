@@ -10,15 +10,7 @@ namespace SkillFlow.Infrastructure.Configurations
         {
             base.Configure(builder);
 
-            builder.HasKey(c => c.Id);
             builder.Property(c => c.Id).HasConversion(id => id.Value, v => new CourseId(v));
-
-            builder.Property(c => c.CourseCode)
-                .HasConversion(c => c.Value, v => CourseCode.FromValue(v))
-                .HasMaxLength(12)
-                .IsRequired();
-
-            builder.HasIndex(c => c.CourseCode).IsUnique();
 
             builder.Property(n => n.CourseName)
                 .HasConversion(v => v.Value, v => CourseName.Create(v))

@@ -15,28 +15,13 @@ namespace SkillFlow.Application.Services.Courses
             var courseDescription = CourseDescription.Create(dto.CourseDescription);
 
             if (await repository.ExistsByCourseName(courseName, ct))
-                throw new CourseNameAllreadyExistsException(courseName);
+                throw new CourseNameAllreadyExistsException(courseName);            
 
-            int suffix = 1;
-
-            var code = CourseCode.Create(dto.CityPart, dto.CourseName, dto.Year, suffix);
-
-            while (await repository.ExistsByCourseCodeAsync(code, ct))
-            {
-                suffix++;
-                code = CourseCode.Create(dto.CityPart, dto.CourseName, dto.Year, suffix);
-            }
-
-            var course = new Course(
-                CourseId.New(),
-                code,
-                courseName,
-                courseDescription
-                );
+            var course = Course.Create(courseName, courseDescription);
 
             await repository.AddAsync(course, ct);
 
-            return MatToDTO(course);
+            return MapToDTO(course);
         }
 
         public async Task DeleteCourseAsync(Guid id, CancellationToken ct)
@@ -53,18 +38,18 @@ namespace SkillFlow.Application.Services.Courses
         {
             var courses = await repository.GetAllAsync(ct);
 
-            return [.. courses.Select(MatToDTO)];
+            return [.. courses.Select(MapToDTO)];
         }
 
-        public async Task<CourseDTO> GetByCourseCodeAsync(string code, CancellationToken ct)
-        {
-            var parsedCode = CourseCode.FromValue(code);
+        //public async Task<CourseDTO> GetByCourseCodeAsync(string code, CancellationToken ct)
+        //{
+        //    var parsedCode = CourseCode.FromValue(code);
 
-            var course = await repository.GetByCourseCodeAsync(parsedCode, ct) ??
-                throw new CourseNotFoundException(parsedCode);
+        //    var course = await repository.GetByCourseCodeAsync(parsedCode, ct) ??
+        //        throw new CourseNotFoundException(parsedCode);
 
-            return MatToDTO(course);
-        }
+        //    return MapToDTO(course);
+        //}
 
         public async Task<CourseDTO> GetCourseByIdAsync(Guid id, CancellationToken ct)
         {
@@ -73,7 +58,7 @@ namespace SkillFlow.Application.Services.Courses
             var course = await repository.GetByIdAsync(courseId, ct) ??
                 throw new CourseNotFoundException(courseId);
 
-            return MatToDTO(course);
+            return MapToDTO(course);
         }
 
         public async Task<CourseDTO> GetCourseByNameAsync(string name, CancellationToken ct)
@@ -83,7 +68,7 @@ namespace SkillFlow.Application.Services.Courses
             var course = await repository.GetByCourseNameAsync(courseName, ct) ??
                 throw new CourseNotFoundException(courseName);
 
-            return MatToDTO(course);
+            return MapToDTO(course);
 
         }
 
@@ -91,10 +76,10 @@ namespace SkillFlow.Application.Services.Courses
         {
             var courses = await repository.SearchByNameAsync(searchTerm, ct);
 
-            return [.. courses.Select(MatToDTO)];
+            return [.. courses.Select(MapToDTO)];
         }
 
-        public async Task UpdateCourseAsync(UpdateCourseDTO dto, CancellationToken ct)
+        public async Task<CourseDTO> UpdateCourseAsync(UpdateCourseDTO dto, CancellationToken ct)
         {
             var courseId = new CourseId(dto.Id);
 
@@ -104,26 +89,26 @@ namespace SkillFlow.Application.Services.Courses
             var newName = CourseName.Create(dto.CourseName ?? course.CourseName.Value);
             var newDescription = CourseDescription.Create(dto.CourseDescription ?? course.CourseDescription.Value);
 
-            if(course.CourseName.Value != newName.Value)
-            {
-                if (await repository.GetByCourseNameAsync(newName, ct) != null)
-                    throw new CourseNameAllreadyExistsException(newName);
-            }
+            if(course.CourseName != newName && await repository.ExistsByCourseName(newName, ct))
+                throw new CourseNameAllreadyExistsException(newName);
+            
 
             course.UpdateCourseName(newName);
             course.UpdateCourseDescription(newDescription);
 
-            await repository.UpdateAsync(course, ct);
+            await repository.UpdateAsync(course, dto.RowVersion, ct);
+
+            return MapToDTO(course);
         }
 
-        private static CourseDTO MatToDTO(Course course)
+        private static CourseDTO MapToDTO(Course course)
         {
             return new CourseDTO
             {
                 Id = course.Id.Value,
-                CourseCode = course.CourseCode.Value,
                 CourseName = course.CourseName.Value,
-                CourseDescription = course.CourseDescription.Value
+                CourseDescription = course.CourseDescription.Value,
+                RowVersion = course.RowVersion
             };
         }
     }

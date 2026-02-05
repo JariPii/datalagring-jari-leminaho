@@ -16,7 +16,6 @@ namespace SkillFlow.Domain.Entities.CourseSessions
 
         private Enrollment () { }
 
-        //public EnrollmentId Id { get; private set; }
         public EnrollmentStatus Status { get; private set; }
         public AttendeeId StudentId { get; private set; }
         public Student Student { get; private set; } = null!;

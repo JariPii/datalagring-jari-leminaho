@@ -9,8 +9,6 @@ namespace SkillFlow.Infrastructure.Configurations
         {
             base.Configure(builder);
 
-            builder.HasKey(l => l.Id);
-
             builder.Property(l => l.Id)
                 .HasConversion(id => id.Value, v => new LocationId(v));
 

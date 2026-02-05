@@ -1,5 +1,5 @@
 ﻿using SkillFlow.Domain.Attendees;
-using SkillFlow.Domain.Entities.Courses;
+using SkillFlow.Domain.Entities.Competences;
 using SkillFlow.Domain.Enums;
 
 namespace SkillFlow.Domain.Entities.Attendees
@@ -7,7 +7,7 @@ namespace SkillFlow.Domain.Entities.Attendees
     public class Instructor : Attendee
     {
         private readonly List<Competence> _competences = new();
-        public Instructor(AttendeeId id, Email email, AttendeeName name, PhoneNumber? phoneNumber)
+        internal Instructor(AttendeeId id, Email email, AttendeeName name, PhoneNumber? phoneNumber)
             : base(id, email, name, Role.Instructor, phoneNumber) { }
 
         private Instructor () : base () { }

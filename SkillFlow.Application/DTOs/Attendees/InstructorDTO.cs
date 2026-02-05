@@ -1,4 +1,4 @@
-﻿using SkillFlow.Application.DTOs.Courses;
+﻿using SkillFlow.Application.DTOs.Competences;
 using System.Text.Json.Serialization;
 
 namespace SkillFlow.Application.DTOs.Attendees

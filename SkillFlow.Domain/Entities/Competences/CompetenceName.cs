@@ -1,7 +1,7 @@
 ﻿using SkillFlow.Domain.Exceptions;
 using System.Text.RegularExpressions;
 
-namespace SkillFlow.Domain.Courses
+namespace SkillFlow.Domain.Entities.Competences
 {
     public readonly partial record struct CompetenceName
     {

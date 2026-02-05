@@ -13,7 +13,6 @@ namespace SkillFlow.Domain.Entities.CourseSessions
         private readonly List<Enrollment> _enrollments = new();
         private readonly List<Instructor> _instructors = new();
 
-        //public CourseSessionId Id { get; private set; }
         public CourseCode CourseCode { get; private set; }
         public Course Course { get; private set; } = null!;
         public DateTime StartDate { get; private set; }

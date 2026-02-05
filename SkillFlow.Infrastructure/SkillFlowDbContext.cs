@@ -1,15 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SkillFlow.Domain.Entities.Attendees;
+using SkillFlow.Domain.Entities.Competences;
 using SkillFlow.Domain.Entities.Courses;
 using SkillFlow.Domain.Entities.CourseSessions;
 using SkillFlow.Domain.Entities.Locations;
 
 namespace SkillFlow.Infrastructure
 {
-    public class SkillFlowDbContext : DbContext
+    public class SkillFlowDbContext(DbContextOptions<SkillFlowDbContext> options) : DbContext(options)
     {
-        public SkillFlowDbContext(DbContextOptions<SkillFlowDbContext> options) : base(options) { }
-        
         public DbSet<Attendee> Attendees { get; set; }
         public DbSet<Student> Students { get; set; }
         public DbSet<Instructor> Instructors { get; set; }

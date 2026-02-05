@@ -15,8 +15,8 @@ namespace SkillFlow.Application.Interfaces
         Task<IEnumerable<InstructorDTO>> GetInstructorsByCompetenceAsync(string competence, CancellationToken ct = default);
         Task<IEnumerable<AttendeeDTO>> SearchAttendeesByNameAsync(string searchTerm, CancellationToken ct = default);
         Task<AttendeeDTO> CreateAttendeeAsync(CreateAttendeeDTO dto, CancellationToken ct = default);
-        Task UpdateAttendeeAsync(UpdateAttendeeDTO dto, CancellationToken ct = default);
+        Task<AttendeeDTO> UpdateAttendeeAsync(UpdateAttendeeDTO dto, CancellationToken ct = default);
         Task DeleteAttendeeAsync(Guid id, CancellationToken ct = default);
-        Task AddCompetenceToInstructorAsync(Guid instructorId, string competenceName, CancellationToken ct = default);
+        Task AddCompetenceToInstructorAsync(Guid instructorId, string competenceName, byte[] rowVersion, CancellationToken ct = default);
     }
 }

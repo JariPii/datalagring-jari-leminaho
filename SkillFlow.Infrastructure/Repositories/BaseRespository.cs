@@ -1,10 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SkillFlow.Domain.Entities.Attendees;
 using SkillFlow.Domain.Interfaces;
 using SkillFlow.Domain.Primitives;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace SkillFlow.Infrastructure.Repositories
 {
@@ -19,9 +15,10 @@ namespace SkillFlow.Infrastructure.Repositories
             await _context.SaveChangesAsync(ct);
         }
 
-        public virtual async Task UpdateAsync(T entity, CancellationToken ct = default)
+        public virtual async Task UpdateAsync(T entity, byte[] rowVersion, CancellationToken ct = default)
         {
-            _context.Set<T>().Update(entity);
+            _context.Entry(entity).Property("RowVersion").OriginalValue = rowVersion;
+
             await _context.SaveChangesAsync(ct);
         }
 
