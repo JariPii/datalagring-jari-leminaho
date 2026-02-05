@@ -115,27 +115,48 @@ attendees.MapPost("/{id:guid}/competences", async (Guid id, AddCompetenceRequest
 
 var competences = app.MapGroup("/api/competences");
 
+competences.MapGet("/", async (ICompetenceService service, CancellationToken ct) =>
+Results.Ok(await service.GetAllCompetencesAsync(ct)));
+
+competences.MapGet("/{id:guid}", async (Guid id, ICompetenceService service, CancellationToken ct) =>
+Results.Ok(await service.GetCompetenceDetailsAsync(id, ct)));
+
 competences.MapPost("/", async (CreateCompetenceDTO dto, ICompetenceService service, CancellationToken ct) =>
 {
     var result = await service.CreateCompetenceAsync(dto, ct);
     return Results.Created($"/api/competences/{result.Id}", result);
 });
 
-competences.MapGet("/", async (ICompetenceService service, CancellationToken ct) =>
-Results.Ok(await service.GetAllCompetencesAsync(ct)));
+competences.MapPut("/{id:guid}", async (Guid id, UpdateCompetenceDTO dto, ICompetenceService service, CancellationToken ct) =>
+{
+    if (id != dto.Id) return Results.BadRequest("Id mismatch");
+    var updateCompetence = await service.UpdateCompetenceAsync(dto, ct);
+    return Results.Ok(updateCompetence);
+});
+
+competences.MapDelete("/{id:guid}", async (Guid id, ICompetenceService service, CancellationToken ct) =>
+{
+    await service.DeleteCompetenceAsync(id, ct);
+    return Results.NoContent();
+});
 
 #endregion
 
 #region Courses
 
-app.MapPost("/api/courses", async (CreateCourseDTO dto, ICourseService service, CancellationToken ct) =>
+var courses = app.MapGroup("/api/courses");
+
+courses.MapGet("/", async (ICourseService service, CancellationToken ct) =>
+    Results.Ok(await service.GetAllCoursesAsync(ct)));
+
+courses.MapGet("/{name}", async (string name, ICourseService service, CancellationToken ct)
+    => Results.Ok(await service.GetCourseByNameAsync(name, ct)));
+
+courses.MapPost("/", async (CreateCourseDTO dto, ICourseService service, CancellationToken ct) =>
 {
         var result = await service.CreateCourseAsync(dto, ct);
         return Results.Created($"/api/courses/{result.Id}", result);
 });
-
-app.MapGet("/api/courses", async (ICourseService service, CancellationToken ct) =>
-    Results.Ok(await service.GetAllCoursesAsync(ct)));
 
 #endregion
 
