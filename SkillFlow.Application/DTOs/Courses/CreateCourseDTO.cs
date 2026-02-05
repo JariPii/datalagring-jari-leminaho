@@ -5,9 +5,5 @@
         public string CourseName { get; init; } = string.Empty;
 
         public string CourseDescription { get; init; } = string.Empty;
-
-        public string CityPart { get; init; } = string.Empty;
-
-        public int Year { get; init; }
     }
 }

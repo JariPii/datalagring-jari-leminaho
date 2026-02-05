@@ -1,6 +1,6 @@
 ﻿
 using SkillFlow.Domain.Courses;
-using SkillFlow.Domain.Entities.Courses;
+using SkillFlow.Domain.Entities.Competences;
 
 namespace SkillFlow.Domain.Exceptions
 {

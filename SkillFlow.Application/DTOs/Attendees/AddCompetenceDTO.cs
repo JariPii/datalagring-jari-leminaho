@@ -4,5 +4,5 @@ using System.Text;
 
 namespace SkillFlow.Application.DTOs.Attendees
 {
-    public record AddCompetenceRequest(string CompetenceName);
+    public record AddCompetenceRequest(string CompetenceName, byte[] RowVersion);
 }

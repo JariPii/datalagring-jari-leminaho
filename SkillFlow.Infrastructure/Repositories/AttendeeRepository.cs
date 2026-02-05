@@ -1,13 +1,16 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SkillFlow.Domain.Courses;
 using SkillFlow.Domain.Entities.Attendees;
-using SkillFlow.Domain.Entities.Courses;
+using SkillFlow.Domain.Entities.Competences;
 using SkillFlow.Domain.Enums;
 using SkillFlow.Domain.Interfaces;
 
 namespace SkillFlow.Infrastructure.Repositories
 {
-    public class AttendeeRepository(SkillFlowDbContext context) : BaseRespository<Attendee, AttendeeId>(context), IAttendeeRepository
+    public class AttendeeRepository(SkillFlowDbContext context)
+        : BaseRespository<Attendee, AttendeeId>(context),
+          IAttendeeRepository,
+          IAttendeeQueries
     {
 
         public override async Task<bool> DeleteAsync(AttendeeId id, CancellationToken ct)
@@ -66,15 +69,8 @@ namespace SkillFlow.Infrastructure.Repositories
 
         public override async Task<Attendee?> GetByIdAsync(AttendeeId id, CancellationToken ct)
         {
-            var instructor = await _context.Attendees
-                .OfType<Instructor>()
-                .Include(i => i.Competences)
-                .FirstOrDefaultAsync(a => a.Id == id, ct);
-
-            if (instructor is not null) return instructor;
-
             return await _context.Attendees
-                .OfType<Student>()
+                .Include(a => ((Instructor)a).Competences)
                 .FirstOrDefaultAsync(a => a.Id == id, ct);
         }
 
@@ -102,10 +98,10 @@ namespace SkillFlow.Infrastructure.Repositories
 
             return await _context.Attendees
                 .FromSqlInterpolated($@"
-                    SELECT *, FirstName AS Name_FirstName, LastName AS Name_LastName
+                    SELECT *
                     FROM Attendees 
-                    WHERE FirstName LIKE {searchPattern}
-                    OR LastName LIKE {searchPattern} ")
+                    WHERE Name_FirstName LIKE {searchPattern}
+                    OR Name_LastName LIKE {searchPattern} ")
                 .ToListAsync(ct);
         }
 

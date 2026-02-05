@@ -1,4 +1,4 @@
-﻿namespace SkillFlow.Domain.Entities.Courses
+﻿namespace SkillFlow.Domain.Entities.Competences
 {
     public readonly record struct CompetenceId
     {
