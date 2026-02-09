@@ -1,4 +1,5 @@
 ﻿using SkillFlow.Application.DTOs.Courses;
+using SkillFlow.Application.Helpers;
 using SkillFlow.Application.Interfaces;
 using SkillFlow.Domain.Courses;
 using SkillFlow.Domain.Entities.Courses;
@@ -14,10 +15,22 @@ namespace SkillFlow.Application.Services.Courses
             var courseName = CourseName.Create(dto.CourseName);
             var courseDescription = CourseDescription.Create(dto.CourseDescription);
 
-            if (await repository.ExistsByCourseName(courseName, ct))
-                throw new CourseNameAllreadyExistsException(courseName);            
+            //if (await repository.ExistsByCourseName(courseName, ct))
+            //    throw new CourseNameAllreadyExistsException(courseName);
 
-            var course = Course.Create(courseName, courseDescription);
+            var coursePart = 
+                (dto.CourseName.Length >= 2 
+                    ? dto.CourseName[..2] 
+                    : dto.CourseName.PadRight(2, '0'))
+                .ToUpperInvariant();
+
+            var maxSuffix = await repository.GetMaxSuffixAsync(coursePart, dto.CourseType, ct);
+
+            var nextSuffix = maxSuffix == 0 ? 10 : maxSuffix + 10;
+
+            var code = CourseCode.Create(dto.CourseName, dto.CourseType, nextSuffix);
+
+            var course = Course.Create(code, courseName, courseDescription);
 
             await repository.AddAsync(course, ct);
 
@@ -93,9 +106,13 @@ namespace SkillFlow.Application.Services.Courses
 
         private static CourseDTO MapToDTO(Course course)
         {
+            var type = course.CourseCode.CourseType;
             return new CourseDTO
             {
                 Id = course.Id.Value,
+                CourseCode = course.CourseCode.Value,
+                CourseType = type,
+                CourseTypeName = EnumDisplyName.GetDisplayName(type),
                 CourseName = course.CourseName.Value,
                 CourseDescription = course.CourseDescription.Value,
                 RowVersion = course.RowVersion

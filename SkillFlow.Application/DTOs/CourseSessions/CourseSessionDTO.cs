@@ -15,6 +15,8 @@
         public DateTime EndDate { get; init; }
 
         public int Capacity { get; init; }
+        public int ApprovedEnrollmentscout { get; init; }
+        public List<string> Instructors { get; init; } = [];
 
         public int ApprovedEnrollmentsCount { get; init; }
 

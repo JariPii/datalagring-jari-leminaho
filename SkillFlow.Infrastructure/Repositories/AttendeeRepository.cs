@@ -4,6 +4,7 @@ using SkillFlow.Domain.Entities.Attendees;
 using SkillFlow.Domain.Entities.Competences;
 using SkillFlow.Domain.Enums;
 using SkillFlow.Domain.Interfaces;
+//using Microsoft.EntityFrameworkCore.Query
 
 namespace SkillFlow.Infrastructure.Repositories
 {
@@ -69,9 +70,17 @@ namespace SkillFlow.Infrastructure.Repositories
 
         public override async Task<Attendee?> GetByIdAsync(AttendeeId id, CancellationToken ct)
         {
-            return await _context.Attendees
-                .Include(a => ((Instructor)a).Competences)
+            var attendee = await _context.Attendees
                 .FirstOrDefaultAsync(a => a.Id == id, ct);
+
+            if (attendee is Instructor instructor)
+            {
+                await _context.Entry(instructor)
+                    .Collection(i => i.Competences)
+                    .LoadAsync(ct);
+            }
+
+            return attendee;
         }
 
         public async Task<Competence?> GetCompetenceByNameAsync(CompetenceName name, CancellationToken ct = default)
@@ -82,26 +91,36 @@ namespace SkillFlow.Infrastructure.Repositories
 
         public async Task<IEnumerable<Instructor>> GetInstructorsByCompetenceAsync(string competenceName, CancellationToken ct)
         {
-            var pattern = $"%{competenceName}%";
+            if (string.IsNullOrWhiteSpace(competenceName))
+                return [];
+
+            var pattern = $"%{competenceName.Trim()}%";
+
             return await _context.Instructors
                 .FromSqlInterpolated($@"
-                    SELECT a.*, FirstName AS Name_FirstName, LastName AS Name_LastName FROM Attendees a 
-                    JOIN InstructorCompetences ic ON a.Id = ic.InstructorsId
-                    JOIN Competences c ON ic.CompetencesId = c.id
+                    SELECT a.*
+                    FROM Attendees AS a
+                    INNER JOIN InstructorCompetences AS ic ON a.Id = ic.InstructorsId
+                    INNER JOIN Competences AS c ON ic.CompetencesId = c.Id
                     WHERE c.Name LIKE {pattern}")
+                .AsNoTracking()
                 .ToListAsync(ct);
         }
 
         public async Task<IEnumerable<Attendee>> SearchByNameAsync(string searchTerm, CancellationToken ct)
         {
-            var searchPattern = $"%{searchTerm}%";
+            if (string.IsNullOrWhiteSpace(searchTerm))
+                return [];
+
+            var searchPattern = $"%{searchTerm.Trim()}%";
 
             return await _context.Attendees
                 .FromSqlInterpolated($@"
                     SELECT *
                     FROM Attendees 
-                    WHERE Name_FirstName LIKE {searchPattern}
-                    OR Name_LastName LIKE {searchPattern} ")
+                    WHERE FirstName LIKE {searchPattern}
+                    OR LastName LIKE {searchPattern} ")
+                .AsNoTracking()
                 .ToListAsync(ct);
         }
 
@@ -111,8 +130,9 @@ namespace SkillFlow.Infrastructure.Repositories
 
             return await _context.Attendees
                 .FromSqlInterpolated($@"
-                    SELECT *, FirstName AS Name_FirstName, LastName AS Name_LastName 
+                    SELECT *, 
                     FROM Attendees WHERE Role = {roleName}")
+                .AsNoTracking()
                 .ToListAsync(ct);
         }
     }

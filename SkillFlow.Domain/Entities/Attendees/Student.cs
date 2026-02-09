@@ -5,7 +5,7 @@ namespace SkillFlow.Domain.Entities.Attendees
 {
     public class Student : Attendee
     {
-        internal Student(AttendeeId id, Email email, AttendeeName name, PhoneNumber? phoneNumber) : base(id, email, name, Role.Student, phoneNumber) { }
+        internal Student(AttendeeId id, Email email, AttendeeName name, PhoneNumber? phoneNumber) : base(id, email, name, phoneNumber, Role.Student) { }
 
         private Student() : base() { }
     }

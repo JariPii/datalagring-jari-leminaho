@@ -8,7 +8,7 @@ namespace SkillFlow.Domain.Entities.Attendees
     {
         private readonly List<Competence> _competences = new();
         internal Instructor(AttendeeId id, Email email, AttendeeName name, PhoneNumber? phoneNumber)
-            : base(id, email, name, Role.Instructor, phoneNumber) { }
+            : base(id, email, name, phoneNumber, Role.Instructor) { }
 
         private Instructor () : base () { }
 

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SkillFlow.Infrastructure;
 
@@ -12,9 +13,11 @@ using SkillFlow.Infrastructure;
 namespace SkillFlow.Infrastructure.Migrations
 {
     [DbContext(typeof(SkillFlowDbContext))]
-    partial class SkillFlowDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260206155851_AddsCourseCode")]
+    partial class AddsCourseCode
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -252,11 +255,6 @@ namespace SkillFlow.Infrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.Property<string>("CourseType")
-                        .IsRequired()
-                        .HasMaxLength(3)
-                        .HasColumnType("nvarchar(3)");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -361,7 +359,7 @@ namespace SkillFlow.Infrastructure.Migrations
                     b.HasOne("SkillFlow.Domain.Entities.Courses.Course", "Course")
                         .WithMany()
                         .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("SkillFlow.Domain.Entities.Locations.Location", "Location")

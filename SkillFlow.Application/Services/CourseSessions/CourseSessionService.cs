@@ -9,6 +9,7 @@ using SkillFlow.Domain.Enums;
 using SkillFlow.Domain.Exceptions;
 using SkillFlow.Domain.Interfaces;
 using SkillFlow.Infrastructure;
+using System.Data;
 
 namespace SkillFlow.Application.Services.CourseSessions
 {
@@ -44,36 +45,43 @@ namespace SkillFlow.Application.Services.CourseSessions
 
         public async Task<CourseSessionDTO> CreateCourseSessionAsync(CreateCourseSessionDTO dto, CancellationToken ct)
         {
-            var courseId = new CourseId(dto.CourseId);
-            var locationId = new LocationId(dto.LocationId);
+            var courseCode = CourseCode.FromValue(dto.CourseCode);
+            var locationName = LocationName.Create(dto.LocationName);
 
-            var course = await courseRepository.GetByIdAsync(courseId, ct) ??
-                throw new CourseNotFoundException(courseId);
+            var course = await courseRepository.GetByCourseCodeAsync(courseCode, ct) ??
+                throw new CourseNotFoundException(courseCode);
 
-            var location = await locationRepository.GetByIdAsync(locationId, ct) ??
-                throw new LocationNotFoundException(locationId);
+            var location = await locationRepository.GetByLocationNameAsync(locationName, ct) ??
+                throw new LocationNotFoundException(locationName);
 
-            var existingCourseCodeSuffix = await sessionRepository.CountSessionsForCourseAndYear(
-                location.LocationName.Value,
-                course.CourseName.Value,
-                dto.StartDate.Year,
-                ct);
+            if (dto.InstructorIds is null || dto.InstructorIds.Count == 0)
+                throw new InstructorIsRequiredException("Instructor is required");
 
-            var sessionCode = CourseCode.Create(
-                location.LocationName.Value,
-                course.CourseName.Value,
-                dto.StartDate.Year,
-                existingCourseCodeSuffix + 1
-                );
-
-            var session = new CourseSession(
+            var session = CourseSession.Create(
                 CourseSessionId.New(),
-                sessionCode,
+                course.Id,
+                courseCode,
                 dto.StartDate,
                 dto.EndDate,
                 dto.Capacity,
                 location.Id
                 );
+
+            foreach(var instructorId in dto.InstructorIds.Distinct())
+            {
+                var attendeeId = new AttendeeId(instructorId);
+
+                var attendee = await attendeeRepository.GetByIdAsync(attendeeId, ct) ??
+                    throw new AttendeeNotFoundException(attendeeId);
+
+                if (attendee is not Instructor instructor)
+                    throw new InvalidRoleException(attendeeId, Role.Instructor);
+
+                session.AddInstructor(instructor);
+            }
+
+            if (session.Instructors.Count == 0)
+                throw new InstructorIsRequiredException("Instructor is required");
 
             await sessionRepository.AddAsync(session, ct);
 
@@ -215,9 +223,10 @@ namespace SkillFlow.Application.Services.CourseSessions
                 Course = courseSession.Course.CourseName.Value,
                 Location = courseSession.Location.LocationName.Value,
                 Capacity = courseSession.Capacity,
-                ApprovedEnrollmentsCount = courseSession.Enrollments.Count,
                 StartDate = courseSession.StartDate.ToLocalTime(),
                 EndDate = courseSession.EndDate.ToLocalTime(),
+                ApprovedEnrollmentsCount = courseSession.Enrollments.Count,
+                Instructors = [.. courseSession.Instructors.Select(i => i.Name.ToString())],
                 RowVersion = courseSession.RowVersion
             };
         }

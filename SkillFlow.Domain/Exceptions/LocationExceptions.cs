@@ -2,7 +2,11 @@
 
 namespace SkillFlow.Domain.Exceptions
 {
-    public class LocationNotFoundException(LocationId id) : DomainException($"{id.Value} not found");
+    public class LocationNotFoundException : DomainException
+    {
+        public LocationNotFoundException(LocationName name) : base($"{name.Value} not found") { }
+        public LocationNotFoundException(LocationId id) : base($"{id.Value} not found") { }
+    }
 
     public class LocationNameAllreadyExistsException(LocationName name) : DomainException($"{name.Value} allready exists");
 

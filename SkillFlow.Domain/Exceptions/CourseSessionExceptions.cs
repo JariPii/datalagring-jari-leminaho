@@ -21,5 +21,6 @@ namespace SkillFlow.Domain.Exceptions
 
     public class ConcurrencyException() : DomainException("Someone just updated the session, please try again");
 
+    public class InstructorIsRequiredException(string message) : DomainException(message);
 
 }

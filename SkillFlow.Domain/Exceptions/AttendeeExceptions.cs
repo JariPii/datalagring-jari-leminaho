@@ -15,8 +15,6 @@ namespace SkillFlow.Domain.Exceptions
 
     public class StudentIsRequiredException() : DomainException("A student is required");
 
-    public class InstructorIsRequiredException() : DomainException("An instructor is required");
-
     public class EmailNotFoundException(Email email) : DomainException($"Email {email.Value} is not registered");
 
     public class EmailAlreadyExistsException(Email email) : DomainException($"Email {email.Value} is already in use");

@@ -1,7 +1,13 @@
-﻿namespace SkillFlow.Domain.Enums
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace SkillFlow.Domain.Enums
 {
     public enum Role
     {
-        Student, Instructor
+        [Display(Name = "Student")]
+        Student,
+
+        [Display(Name = "Instructor")]
+        Instructor
     }
 }

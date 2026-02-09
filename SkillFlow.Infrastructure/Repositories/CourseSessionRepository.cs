@@ -124,12 +124,12 @@ public class CourseSessionRepository(SkillFlowDbContext context) : BaseResposito
             .ToListAsync(ct);
     }
 
-    public async Task<int> CountSessionsForCourseAndYear(string cityPart, string coursePart, int year, CancellationToken ct = default)
-    {
-        return await _context.CourseSessions
-            .AsNoTracking()
-            .CountAsync(s => s.CourseCode.CityPart == cityPart &&
-            s.CourseCode.CoursePart == coursePart &&
-            s.CourseCode.CourseYear == year, ct);
-    }
+    //public async Task<int> CountSessionsForCourseAndYear(string cityPart, string coursePart, int year, CancellationToken ct = default)
+    //{
+    //    return await _context.CourseSessions
+    //        .AsNoTracking()
+    //        .CountAsync(s => s.CourseCode.CityPart == cityPart &&
+    //        s.CourseCode.CoursePart == coursePart &&
+    //        s.CourseCode.CourseYear == year, ct);
+    //}
 }

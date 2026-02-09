@@ -29,6 +29,10 @@ namespace SkillFlow.Infrastructure.Repositories
             return await _context.Locations.AnyAsync(l => l.LocationName == name, ct);
         }
 
+        public async Task<Location?> GetByLocationNameAsync(LocationName name, CancellationToken ct)
+        {
+            return await _context.Locations.FirstOrDefaultAsync(l => l.LocationName == name, ct);
+        }
 
         public async Task<IEnumerable<Location>> SearchByNameAsync(string searchTerm, CancellationToken ct)
         {

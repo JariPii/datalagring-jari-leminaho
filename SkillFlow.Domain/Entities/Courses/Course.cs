@@ -1,4 +1,5 @@
 ﻿using SkillFlow.Domain.Courses;
+using SkillFlow.Domain.Enums;
 using SkillFlow.Domain.Interfaces;
 using SkillFlow.Domain.Primitives;
 
@@ -8,16 +9,22 @@ namespace SkillFlow.Domain.Entities.Courses
     {
         public CourseName CourseName { get; private set; }
         public CourseDescription CourseDescription { get; private set; }
+        public CourseCode CourseCode { get; private init; }
+        public CourseType CourseType { get; private init; }
 
-        public static Course Create(CourseName name, CourseDescription description)
+        public static Course Create(CourseCode code, CourseName name, CourseDescription description)
         {
-            return new Course(CourseId.New(), name, description);
+            return new Course(CourseId.New(), code, name, description);
         }
 
-        protected Course(CourseId id,  CourseName name, CourseDescription description)
+        protected Course(CourseId id, CourseCode code, CourseName name, CourseDescription description)
         {
+            if (code.Equals(default))
+                throw new ArgumentException("Coursecode is required", nameof(code));
 
             Id = id;
+            CourseCode = code;
+            CourseType = code.CourseType;
             CourseName = name;
             CourseDescription = description;
         }

@@ -4,6 +4,7 @@ using SkillFlow.Domain.Entities.Competences;
 using SkillFlow.Domain.Entities.Courses;
 using SkillFlow.Domain.Entities.CourseSessions;
 using SkillFlow.Domain.Entities.Locations;
+using SkillFlow.Infrastructure.Primitives;
 
 namespace SkillFlow.Infrastructure
 {
@@ -20,6 +21,8 @@ namespace SkillFlow.Infrastructure
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<IntResult>().HasNoKey();
+
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(SkillFlowDbContext).Assembly);
 
             base.OnModelCreating(modelBuilder);

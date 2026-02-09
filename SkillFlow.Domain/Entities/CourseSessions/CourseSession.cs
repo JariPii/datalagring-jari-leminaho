@@ -13,6 +13,7 @@ namespace SkillFlow.Domain.Entities.CourseSessions
         private readonly List<Enrollment> _enrollments = new();
         private readonly List<Instructor> _instructors = new();
 
+        public CourseId CourseId { get; private set; }
         public CourseCode CourseCode { get; private set; }
         public Course Course { get; private set; } = null!;
         public DateTime StartDate { get; private set; }
@@ -23,7 +24,19 @@ namespace SkillFlow.Domain.Entities.CourseSessions
         public LocationId LocationId { get; private set; }
         public virtual Location Location { get; private set; } = null!;
 
-        public CourseSession(CourseSessionId id, CourseCode courseCode, DateTime startDate, DateTime endDate, int capacity, LocationId locationId)
+        private CourseSession(CourseSessionId id, CourseId courseId, CourseCode courseCode, DateTime startDate, DateTime endDate, int capacity, LocationId locationId)
+        {          
+
+            Id = id;
+            CourseId = courseId;
+            CourseCode = courseCode;
+            StartDate = startDate;
+            EndDate = endDate;
+            Capacity = capacity;
+            LocationId = locationId;
+        }
+
+        public static CourseSession Create(CourseSessionId id, CourseId courseId, CourseCode code, DateTime startDate, DateTime endDate, int capacity, LocationId locationId)
         {
             if (endDate <= startDate) throw new ArgumentException("End date cannot be before the start date");
 
@@ -36,12 +49,15 @@ namespace SkillFlow.Domain.Entities.CourseSessions
             if (locationId.Value == Guid.Empty)
                 throw new ArgumentException("Loctation is needed", nameof(locationId));
 
-            Id = id;
-            CourseCode = courseCode;
-            StartDate = startDate;
-            EndDate = endDate;
-            Capacity = capacity;
-            LocationId = locationId;
+            return new CourseSession(
+                id,
+                courseId,
+                code,
+                startDate,
+                endDate,
+                capacity,
+                locationId
+                );
         }
 
         private CourseSession () { }
@@ -78,7 +94,7 @@ namespace SkillFlow.Domain.Entities.CourseSessions
         public void AddInstructor(Instructor instructor)
         {
             if (instructor is null)
-                throw new InstructorIsRequiredException();
+                throw new InstructorIsRequiredException("Instrucotr is required");
 
             if (_instructors.Any(i => i.Id == instructor.Id))
                 throw new InstructorAlreadyExistsException(instructor.Id, this.Id);

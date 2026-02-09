@@ -18,7 +18,6 @@ namespace SkillFlow.Infrastructure.Repositories
         public virtual async Task UpdateAsync(T entity, byte[] rowVersion, CancellationToken ct = default)
         {
             _context.Entry(entity).Property("RowVersion").OriginalValue = rowVersion;
-
             await _context.SaveChangesAsync(ct);
         }
 
