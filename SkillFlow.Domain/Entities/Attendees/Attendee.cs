@@ -8,31 +8,24 @@ namespace SkillFlow.Domain.Entities.Attendees
 {
     public abstract class Attendee : BaseEntity<AttendeeId>, IAggregateRoot
     {
-        public Role Role { get; private set; }
+        public Role Role { get; private init; }
         public Email Email { get; private set; }
         public AttendeeName Name { get; private set; }
         public PhoneNumber? PhoneNumber { get; private set; }
 
-        public static Attendee Create(Email email, AttendeeName name, Role role, PhoneNumber? phoneNumber)
-        {
-            var id = AttendeeId.New();
+        public static Student CreateStudent(Email email, AttendeeName name, PhoneNumber? phoneNumber)
+            => new(AttendeeId.New(), email, name, phoneNumber);
 
-            return role switch
-            {
-                Role.Instructor => new Instructor(id, email, name, phoneNumber),
-                Role.Student => new Student(id, email, name, phoneNumber),
-                _ => throw new InvalidRoleException(role)
-            };
-        }
+        public static Instructor CreateInstructor(Email email, AttendeeName name, PhoneNumber? phoneNumber)
+            => new(AttendeeId.New(), email, name, phoneNumber);
 
-
-        protected Attendee(AttendeeId id, Email email, AttendeeName name, Role role, PhoneNumber? phoneNumber)
+        protected Attendee(AttendeeId id, Email email, AttendeeName name, PhoneNumber? phoneNumber, Role role)
         {
             Id = id;
             Email = email;
             Name = name;
-            Role = role;
             PhoneNumber = phoneNumber;
+            Role = role;
         }
 
         protected Attendee() { }

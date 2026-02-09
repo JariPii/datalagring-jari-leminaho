@@ -15,12 +15,6 @@ namespace SkillFlow.Infrastructure.Configurations
             builder.Property(c => c.Id)
                 .HasConversion(id => id.Value, v => new CourseSessionId(v));
 
-            //builder.HasOne(c => c.Course)
-            //    .WithMany()
-            //    .HasPrincipalKey(c => c.CourseCode)
-            //    .HasForeignKey(c => c.CourseCode)
-            //    .IsRequired();
-
             builder.Property(c => c.CourseCode)
                 .HasConversion(c => c.Value, v => CourseCode.FromValue(v))
                 .HasMaxLength(12)
@@ -33,6 +27,14 @@ namespace SkillFlow.Infrastructure.Configurations
 
             builder.Property(x => x.LocationId)
                 .HasConversion(id => id.Value, v => new LocationId(v));
+
+            builder.Property(c => c.CourseId)
+                .HasConversion(id => id.Value, v => new CourseId(v));
+
+            builder.HasOne(c => c.Course)
+                .WithMany()
+                .HasForeignKey(c => c.CourseId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasMany(c => c.Enrollments)
                 .WithOne(e => e.CourseSession)

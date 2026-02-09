@@ -4,7 +4,7 @@ namespace SkillFlow.Domain.Interfaces
 {
     public interface ILocationRepository : IBaseRepository<Location, LocationId>
     {
-
+        Task<Location?> GetByLocationNameAsync(LocationName name, CancellationToken ct);
         Task<bool> ExistsByIdAsync(LocationId id, CancellationToken ct = default);
         Task<bool> ExistsByNameAsync(LocationName name, CancellationToken ct = default);
 

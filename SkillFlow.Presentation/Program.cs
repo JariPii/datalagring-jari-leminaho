@@ -3,11 +3,14 @@ using Scalar.AspNetCore;
 using SkillFlow.Application.DTOs.Attendees;
 using SkillFlow.Application.DTOs.Competences;
 using SkillFlow.Application.DTOs.Courses;
+using SkillFlow.Application.DTOs.CourseSessions;
+using SkillFlow.Application.DTOs.Locations;
 using SkillFlow.Application.Interfaces;
 using SkillFlow.Application.Services.Attendees;
 using SkillFlow.Application.Services.Competences;
 using SkillFlow.Application.Services.Courses;
 using SkillFlow.Application.Services.CourseSessions;
+using SkillFlow.Application.Services.Locations;
 using SkillFlow.Domain.Interfaces;
 using SkillFlow.Infrastructure;
 using SkillFlow.Infrastructure.Repositories;
@@ -39,9 +42,20 @@ builder.Services.AddScoped<ICompetenceRepository, CompetenceRepository>();
 builder.Services.AddScoped<IAttendeeService, AttendeeService>();
 builder.Services.AddScoped<ICourseService, CourseService>();
 builder.Services.AddScoped<ICourseSessionService, CourseSessionService>();
+builder.Services.AddScoped<ILocationService, LocationService>();
 builder.Services.AddScoped<ICompetenceService, CompetenceService>();
 
 #endregion
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("NextJsPolicy", policy =>
+    {
+        policy.WithOrigins("https://localhost:3000")
+        .AllowAnyMethod()
+        .AllowAnyHeader();
+    });
+});
 
 var app = builder.Build();
 
@@ -152,23 +166,76 @@ courses.MapGet("/", async (ICourseService service, CancellationToken ct) =>
 courses.MapGet("/{name}", async (string name, ICourseService service, CancellationToken ct)
     => Results.Ok(await service.GetCourseByNameAsync(name, ct)));
 
+courses.MapGet("/search", async (string searchTerm, ICourseService service, CancellationToken ct)
+    => Results.Ok(await service.SearchCoursesAsync(searchTerm, ct)));
+
 courses.MapPost("/", async (CreateCourseDTO dto, ICourseService service, CancellationToken ct) =>
 {
         var result = await service.CreateCourseAsync(dto, ct);
         return Results.Created($"/api/courses/{result.Id}", result);
 });
 
+courses.MapPut("/{id:guid}", async (Guid id, UpdateCourseDTO dto, ICourseService service, CancellationToken ct) =>
+{
+    if (id != dto.Id) return Results.BadRequest("Id mismatch");
+    var updateCourse = await service.UpdateCourseAsync(dto, ct);
+    return Results.Ok(updateCourse);
+});
+
+courses.MapDelete("/{id:guid}", async (Guid id, ICourseService service, CancellationToken ct) =>
+{
+    await service.DeleteCourseAsync(id, ct);
+    return Results.NoContent();
+});
+
 #endregion
 
 #region Location
 
+var locations = app.MapGroup("/api/locations");
 
+locations.MapGet("/", async (ILocationService service, CancellationToken ct) =>
+    Results.Ok(await service.GetAllLocationsAsync(ct)));
+
+locations.MapGet("/{id:guid}", async (Guid id, ILocationService service, CancellationToken ct) =>
+    Results.Ok(await service.GetLocationByIdAsync(id, ct)));
+
+locations.MapGet("/search", async (string searchTerm, ILocationService service, CancellationToken ct) =>
+    Results.Ok(await service.SearchLocationsAsync(searchTerm, ct)));
+
+locations.MapPost("/", async (CreateLocationDTO dto, ILocationService service, CancellationToken ct) =>
+{
+    var result = await service.CreateLocationAsync(dto, ct);
+    return Results.Created($"/api/locaiotns/{result.Id}", result);
+});
+
+locations.MapPut("/{id:guid}", async (Guid id, UpdateLocationDTO dto, ILocationService service, CancellationToken ct) =>
+{
+    if (id != dto.Id) return Results.BadRequest("Id mismatch");
+    var updateLocation = await service.UpdateLocationAsync(dto, ct);
+    return Results.Ok(updateLocation);
+});
+
+locations.MapDelete("/{id:guid}", async (Guid id, ILocationService service, CancellationToken ct) =>
+{
+    await service.DeleteLocationAsync(id, ct);
+    return Results.NoContent();
+});
 
 #endregion
 
-#region CourseSessions
+#region CourseSessions is empty
 
+var courseSession = app.MapGroup("/api/courseSession");
 
+courseSession.MapGet("/", async (ICourseSessionService service, CancellationToken ct) =>
+ Results.Ok(await service.GetAllCourseSessionsAsync(ct)));
+
+courseSession.MapPost("/", async (CreateCourseSessionDTO dto, ICourseSessionService service, CancellationToken ct) =>
+{
+    var result = await service.CreateCourseSessionAsync(dto, ct);
+    return Results.Created($"/api/courseSessions/{result.Id}", result);
+});
 
 #endregion
 

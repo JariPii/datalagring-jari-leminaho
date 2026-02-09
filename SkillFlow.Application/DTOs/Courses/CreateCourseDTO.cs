@@ -1,9 +1,15 @@
-﻿namespace SkillFlow.Application.DTOs.Courses
+﻿using SkillFlow.Domain.Enums;
+using System.Text.Json.Serialization;
+
+namespace SkillFlow.Application.DTOs.Courses
 {
     public record CreateCourseDTO
     {
         public string CourseName { get; init; } = string.Empty;
 
         public string CourseDescription { get; init; } = string.Empty;
+
+        [JsonConverter(typeof(JsonStringEnumConverter))]
+        public CourseType CourseType { get; init; }
     }
 }

@@ -39,14 +39,17 @@ namespace SkillFlow.Application.Services.Attendees
         {
             var email = Email.Create(dto.Email);
             var name = AttendeeName.Create(dto.FirstName, dto.LastName);
-            var phone = !string.IsNullOrWhiteSpace(dto.PhoneNumber) ? 
-                PhoneNumber.Create(dto.PhoneNumber)
-                : null;
+            var phone = PhoneNumber.Create(dto.PhoneNumber);
 
             if (await repository.ExistsByEmailAsync(email, ct))
                 throw new EmailAlreadyExistsException(email);
 
-            var attendee = Attendee.Create(email, name, dto.Role, phone);
+            Attendee attendee = dto.Role switch
+            {
+                Role.Student => Attendee.CreateStudent(email, name, phone),
+                Role.Instructor => Attendee.CreateInstructor(email, name, phone),
+                _ => throw new InvalidRoleException(dto.Role)
+            };
 
             await repository.AddAsync(attendee, ct);
 
