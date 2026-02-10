@@ -17,7 +17,5 @@ namespace SkillFlow.Domain.Interfaces
         Task<IEnumerable<CourseSession>> SearchAsync(string searchTerm, CancellationToken ct = default);
 
         Task<bool> ExistsByIdAsync(CourseSessionId id, CancellationToken ct = default);
-
-        //Task<int> CountSessionsForCourseAndYear(string cityPart,string coursePart, int year, CancellationToken ct = default);
     }
 }

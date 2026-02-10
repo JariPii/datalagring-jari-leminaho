@@ -46,6 +46,7 @@ public class CourseSessionRepository(SkillFlowDbContext context) : BaseResposito
             .Include(s => s.Location)
             .Include(s => s.Instructors)
             .Include(s => s.Enrollments)
+            .ThenInclude(e => e.Student)
             .FirstOrDefaultAsync(s => s.Id == id, ct);
     }
 
@@ -106,7 +107,7 @@ public class CourseSessionRepository(SkillFlowDbContext context) : BaseResposito
                     JOIN Locations l ON s.LocationId = l.Id
                     WHERE c.CourseName LIKE {searchPattern}
                         OR l.LocationName LIKE {searchPattern}
-                        OR s.CourseCode_Value LIKE {searchPattern}
+                        OR s.CourseCode LIKE {searchPattern}
                     ")
             .Include(s => s.Course)
             .Include(s => s.Location)
@@ -124,12 +125,11 @@ public class CourseSessionRepository(SkillFlowDbContext context) : BaseResposito
             .ToListAsync(ct);
     }
 
-    //public async Task<int> CountSessionsForCourseAndYear(string cityPart, string coursePart, int year, CancellationToken ct = default)
-    //{
-    //    return await _context.CourseSessions
-    //        .AsNoTracking()
-    //        .CountAsync(s => s.CourseCode.CityPart == cityPart &&
-    //        s.CourseCode.CoursePart == coursePart &&
-    //        s.CourseCode.CourseYear == year, ct);
-    //}
+    public async Task<IEnumerable<Enrollment>> GetEnrollmentsBySessionIdAsync(CourseSessionId sessionId, CancellationToken ct = default)
+    {
+        return await _context.Enrollments
+            .Include(e => e.Student)
+            .Where(e => e.CourseSessionId == sessionId)
+            .ToListAsync(ct);
+    }
 }

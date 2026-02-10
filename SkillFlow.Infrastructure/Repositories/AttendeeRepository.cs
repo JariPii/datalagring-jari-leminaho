@@ -57,12 +57,13 @@ namespace SkillFlow.Infrastructure.Repositories
             return await _context.Instructors
                 .Include(i => i.Competences)
                 .AsNoTracking()
+                .OrderByDescending(i => i.CreatedAt)
                 .ToListAsync(ct);
         }
 
         public async Task<IEnumerable<Student>> GetAllStudentsAsync(CancellationToken ct)
         {
-            return await _context.Students.AsNoTracking().ToListAsync(ct);
+            return await _context.Students.AsNoTracking().OrderByDescending(s => s.CreatedAt).ToListAsync(ct);
         }
 
         public async Task<Attendee?> GetByEmailAsync(Email email, CancellationToken ct) 
@@ -116,7 +117,7 @@ namespace SkillFlow.Infrastructure.Repositories
 
             return await _context.Attendees
                 .FromSqlInterpolated($@"
-                    SELECT *
+                    SELECT *, FirstName AS Name_FirstName, LastName AS Name_LastName
                     FROM Attendees 
                     WHERE FirstName LIKE {searchPattern}
                     OR LastName LIKE {searchPattern} ")

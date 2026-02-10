@@ -163,6 +163,7 @@ namespace SkillFlow.Application.Services.CourseSessions
 
             return [.. session.Enrollments.Select(e => new EnrollmentDTO {
                 StudentId = e.StudentId.Value,
+                StudentName = e.Student.Name.Fullname,
                 Status = e.Status,
                 EnrolledAt = e.CreatedAt
             })];

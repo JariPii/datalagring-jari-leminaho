@@ -29,7 +29,8 @@ namespace SkillFlow.Domain.Attendees
             return new AttendeeName(generateCleanFirstName, generatedCleanLastName);
         }
 
-        public override string ToString() => $"{FirstName} {LastName}";
+        public string Fullname => $"{FirstName} {LastName}";
+        public override string ToString() => Fullname;
 
         [GeneratedRegex(@"\s+")]
         private static partial Regex MyRegex();

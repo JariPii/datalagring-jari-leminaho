@@ -1,13 +1,12 @@
-﻿using SkillFlow.Domain.Enums;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace SkillFlow.Application.DTOs.CourseSessions
 {
-   public record UpdateEnrollmentStatusDTO
+    public record AddInstructorToCourseSessionDTO
     {
-        public EnrollmentStatus NewStatus { get; init; }
+        public Guid InstructorId { get; init; }
         public byte[] RowVersion { get; init; } = [];
     }
 }
