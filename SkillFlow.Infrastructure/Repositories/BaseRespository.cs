@@ -45,6 +45,7 @@ namespace SkillFlow.Infrastructure.Repositories
         {
             return await _context.Set<T>()
                 .AsNoTracking()
+                .OrderByDescending(e => e.CreatedAt)
                 .ToListAsync(ct);
         }
     }

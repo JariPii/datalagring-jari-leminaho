@@ -22,7 +22,6 @@ namespace SkillFlow.Application.DTOs.Attendees
 
         public string? PhoneNumber { get; init; }
 
-        [JsonConverter(typeof(JsonStringEnumConverter))]
         [JsonPropertyOrder(-10)]
         public Role Role { get; init; }
         public byte[] RowVersion { get; init; } = [];
