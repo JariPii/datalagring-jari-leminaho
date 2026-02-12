@@ -1,10 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SkillFlow.Domain.Courses;
 using SkillFlow.Domain.Entities.Attendees;
 using SkillFlow.Domain.Entities.Competences;
 using SkillFlow.Domain.Enums;
 using SkillFlow.Domain.Interfaces;
-//using Microsoft.EntityFrameworkCore.Query
 
 namespace SkillFlow.Infrastructure.Repositories
 {
@@ -22,7 +20,6 @@ namespace SkillFlow.Infrastructure.Repositories
             try
             {
                 _context.Attendees.Remove(attendee);
-                await _context.SaveChangesAsync(ct);
                 return true;
             }
             catch (DbUpdateException)

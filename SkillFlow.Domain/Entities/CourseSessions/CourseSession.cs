@@ -66,6 +66,8 @@ namespace SkillFlow.Domain.Entities.CourseSessions
         public virtual IReadOnlyCollection<Enrollment> Enrollments => _enrollments.AsReadOnly();
         public virtual IReadOnlyCollection<Instructor> Instructors => _instructors.AsReadOnly();
 
+        public int ApprovedEnrollmentsCount => _enrollments.Count(e => e.Status == EnrollmentStatus.Approved);
+
         public void UpdateCapacity(int newCapacity)
         {
             if (newCapacity < 1)
@@ -94,7 +96,7 @@ namespace SkillFlow.Domain.Entities.CourseSessions
         public void AddInstructor(Instructor instructor)
         {
             if (instructor is null)
-                throw new InstructorIsRequiredException("Instrucotr is required");
+                throw new InstructorIsRequiredException("Instructor is required");
 
             if (_instructors.Any(i => i.Id == instructor.Id))
                 throw new InstructorAlreadyExistsException(instructor.Id, this.Id);
@@ -122,9 +124,10 @@ namespace SkillFlow.Domain.Entities.CourseSessions
 
         public void CheckCapacity(int requestedCapacity)
         {
-            int approvedStudents = _enrollments.Count(e => e.Status == EnrollmentStatus.Approved);
-            if (requestedCapacity < approvedStudents)
-                throw new InvalidCapacityException($"Can not lower capacity to {requestedCapacity} because there is {approvedStudents}");
+            //int approvedStudents = _enrollments.Count(e => e.Status == EnrollmentStatus.Approved);
+
+            if (requestedCapacity < ApprovedEnrollmentsCount)
+                throw new InvalidCapacityException($"Can not lower capacity to {requestedCapacity} because there is {ApprovedEnrollmentsCount}");
 
             if (requestedCapacity > MaxCapacity)
                 throw new InvalidCapacityException($"Max capacity is {MaxCapacity}");
@@ -136,9 +139,9 @@ namespace SkillFlow.Domain.Entities.CourseSessions
 
             if (newStatus == EnrollmentStatus.Approved)
             {
-                int approvedStudents = _enrollments.Count(e => e.Status == EnrollmentStatus.Approved);
+                //int approvedStudents = _enrollments.Count(e => e.Status == EnrollmentStatus.Approved);
 
-                if (approvedStudents >= Capacity)
+                if (ApprovedEnrollmentsCount >= Capacity)
                     throw new CourseSessionFullException(Capacity);
 
                 enrollment.Approve();

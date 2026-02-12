@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using SkillFlow.Domain.Entities.Attendees;
 using SkillFlow.Domain.Entities.Courses;
 using SkillFlow.Domain.Entities.CourseSessions;
 using SkillFlow.Domain.Entities.Locations;
@@ -17,12 +18,13 @@ namespace SkillFlow.Infrastructure.Configurations
 
             builder.Property(c => c.CourseCode)
                 .HasConversion(c => c.Value, v => CourseCode.FromValue(v))
-                .HasMaxLength(12)
+                .HasMaxLength(10)
                 .IsRequired();
 
             builder.HasOne(x => x.Location)
                 .WithMany()
                 .HasForeignKey(x => x.LocationId)
+                .OnDelete(DeleteBehavior.Restrict)
                 .IsRequired();
 
             builder.Property(x => x.LocationId)
@@ -46,7 +48,10 @@ namespace SkillFlow.Infrastructure.Configurations
 
             builder.HasMany(c => c.Instructors)
                 .WithMany()
-                .UsingEntity(j => j.ToTable("CourseSessionInstructors"));
+                .UsingEntity<Dictionary<string, object>>(
+                "CourseSessionInstructors",
+                j => j.HasOne<Instructor>().WithMany().HasForeignKey("InstructorId").OnDelete(DeleteBehavior.Restrict),
+                j => j.HasOne<CourseSession>().WithMany().HasForeignKey("CourseSessionId").OnDelete(DeleteBehavior.Restrict));
 
             builder.Metadata.FindNavigation(nameof(CourseSession.Instructors))?
                 .SetPropertyAccessMode(PropertyAccessMode.Field);

@@ -11,28 +11,41 @@ using SkillFlow.Domain.Interfaces;
 
 namespace SkillFlow.Application.Services.Attendees
 {
-    public class AttendeeService(IAttendeeRepository repository, IAttendeeQueries queries, ICompetenceRepository competenceRepository) : IAttendeeService
+    public class AttendeeService(IAttendeeRepository repository, IUnitOfWork unitOfWork, IAttendeeQueries queries, ICompetenceRepository competenceRepository) : IAttendeeService
     {
         public async Task AddCompetenceToInstructorAsync(Guid instructorId, string competenceName, byte[] rowVersion, CancellationToken ct)
         {
-            var attendeeId = new AttendeeId(instructorId);
+            await using var tx = await unitOfWork.BeginTransactionAsync(ct);
 
-            var attendee = await repository.GetByIdAsync(attendeeId, ct) ??
-                throw new AttendeeNotFoundException(attendeeId);
-
-            if (attendee is not Instructor instructor)
+            try
             {
-                throw new InvalidRoleException(attendeeId, Role.Instructor);
+                var attendeeId = new AttendeeId(instructorId);
+
+                var attendee = await repository.GetByIdAsync(attendeeId, ct) ??
+                    throw new AttendeeNotFoundException(attendeeId);
+
+                if (attendee is not Instructor instructor)
+                {
+                    throw new InvalidRoleException(attendeeId, Role.Instructor);
+                }
+
+                var cName = CompetenceName.Create(competenceName);
+
+                var competence = await competenceRepository.GetByNameAsync(cName, ct) ??
+                    throw new CompetenceNotFoundException(cName);
+
+                instructor.AddCompetence(competence);
+
+                await repository.UpdateAsync(instructor, rowVersion, ct);
+
+                await unitOfWork.SaveChangesAsync(ct);
+                await tx.CommitAsync(ct);
             }
-
-            var cName = CompetenceName.Create(competenceName);
-
-            var competence = await competenceRepository.GetByNameAsync(cName, ct) ??
-                throw new CompetenceNotFoundException(cName);
-
-            instructor.AddCompetence(competence);
-
-            await repository.UpdateAsync(instructor, instructor.RowVersion ,ct);
+            catch
+            {
+                await tx.RollbackAsync(ct);
+                throw;
+            }
         }
 
         public async Task<AttendeeDTO> CreateAttendeeAsync(CreateAttendeeDTO dto, CancellationToken ct)
@@ -53,6 +66,8 @@ namespace SkillFlow.Application.Services.Attendees
 
             await repository.AddAsync(attendee, ct);
 
+            await unitOfWork.SaveChangesAsync(ct);
+
             return MapToDTOList([attendee]).First();
         }
 
@@ -64,11 +79,14 @@ namespace SkillFlow.Application.Services.Attendees
 
             if (!success)
                 throw new AttendeeNotFoundException(attendeeId);
+
+            await unitOfWork.SaveChangesAsync(ct);
         }
 
         public async Task<IEnumerable<AttendeeDTO>> GetAllAttendeesAsync(CancellationToken ct)
         {
             var attendees = await queries.GetAllAsync(ct);
+
             return MapToDTOList(attendees);
         }
 
@@ -160,14 +178,16 @@ namespace SkillFlow.Application.Services.Attendees
             }
 
             await repository.UpdateAsync(attendee, dto.RowVersion ,ct);
-            return MapToDTOList([attendee]).First();
+
+            await unitOfWork.SaveChangesAsync(ct);
+
+            //return MapToDTOList([attendee]).First();
+            return MapToDTO(attendee);
         }
 
-  
-
-        private static IEnumerable<AttendeeDTO> MapToDTOList(IEnumerable<Attendee> attendees)
+        public static AttendeeDTO MapToDTO(Attendee a)
         {
-            return attendees.Select(a => a switch
+            return a switch
             {
                 Instructor i => new InstructorDTO
                 {
@@ -196,7 +216,12 @@ namespace SkillFlow.Application.Services.Attendees
                     Role = a.Role,
                     RowVersion = a.RowVersion
                 }
-            });
+            };
+        }
+
+        public static IEnumerable<AttendeeDTO> MapToDTOList(IEnumerable<Attendee> attendees)
+        {
+            return attendees.Select(MapToDTO);
         }
 
         public async Task<IEnumerable<AttendeeDTO>> GetAllStudentsAsync(CancellationToken ct = default)

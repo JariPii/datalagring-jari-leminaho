@@ -72,7 +72,7 @@ namespace SkillFlow.Application.Services.Locations
             return MapToDTO(location);
         }
 
-        private static LocationDTO MapToDTO(Location location)
+        public static LocationDTO MapToDTO(Location location)
         {
             return new LocationDTO
             {

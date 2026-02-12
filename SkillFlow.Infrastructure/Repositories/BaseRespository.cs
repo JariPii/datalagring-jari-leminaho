@@ -12,28 +12,32 @@ namespace SkillFlow.Infrastructure.Repositories
         public virtual async Task AddAsync(T entity, CancellationToken ct = default)
         {
             await _context.Set<T>().AddAsync(entity, ct);
-            await _context.SaveChangesAsync(ct);
         }
 
-        public virtual async Task UpdateAsync(T entity, byte[] rowVersion, CancellationToken ct = default)
+        public virtual Task UpdateAsync(T entity, byte[] rowVersion, CancellationToken ct = default)
         {
             _context.Entry(entity).Property("RowVersion").OriginalValue = rowVersion;
-            await _context.SaveChangesAsync(ct);
+
+            if (_context.Entry(entity).State == EntityState.Detached)
+                _context.Attach(entity);
+
+            return Task.CompletedTask;
         }
 
         public virtual async Task<bool> DeleteAsync(TId id, CancellationToken ct = default)
         {
-            var entity = await _context.Set<T>().FirstOrDefaultAsync(e => e.Id!.Equals(id), ct);
+            var entity = await _context.Set<T>().FindAsync([id], ct);
+            //var entity = await _context.Set<T>().FirstOrDefaultAsync(e => e.Id!.Equals(id), ct);
 
             if (entity is null) return false;
 
             _context.Set<T>().Remove(entity);
-            await _context.SaveChangesAsync(ct);
             return true;
         }
 
-        public virtual async Task<T?> GetByIdAsync(TId id, CancellationToken ct = default)
-            => await _context.Set<T>().FirstOrDefaultAsync(e => e.Id!.Equals(id), ct);
+        public virtual async Task<T?> GetByIdAsync(TId id, CancellationToken ct = default) =>
+            //await _context.Set<T>().FirstOrDefaultAsync(e => e.Id!.Equals(id), ct);
+            await _context.Set<T>().FindAsync([id], ct);
         
 
         public virtual async Task<bool> ExistsByIdAsync(TId id, CancellationToken ct = default)
