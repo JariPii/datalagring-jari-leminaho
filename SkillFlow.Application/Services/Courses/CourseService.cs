@@ -15,16 +15,9 @@ namespace SkillFlow.Application.Services.Courses
             var courseName = CourseName.Create(dto.CourseName);
             var courseDescription = CourseDescription.Create(dto.CourseDescription);
 
-            //if (await repository.ExistsByCourseName(courseName, ct))
-            //    throw new CourseNameAllreadyExistsException(courseName);
+            var prefix = CourseCode.Create(dto.CourseName, dto.CourseType).CoursePart;
 
-            var coursePart = 
-                (dto.CourseName.Length >= 2 
-                    ? dto.CourseName[..2] 
-                    : dto.CourseName.PadRight(2, '0'))
-                .ToUpperInvariant();
-
-            var maxSuffix = await repository.GetMaxSuffixAsync(coursePart, dto.CourseType, ct);
+            var maxSuffix = await repository.GetMaxSuffixAsync(prefix, dto.CourseType, ct);
 
             var nextSuffix = maxSuffix == 0 ? 10 : maxSuffix + 10;
 
@@ -104,7 +97,7 @@ namespace SkillFlow.Application.Services.Courses
             return MapToDTO(course);
         }
 
-        private static CourseDTO MapToDTO(Course course)
+        public static CourseDTO MapToDTO(Course course)
         {
             var type = course.CourseCode.CourseType;
             return new CourseDTO

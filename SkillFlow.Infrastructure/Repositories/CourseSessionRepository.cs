@@ -42,6 +42,7 @@ public class CourseSessionRepository(SkillFlowDbContext context) : BaseResposito
     public async Task<CourseSession?> GetByIdWithInstructorsAndEnrollmentsAsync(CourseSessionId id, CancellationToken ct)
     {
         return await _context.CourseSessions
+            .AsSplitQuery()
             .Include(s => s.Course)
             .Include(s => s.Location)
             .Include(s => s.Instructors)
@@ -109,8 +110,10 @@ public class CourseSessionRepository(SkillFlowDbContext context) : BaseResposito
                         OR l.LocationName LIKE {searchPattern}
                         OR s.CourseCode LIKE {searchPattern}
                     ")
+            .AsNoTracking()
             .Include(s => s.Course)
             .Include(s => s.Location)
+            .Include(i => i.Instructors)
             .ToListAsync(ct);
     }
 

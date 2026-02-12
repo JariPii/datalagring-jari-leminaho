@@ -13,6 +13,7 @@ using SkillFlow.Application.Services.CourseSessions;
 using SkillFlow.Application.Services.Locations;
 using SkillFlow.Domain.Interfaces;
 using SkillFlow.Infrastructure;
+using SkillFlow.Infrastructure.Persistence;
 using SkillFlow.Infrastructure.Repositories;
 using SkillFlow.Presentation.Exceptions;
 
@@ -42,6 +43,7 @@ builder.Services.AddDbContext<SkillFlowDbContext>(options =>
 
 #region AddScoped
 
+builder.Services.AddScoped<IUnitOfWork, EfUnitOfWork>();
 builder.Services.AddScoped<IAttendeeRepository, AttendeeRepository>();
 builder.Services.AddScoped<IAttendeeQueries, AttendeeRepository>();
 builder.Services.AddScoped<ICourseRepository, CourseRepository>();

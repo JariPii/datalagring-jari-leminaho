@@ -38,19 +38,19 @@ namespace SkillFlow.Infrastructure.Migrations
                     b.ToTable("InstructorCompetences", (string)null);
                 });
 
-            modelBuilder.Entity("CourseSessionInstructor", b =>
+            modelBuilder.Entity("CourseSessionInstructors", b =>
                 {
                     b.Property<Guid>("CourseSessionId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("InstructorsId")
+                    b.Property<Guid>("InstructorId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("CourseSessionId", "InstructorsId");
+                    b.HasKey("CourseSessionId", "InstructorId");
 
-                    b.HasIndex("InstructorsId");
+                    b.HasIndex("InstructorId");
 
-                    b.ToTable("CourseSessionInstructors", (string)null);
+                    b.ToTable("CourseSessionInstructors");
                 });
 
             modelBuilder.Entity("SkillFlow.Domain.Entities.Attendees.Attendee", b =>
@@ -152,8 +152,8 @@ namespace SkillFlow.Infrastructure.Migrations
 
                     b.Property<string>("CourseCode")
                         .IsRequired()
-                        .HasMaxLength(12)
-                        .HasColumnType("nvarchar(12)");
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
 
                     b.Property<Guid>("CourseId")
                         .HasColumnType("uniqueidentifier");
@@ -239,8 +239,8 @@ namespace SkillFlow.Infrastructure.Migrations
 
                     b.Property<string>("CourseCode")
                         .IsRequired()
-                        .HasMaxLength(9)
-                        .HasColumnType("nvarchar(9)");
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
 
                     b.Property<string>("CourseDescription")
                         .IsRequired()
@@ -341,18 +341,18 @@ namespace SkillFlow.Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("CourseSessionInstructor", b =>
+            modelBuilder.Entity("CourseSessionInstructors", b =>
                 {
                     b.HasOne("SkillFlow.Domain.Entities.CourseSessions.CourseSession", null)
                         .WithMany()
                         .HasForeignKey("CourseSessionId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("SkillFlow.Domain.Entities.Attendees.Instructor", null)
                         .WithMany()
-                        .HasForeignKey("InstructorsId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasForeignKey("InstructorId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 
@@ -367,7 +367,7 @@ namespace SkillFlow.Infrastructure.Migrations
                     b.HasOne("SkillFlow.Domain.Entities.Locations.Location", "Location")
                         .WithMany()
                         .HasForeignKey("LocationId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Course");

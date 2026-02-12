@@ -1,6 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SkillFlow.Application.DTOs.CourseSessions;
 using SkillFlow.Application.Interfaces;
+using SkillFlow.Application.Services.Attendees;
+using SkillFlow.Application.Services.Courses;
+using SkillFlow.Application.Services.Locations;
 using SkillFlow.Domain.Entities.Attendees;
 using SkillFlow.Domain.Entities.Courses;
 using SkillFlow.Domain.Entities.CourseSessions;
@@ -45,6 +48,9 @@ namespace SkillFlow.Application.Services.CourseSessions
 
         public async Task<CourseSessionDTO> CreateCourseSessionAsync(CreateCourseSessionDTO dto, CancellationToken ct)
         {
+            if (dto.InstructorIds is null || dto.InstructorIds.Count == 0)
+                throw new InstructorIsRequiredException("Instructor is required");
+
             var courseCode = CourseCode.FromValue(dto.CourseCode);
             var locationName = LocationName.Create(dto.LocationName);
 
@@ -53,9 +59,6 @@ namespace SkillFlow.Application.Services.CourseSessions
 
             var location = await locationRepository.GetByLocationNameAsync(locationName, ct) ??
                 throw new LocationNotFoundException(locationName);
-
-            if (dto.InstructorIds is null || dto.InstructorIds.Count == 0)
-                throw new InstructorIsRequiredException("Instructor is required");
 
             var session = CourseSession.Create(
                 CourseSessionId.New(),
@@ -79,9 +82,6 @@ namespace SkillFlow.Application.Services.CourseSessions
 
                 session.AddInstructor(instructor);
             }
-
-            if (session.Instructors.Count == 0)
-                throw new InstructorIsRequiredException("Instructor is required");
 
             await sessionRepository.AddAsync(session, ct);
 
@@ -221,13 +221,13 @@ namespace SkillFlow.Application.Services.CourseSessions
             {
                 Id = courseSession.Id.Value,
                 CourseCode = courseSession.CourseCode.Value,
-                Course = courseSession.Course.CourseName.Value,
-                Location = courseSession.Location.LocationName.Value,
+                Course = CourseService.MapToDTO(courseSession.Course),
+                Location = LocationService.MapToDTO(courseSession.Location),
                 Capacity = courseSession.Capacity,
                 StartDate = courseSession.StartDate.ToLocalTime(),
                 EndDate = courseSession.EndDate.ToLocalTime(),
-                ApprovedEnrollmentsCount = courseSession.Enrollments.Count,
-                Instructors = [.. courseSession.Instructors.Select(i => i.Name.ToString())],
+                ApprovedEnrollmentsCount = courseSession.ApprovedEnrollmentsCount,
+                Instructors = [.. courseSession.Instructors.Select(AttendeeService.MapToDTO)],
                 RowVersion = courseSession.RowVersion
             };
         }

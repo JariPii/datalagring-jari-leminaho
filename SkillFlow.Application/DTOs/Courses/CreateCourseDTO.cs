@@ -1,5 +1,4 @@
 ﻿using SkillFlow.Domain.Enums;
-using System.Text.Json.Serialization;
 
 namespace SkillFlow.Application.DTOs.Courses
 {
@@ -9,7 +8,6 @@ namespace SkillFlow.Application.DTOs.Courses
 
         public string CourseDescription { get; init; } = string.Empty;
 
-        [JsonConverter(typeof(JsonStringEnumConverter))]
         public CourseType CourseType { get; init; }
     }
 }

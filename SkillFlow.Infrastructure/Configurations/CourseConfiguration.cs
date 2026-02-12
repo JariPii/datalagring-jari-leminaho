@@ -15,7 +15,7 @@ namespace SkillFlow.Infrastructure.Configurations
 
             var codeProp = builder.Property(c => c.CourseCode)
                 .HasConversion(code => code.Value, v => CourseCode.FromValue(v))
-                .HasMaxLength(9)
+                .HasMaxLength(10)
                 .IsRequired();
 
             codeProp.Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Throw);
