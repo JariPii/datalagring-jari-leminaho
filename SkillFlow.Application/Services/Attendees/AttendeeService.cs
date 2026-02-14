@@ -41,6 +41,11 @@ namespace SkillFlow.Application.Services.Attendees
                 await unitOfWork.SaveChangesAsync(ct);
                 await tx.CommitAsync(ct);
             }
+            catch (DbUpdateConcurrencyException)
+            {
+                await tx.RollbackAsync(ct);
+                throw new ConcurrencyException();
+            }
             catch
             {
                 await tx.RollbackAsync(ct);
@@ -68,7 +73,7 @@ namespace SkillFlow.Application.Services.Attendees
 
             await unitOfWork.SaveChangesAsync(ct);
 
-            return MapToDTOList([attendee]).First();
+            return MapToDTO(attendee);
         }
 
         public async Task DeleteAttendeeAsync(Guid id, CancellationToken ct)
@@ -105,7 +110,7 @@ namespace SkillFlow.Application.Services.Attendees
             var attendee = await repository.GetByEmailAsync(attendeeEmail, ct) ??
                 throw new AttendeeNotFoundException(attendeeEmail);
 
-            return MapToDTOList([attendee]).First();
+            return MapToDTO(attendee);
         }
 
         public async Task<AttendeeDTO> GetAttendeeByIdAsync(Guid id, CancellationToken ct)
@@ -115,7 +120,7 @@ namespace SkillFlow.Application.Services.Attendees
             var attendee = await repository.GetByIdAsync(attendeeId, ct) ??
                 throw new AttendeeNotFoundException(attendeeId);
 
-            return MapToDTOList([attendee]).First();
+            return MapToDTO(attendee);
         }
 
         public async Task<IEnumerable<AttendeeDTO>> GetAttendeesByFirstNameAsync(string firstName, CancellationToken ct)
@@ -123,18 +128,6 @@ namespace SkillFlow.Application.Services.Attendees
 
         public async Task<IEnumerable<AttendeeDTO>> GetAttendeesByLastNameAsync(string lastName, CancellationToken ct)
          => await SearchAttendeesByNameAsync(lastName, ct);
-
-        public async Task<IEnumerable<AttendeeDTO>> GetAttendeesByRoleAsync(string role, CancellationToken ct)
-        {
-            if (!Enum.TryParse<Role>(role, true, out var parsedRole) || !Enum.IsDefined(parsedRole))
-            {
-                throw new InvalidRoleException(role);
-            }
-
-            var attendees = await queries.SearchByRoleAsync(parsedRole, ct);
-
-            return MapToDTOList(attendees);
-        }
 
         public async Task<IEnumerable<InstructorDTO>> GetInstructorsByCompetenceAsync(string competence, CancellationToken ct)
         {
@@ -150,9 +143,9 @@ namespace SkillFlow.Application.Services.Attendees
 
         }
 
-        public async Task<AttendeeDTO> UpdateAttendeeAsync(UpdateAttendeeDTO dto, CancellationToken ct)
+        public async Task<AttendeeDTO> UpdateAttendeeAsync(Guid id, UpdateAttendeeDTO dto, CancellationToken ct)
         {
-            var attendeeId = new AttendeeId(dto.Id);
+            var attendeeId = new AttendeeId(id);
 
             var attendee = await repository.GetByIdAsync(attendeeId, ct) ??
                 throw new AttendeeNotFoundException(attendeeId);
@@ -206,7 +199,7 @@ namespace SkillFlow.Application.Services.Attendees
                     RowVersion = i.RowVersion
 
                 },
-                _ => new AttendeeDTO
+                _ => new StudentDTO
                 {
                     Id = a.Id.Value,
                     Email = a.Email.Value,

@@ -2,7 +2,6 @@
 {
     public record UpdateCourseSessionDTO
     {
-        public Guid Id { get; init; }
         public Guid? CourseId { get; init; }
 
         public Guid? LocationId { get; init; }

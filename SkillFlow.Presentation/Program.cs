@@ -98,9 +98,6 @@ attendees.MapGet("/search", async (string searchTerm, IAttendeeService service, 
 attendees.MapGet("/instructors/competence/{name}", async (string name, IAttendeeService service, CancellationToken ct)
     => Results.Ok(await service.GetInstructorsByCompetenceAsync(name, ct)));
 
-attendees.MapGet("/role/{role}", async (string role, IAttendeeService service, CancellationToken ct)
-    => Results.Ok(await service.GetAttendeesByRoleAsync(role, ct)));
-
 attendees.MapGet("/email/{email}", async (string email, IAttendeeService service, CancellationToken ct)
     => Results.Ok(await service.GetAttendeeByEmailAsync(email, ct)));
 
@@ -116,9 +113,7 @@ attendees.MapPost("/", async (CreateAttendeeDTO dto, IAttendeeService service, C
 attendees.MapPut("/{id:guid}", async (Guid id, UpdateAttendeeDTO dto, IAttendeeService service, CancellationToken ct)
     =>
 {
-    if (id != dto.Id) return Results.BadRequest("Id mismatch");
-
-    var updatedAttendee = await service.UpdateAttendeeAsync(dto, ct);
+    var updatedAttendee = await service.UpdateAttendeeAsync(id, dto, ct);
     return Results.Ok(updatedAttendee);
 });
 
@@ -155,8 +150,7 @@ competences.MapPost("/", async (CreateCompetenceDTO dto, ICompetenceService serv
 
 competences.MapPut("/{id:guid}", async (Guid id, UpdateCompetenceDTO dto, ICompetenceService service, CancellationToken ct) =>
 {
-    if (id != dto.Id) return Results.BadRequest("Id mismatch");
-    var updateCompetence = await service.UpdateCompetenceAsync(dto, ct);
+    var updateCompetence = await service.UpdateCompetenceAsync(id, dto, ct);
     return Results.Ok(updateCompetence);
 });
 
@@ -175,11 +169,11 @@ var courses = app.MapGroup("/api/courses");
 courses.MapGet("/", async (ICourseService service, CancellationToken ct) =>
     Results.Ok(await service.GetAllCoursesAsync(ct)));
 
-courses.MapGet("/{name}", async (string name, ICourseService service, CancellationToken ct)
-    => Results.Ok(await service.GetCourseByNameAsync(name, ct)));
-
 courses.MapGet("/search", async (string searchTerm, ICourseService service, CancellationToken ct)
     => Results.Ok(await service.SearchCoursesAsync(searchTerm, ct)));
+
+courses.MapGet("/{name}", async (string name, ICourseService service, CancellationToken ct)
+    => Results.Ok(await service.GetCourseByNameAsync(name, ct)));
 
 courses.MapPost("/", async (CreateCourseDTO dto, ICourseService service, CancellationToken ct) =>
 {
@@ -189,8 +183,7 @@ courses.MapPost("/", async (CreateCourseDTO dto, ICourseService service, Cancell
 
 courses.MapPut("/{id:guid}", async (Guid id, UpdateCourseDTO dto, ICourseService service, CancellationToken ct) =>
 {
-    if (id != dto.Id) return Results.BadRequest("Id mismatch");
-    var updateCourse = await service.UpdateCourseAsync(dto, ct);
+    var updateCourse = await service.UpdateCourseAsync(id, dto, ct);
     return Results.Ok(updateCourse);
 });
 
@@ -223,8 +216,8 @@ locations.MapPost("/", async (CreateLocationDTO dto, ILocationService service, C
 
 locations.MapPut("/{id:guid}", async (Guid id, UpdateLocationDTO dto, ILocationService service, CancellationToken ct) =>
 {
-    if (id != dto.Id) return Results.BadRequest("Id mismatch");
-    var updateLocation = await service.UpdateLocationAsync(dto, ct);
+
+    var updateLocation = await service.UpdateLocationAsync(id, dto, ct);
     return Results.Ok(updateLocation);
 });
 
@@ -266,9 +259,7 @@ courseSessions.MapPost("/", async (CreateCourseSessionDTO dto, ICourseSessionSer
 
 courseSessions.MapPut("/{id:guid}", async (Guid id, UpdateCourseSessionDTO dto, ICourseSessionService service, CancellationToken ct) =>
 {
-    if (id != dto.Id) return Results.BadRequest("Id mismatch");
-
-    var updated = await service.UpdateCourseSessionAsync(dto, ct);
+    var updated = await service.UpdateCourseSessionAsync(id, dto, ct);
     return Results.Ok(updated);
 });
 
@@ -286,7 +277,7 @@ courseSessions.MapPost("/{id:guid}/instructors", async (Guid id, AddInstructorTo
 
 courseSessions.MapPost("/{id:guid}/enrollments", async(Guid id, EnrollStudentDTO dto, ICourseSessionService service, CancellationToken ct) =>
 {
-    await service.EnrollStudentAsync(id, dto.StudentId, ct);
+    await service.EnrollStudentAsync(id, dto.StudentId, dto.RowVersion, ct);
     return Results.Ok();
 });
 

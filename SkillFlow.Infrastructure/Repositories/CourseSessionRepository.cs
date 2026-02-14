@@ -9,25 +9,6 @@ namespace SkillFlow.Infrastructure.Repositories;
 
 public class CourseSessionRepository(SkillFlowDbContext context) : BaseRespository<CourseSession, CourseSessionId>(context), ICourseSessionRepository
 {
-
-    public override async Task<bool> DeleteAsync(CourseSessionId id, CancellationToken ct)
-    {
-        var courseSession = await _context.CourseSessions.FirstOrDefaultAsync(s => s.Id == id, ct);
-
-        if (courseSession is null) return false;
-
-        try
-        {
-            _context.CourseSessions.Remove(courseSession);
-            await _context.SaveChangesAsync(ct);
-            return true;
-        }
-        catch
-        {
-            return false;
-        }
-    }
-
     public async Task<IEnumerable<CourseSession>> GetByCourseCodeAsync(CourseCode code, CancellationToken ct)
     {
         return await _context.CourseSessions
@@ -37,7 +18,7 @@ public class CourseSessionRepository(SkillFlowDbContext context) : BaseResposito
     }
 
     public override async Task<CourseSession?> GetByIdAsync(CourseSessionId id, CancellationToken ct)
-        => await _context.CourseSessions.FirstOrDefaultAsync(c => c.Id == id, ct);
+        => await _context.CourseSessions.FindAsync([id], ct);
 
     public async Task<CourseSession?> GetByIdWithInstructorsAndEnrollmentsAsync(CourseSessionId id, CancellationToken ct)
     {
@@ -71,6 +52,7 @@ public class CourseSessionRepository(SkillFlowDbContext context) : BaseResposito
     public async Task<IEnumerable<CourseSession>> GetSessionsWithAvailableCapacityAsync(CancellationToken ct)
     {
         return await _context.CourseSessions
+            .AsNoTracking()
             .Include(s => s.Course)
             .Include(s => s.Location)
             .Where(s => s.Enrollments.Count(e => e.Status == EnrollmentStatus.Approved) < s.Capacity)
@@ -131,6 +113,7 @@ public class CourseSessionRepository(SkillFlowDbContext context) : BaseResposito
     public async Task<IEnumerable<Enrollment>> GetEnrollmentsBySessionIdAsync(CourseSessionId sessionId, CancellationToken ct = default)
     {
         return await _context.Enrollments
+            .AsNoTracking()
             .Include(e => e.Student)
             .Where(e => e.CourseSessionId == sessionId)
             .ToListAsync(ct);

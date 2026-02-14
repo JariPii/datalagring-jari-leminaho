@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 namespace SkillFlow.Application.DTOs.Attendees
 {
     [JsonPolymorphic(TypeDiscriminatorPropertyName = "$type")]
-    [JsonDerivedType(typeof(AttendeeDTO), "student")]
+    [JsonDerivedType(typeof(StudentDTO), "student")]
     [JsonDerivedType(typeof(InstructorDTO), "instructor")]
     public record AttendeeDTO
     {

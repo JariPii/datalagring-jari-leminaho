@@ -13,5 +13,7 @@ namespace SkillFlow.Domain.Interfaces
         Task<IEnumerable<Course>> SearchByNameAsync(string searchTerm, CancellationToken ct = default);
         Task<int> GetMaxSuffixAsync(string coursePart, CourseType type, CancellationToken ct = default);
 
+        void Remove(Course course);
+
     }
 }

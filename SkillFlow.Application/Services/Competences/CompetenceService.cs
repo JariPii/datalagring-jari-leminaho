@@ -8,7 +8,7 @@ using SkillFlow.Domain.Interfaces;
 
 namespace SkillFlow.Application.Services.Competences
 {
-    public class CompetenceService(ICompetenceRepository repository) : ICompetenceService
+    public class CompetenceService(ICompetenceRepository repository, IUnitOfWork unitOfWork) : ICompetenceService
     {
         public async Task<CompetenceDTO> CreateCompetenceAsync(CreateCompetenceDTO dto, CancellationToken ct = default)
         {
@@ -21,16 +21,21 @@ namespace SkillFlow.Application.Services.Competences
 
             await repository.AddAsync(competence, ct);
 
+            await unitOfWork.SaveChangesAsync(ct);
+
             return MapToDTO(competence);
         }
 
         public async Task DeleteCompetenceAsync(Guid id, CancellationToken ct = default)
         {
             var competenceId = new CompetenceId(id);
-            var competence = await repository.GetByIdAsync(competenceId, ct) ??
+
+            var success = await repository.DeleteAsync(competenceId, ct);
+
+            if (!success)
                 throw new CompetenceNotFoundException(competenceId);
 
-            await repository.DeleteAsync(competenceId, ct);
+            await unitOfWork.SaveChangesAsync(ct);
         }
 
         public async Task<IEnumerable<CompetenceDetailsDTO>> GetAllCompetencesAsync(CancellationToken ct = default)
@@ -49,9 +54,9 @@ namespace SkillFlow.Application.Services.Competences
             return MapToDTODetails([competence]).First();
         }
 
-        public async Task<CompetenceDTO> UpdateCompetenceAsync(UpdateCompetenceDTO dto, CancellationToken ct = default)
+        public async Task<CompetenceDTO> UpdateCompetenceAsync(Guid id, UpdateCompetenceDTO dto, CancellationToken ct = default)
         {
-            var competenceId = new CompetenceId(dto.Id);
+            var competenceId = new CompetenceId(id);
             var competence = await repository.GetByIdAsync(competenceId, ct) ??
                 throw new CompetenceNotFoundException(competenceId);
 
@@ -63,6 +68,8 @@ namespace SkillFlow.Application.Services.Competences
             competence.UpdateCompetenceName(newName);
 
             await repository.UpdateAsync(competence, dto.RowVersion, ct);
+
+            await unitOfWork.SaveChangesAsync(ct);
 
             return MapToDTO(competence);
         }

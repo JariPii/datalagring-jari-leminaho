@@ -1,4 +1,5 @@
-﻿using SkillFlow.Application.DTOs.Courses;
+﻿using Microsoft.EntityFrameworkCore;
+using SkillFlow.Application.DTOs.Courses;
 using SkillFlow.Application.Helpers;
 using SkillFlow.Application.Interfaces;
 using SkillFlow.Domain.Courses;
@@ -8,7 +9,7 @@ using SkillFlow.Domain.Interfaces;
 
 namespace SkillFlow.Application.Services.Courses
 {
-    public class CourseService(ICourseRepository repository) : ICourseService
+    public class CourseService(ICourseRepository repository, IUnitOfWork unitOfWork) : ICourseService
     {
         public async Task<CourseDTO> CreateCourseAsync(CreateCourseDTO dto, CancellationToken ct)
         {
@@ -27,6 +28,8 @@ namespace SkillFlow.Application.Services.Courses
 
             await repository.AddAsync(course, ct);
 
+            await unitOfWork.SaveChangesAsync(ct);
+
             return MapToDTO(course);
         }
 
@@ -34,10 +37,19 @@ namespace SkillFlow.Application.Services.Courses
         {
             var courseId = new CourseId(id);
 
-            var success = await repository.DeleteAsync(courseId, ct);
-
-            if (!success)
+            var course = await repository.GetByIdAsync(courseId, ct) ??
                 throw new CourseNotFoundException(courseId);
+
+            repository.Remove(course);
+
+            try
+            {
+                await unitOfWork.SaveChangesAsync(ct);
+            }
+            catch (DbUpdateException)
+            {
+                throw new CourseInUseException(course.CourseName);
+            }
         }
 
         public async Task<IEnumerable<CourseDTO>> GetAllCoursesAsync(CancellationToken ct)
@@ -75,9 +87,9 @@ namespace SkillFlow.Application.Services.Courses
             return [.. courses.Select(MapToDTO)];
         }
 
-        public async Task<CourseDTO> UpdateCourseAsync(UpdateCourseDTO dto, CancellationToken ct)
+        public async Task<CourseDTO> UpdateCourseAsync(Guid id, UpdateCourseDTO dto, CancellationToken ct)
         {
-            var courseId = new CourseId(dto.Id);
+            var courseId = new CourseId(id);
 
             var course = await repository.GetByIdAsync(courseId, ct) ??
                 throw new CourseNotFoundException(courseId);
@@ -93,6 +105,8 @@ namespace SkillFlow.Application.Services.Courses
             course.UpdateCourseDescription(newDescription);
 
             await repository.UpdateAsync(course, dto.RowVersion, ct);
+
+            await unitOfWork.SaveChangesAsync(ct);
 
             return MapToDTO(course);
         }

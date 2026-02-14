@@ -28,8 +28,7 @@ namespace SkillFlow.Presentation.Exceptions
                 CourseCodeAllreadyExistsException or
                 CourseNameAllreadyExistsException or
                 LocationNameAllreadyExistsException or
-                InstructorAlreadyExistsException or
-                CompetenceAllreadyAssignedException
+                InstructorAlreadyExistsException
                     => (StatusCodes.Status409Conflict, "Resource conflict"),
 
                 // Custom 400
@@ -52,6 +51,7 @@ namespace SkillFlow.Presentation.Exceptions
 
                 // Custom 422
                 CourseInUseException or
+                LocationInUseException or
                 LocationHasCourseSessionException or
                 InstructorHasActiveSessionsException or
                 StudentHasActiveEnrollmentsException
