@@ -21,7 +21,7 @@ namespace SkillFlow.Application.Services.CourseSessions
         IAttendeeRepository attendeeRepository,
         ICourseRepository courseRepository,
         ILocationRepository locationRepository,
-        SkillFlowDbContext context
+        IUnitOfWork unitOfWork
         ) : ICourseSessionService
     {
         public async Task AddInstructorToCourseSessionAsync(Guid sessionId, Guid instructorId, byte[] rowVersion, CancellationToken ct)
@@ -43,6 +43,8 @@ namespace SkillFlow.Application.Services.CourseSessions
             courseSession.AddInstructor(instructor);
 
             await sessionRepository.UpdateAsync(courseSession, rowVersion, ct);
+
+            await unitOfWork.SaveChangesAsync(ct);
 
         }
 
@@ -85,6 +87,8 @@ namespace SkillFlow.Application.Services.CourseSessions
 
             await sessionRepository.AddAsync(session, ct);
 
+            await unitOfWork.SaveChangesAsync(ct);
+
             return await GetCourseSessionByIdAsync(session.Id.Value, ct);
         }
 
@@ -96,9 +100,11 @@ namespace SkillFlow.Application.Services.CourseSessions
 
             if (!success)
                 throw new CourseSessionNotFoundException(courseSessionId);
+
+            await unitOfWork.SaveChangesAsync(ct);
         }
 
-        public async Task EnrollStudentAsync(Guid sessionId, Guid studentId, CancellationToken ct)
+        public async Task EnrollStudentAsync(Guid sessionId, Guid studentId, byte[] rowVersion, CancellationToken ct)
         {
             var courseSessionId = new CourseSessionId(sessionId);
             var attendeeId = new AttendeeId(studentId);
@@ -114,7 +120,7 @@ namespace SkillFlow.Application.Services.CourseSessions
 
             session.AddStudent(student);
 
-            await context.SaveChangesAsync(ct);
+            await unitOfWork.SaveChangesAsync(ct);
         }
 
         public async Task<IEnumerable<CourseSessionDTO>> GetAllCourseSessionsAsync(CancellationToken ct)
@@ -177,7 +183,7 @@ namespace SkillFlow.Application.Services.CourseSessions
 
         public async Task SetEnrollmentStatusAsync(Guid sessionId, Guid studentId, EnrollmentStatus status, byte[] rowVersion, CancellationToken ct)
         {
-            using var transaction = await context.Database.BeginTransactionAsync(ct);
+            await using var tx = await unitOfWork.BeginTransactionAsync(ct);
 
             try
             {
@@ -188,21 +194,28 @@ namespace SkillFlow.Application.Services.CourseSessions
 
                 await sessionRepository.UpdateAsync(session, rowVersion, ct);
 
-                await transaction.CommitAsync(ct);
+                await unitOfWork.SaveChangesAsync(ct);
+
+                await tx.CommitAsync(ct);
             }
             catch (DbUpdateConcurrencyException)
             {
-                await transaction.RollbackAsync(ct);
+                await tx.RollbackAsync(ct);
                 throw new ConcurrencyException();
+            }
+            catch
+            {
+                await tx.RollbackAsync(ct);
+                throw;
             }
         }
 
-        public async Task<CourseSessionDTO> UpdateCourseSessionAsync(UpdateCourseSessionDTO dto, CancellationToken ct)
+        public async Task<CourseSessionDTO> UpdateCourseSessionAsync(Guid id, UpdateCourseSessionDTO dto, CancellationToken ct)
         {
-            var id = new CourseSessionId(dto.Id);
+            var courseSessionId = new CourseSessionId(id);
 
-            var session = await sessionRepository.GetByIdWithInstructorsAndEnrollmentsAsync(id, ct) ??
-                throw new CourseSessionNotFoundException(id);
+            var session = await sessionRepository.GetByIdWithInstructorsAndEnrollmentsAsync(courseSessionId, ct) ??
+                throw new CourseSessionNotFoundException(courseSessionId);
 
             if (dto.Capacity.HasValue)
                 session.UpdateCapacity(dto.Capacity.Value);
@@ -211,6 +224,8 @@ namespace SkillFlow.Application.Services.CourseSessions
                 session.UpdateDates(dto.StartDate ?? session.StartDate, dto.EndDate ?? session.EndDate);
 
             await sessionRepository.UpdateAsync(session, dto.RowVersion, ct);
+
+            await unitOfWork.SaveChangesAsync(ct);
 
             return MapToDTO(session);
         }

@@ -20,25 +20,6 @@ namespace SkillFlow.Infrastructure.Repositories
                 .ToListAsync(ct);
         }
 
-        public override async Task<bool> DeleteAsync(CourseId id, CancellationToken ct)
-        {
-
-            var course = await GetByIdAsync(id, ct);
-
-            if (course is null) return false;
-
-            try
-            {
-                _context.Courses.Remove(course);
-                await _context.SaveChangesAsync(ct);
-                return true;
-            }
-            catch (DbUpdateException)
-            {
-                throw new CourseInUseException(course.CourseName);
-            }
-        }
-
         public async Task<bool> ExistsByCourseName(CourseName name, CancellationToken ct)
         {
             return await _context.Courses.AnyAsync(c => c.CourseName == name, ct);
@@ -46,7 +27,7 @@ namespace SkillFlow.Infrastructure.Repositories
 
         public async Task<Course?> GetByCourseNameAsync(CourseName name, CancellationToken ct)
         {
-            return await _context.Courses.FirstOrDefaultAsync(c => c.CourseName == name, ct);
+            return await _context.Courses.AsNoTracking().FirstOrDefaultAsync(c => c.CourseName == name, ct);
         }
 
         public async Task<bool> ExistsByCourseCodeAsync(CourseCode code, CancellationToken ct = default)
@@ -74,6 +55,11 @@ namespace SkillFlow.Infrastructure.Repositories
         public async Task<Course?> GetByCourseCodeAsync(CourseCode code, CancellationToken ct = default)
         {
             return await _context.Courses.FirstOrDefaultAsync(c => c.CourseCode == code, ct);
+        }
+
+        public void Remove(Course course)
+        {
+            _context.Courses.Remove(course);
         }
     }
 }

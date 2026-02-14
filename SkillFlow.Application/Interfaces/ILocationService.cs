@@ -12,7 +12,7 @@ namespace SkillFlow.Application.Interfaces
 
         Task<IEnumerable<LocationDTO>> SearchLocationsAsync(string searchTerm, CancellationToken ct = default);
 
-        Task<LocationDTO> UpdateLocationAsync(UpdateLocationDTO dto, CancellationToken ct = default);
+        Task<LocationDTO> UpdateLocationAsync(Guid id, UpdateLocationDTO dto, CancellationToken ct = default);
 
         Task DeleteLocationAsync(Guid id, CancellationToken ct = default);
     }

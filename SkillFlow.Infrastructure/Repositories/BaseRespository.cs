@@ -27,7 +27,6 @@ namespace SkillFlow.Infrastructure.Repositories
         public virtual async Task<bool> DeleteAsync(TId id, CancellationToken ct = default)
         {
             var entity = await _context.Set<T>().FindAsync([id], ct);
-            //var entity = await _context.Set<T>().FirstOrDefaultAsync(e => e.Id!.Equals(id), ct);
 
             if (entity is null) return false;
 
@@ -36,7 +35,6 @@ namespace SkillFlow.Infrastructure.Repositories
         }
 
         public virtual async Task<T?> GetByIdAsync(TId id, CancellationToken ct = default) =>
-            //await _context.Set<T>().FirstOrDefaultAsync(e => e.Id!.Equals(id), ct);
             await _context.Set<T>().FindAsync([id], ct);
         
 

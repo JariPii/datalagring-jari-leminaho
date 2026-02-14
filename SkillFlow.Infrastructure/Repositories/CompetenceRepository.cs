@@ -33,7 +33,6 @@ namespace SkillFlow.Infrastructure.Repositories
                 .AsNoTracking()
                 .ToListAsync(ct);
         }
-
     }
 
 }

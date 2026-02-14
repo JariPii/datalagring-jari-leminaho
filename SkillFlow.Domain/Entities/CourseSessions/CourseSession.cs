@@ -124,8 +124,6 @@ namespace SkillFlow.Domain.Entities.CourseSessions
 
         public void CheckCapacity(int requestedCapacity)
         {
-            //int approvedStudents = _enrollments.Count(e => e.Status == EnrollmentStatus.Approved);
-
             if (requestedCapacity < ApprovedEnrollmentsCount)
                 throw new InvalidCapacityException($"Can not lower capacity to {requestedCapacity} because there is {ApprovedEnrollmentsCount}");
 
@@ -139,8 +137,6 @@ namespace SkillFlow.Domain.Entities.CourseSessions
 
             if (newStatus == EnrollmentStatus.Approved)
             {
-                //int approvedStudents = _enrollments.Count(e => e.Status == EnrollmentStatus.Approved);
-
                 if (ApprovedEnrollmentsCount >= Capacity)
                     throw new CourseSessionFullException(Capacity);
 
