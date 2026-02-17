@@ -191,13 +191,13 @@ courses.MapPost("/", async (CreateCourseDTO dto, ICourseService service, Cancell
 {
         var result = await service.CreateCourseAsync(dto, ct);
         return Results.Created($"/api/courses/{result.Id}", result);
-});
+}).ValidateBody<CreateCourseDTO>();
 
-courses.MapPut("/{id:guid}", async (Guid id, UpdateCourseDTO dto, ICourseService service, CancellationToken ct) =>
+courses.MapPatch("/{id:guid}", async (Guid id, UpdateCourseDTO dto, ICourseService service, CancellationToken ct) =>
 {
     var updateCourse = await service.UpdateCourseAsync(id, dto, ct);
     return Results.Ok(updateCourse);
-});
+}).ValidateBody<UpdateCourseDTO>();
 
 courses.MapDelete("/{id:guid}", async (Guid id, ICourseService service, CancellationToken ct) =>
 {
