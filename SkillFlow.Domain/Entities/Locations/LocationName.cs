@@ -3,7 +3,8 @@
     public readonly record struct LocationName
     {
         public string Value { get; }
-        public const int MaxLength = 150;
+
+        public const int MaxLength = 50;
 
         private LocationName(string value)
         {

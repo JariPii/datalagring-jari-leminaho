@@ -5,7 +5,7 @@ namespace SkillFlow.Domain.Entities.Competences
 {
     public readonly partial record struct CompetenceName
     {
-        public const int MaxLength = 200;
+        public const int MaxLength = 50;
         public string Value { get; }
 
         private CompetenceName(string value) => Value = value;

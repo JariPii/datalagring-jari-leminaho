@@ -28,7 +28,9 @@ namespace SkillFlow.Presentation.Exceptions
                 CourseCodeAllreadyExistsException or
                 CourseNameAllreadyExistsException or
                 LocationNameAllreadyExistsException or
-                InstructorAlreadyExistsException
+                InstructorAlreadyExistsException or
+                ConcurrencyException or 
+                Microsoft.EntityFrameworkCore.DbUpdateConcurrencyException
                     => (StatusCodes.Status409Conflict, "Resource conflict"),
 
                 // Custom 400
@@ -46,7 +48,8 @@ namespace SkillFlow.Presentation.Exceptions
                 AttendeeIsRequiredException or
                 StudentIsRequiredException or
                 InstructorIsRequiredException or
-                InstructorIsMissingCompetenceException
+                InstructorIsMissingCompetenceException or
+                MissingRowVersionException
                     => (StatusCodes.Status400BadRequest, "Business Rule Violation"),
 
                 // Custom 422
@@ -56,9 +59,6 @@ namespace SkillFlow.Presentation.Exceptions
                 InstructorHasActiveSessionsException or
                 StudentHasActiveEnrollmentsException
                     => (StatusCodes.Status422UnprocessableEntity, "Dependency Conflict"),
-
-                ConcurrencyException or Microsoft.EntityFrameworkCore.DbUpdateConcurrencyException
-                    => (StatusCodes.Status409Conflict, "Concurrency Conflict"),
 
                 _ => (StatusCodes.Status500InternalServerError, "Internal Server Error")
             };

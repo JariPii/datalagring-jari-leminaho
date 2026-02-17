@@ -63,7 +63,10 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("NextJsPolicy", policy =>
     {
-        policy.WithOrigins("https://localhost:3000")
+        policy.WithOrigins("https://localhost:3000",
+            "http://localhost:3000",
+            "https://127.0.0.1:3000",
+            "http://127.0.0.1:3000")
         .AllowAnyMethod()
         .AllowAnyHeader();
     });
@@ -78,6 +81,8 @@ if(app.Environment.IsDevelopment())
     app.MapOpenApi();
     app.MapScalarApiReference();
 }
+
+app.UseCors("NextJsPolicy");
 
 #region Attendees
 

@@ -35,8 +35,9 @@ namespace SkillFlow.Infrastructure.Repositories
         public async Task<IEnumerable<Instructor>> GetAllInstructorsAsync(CancellationToken ct)
         {
             return await _context.Instructors
-                .Include(i => i.Competences)
                 .AsNoTracking()
+                .Include(i => i.Competences)
+                .AsSplitQuery()
                 .OrderByDescending(i => i.CreatedAt)
                 .ToListAsync(ct);
         }

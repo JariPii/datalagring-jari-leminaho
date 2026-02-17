@@ -170,7 +170,7 @@ namespace SkillFlow.Application.Services.Attendees
                 attendee.UpdatePhoneNumber(PhoneNumber.Create(dto.PhoneNumber));
             }
 
-            await repository.UpdateAsync(attendee, dto.RowVersion ,ct);
+            await repository.UpdateAsync(attendee, dto.RowVersion, ct);
 
             await unitOfWork.SaveChangesAsync(ct);
 
@@ -196,7 +196,8 @@ namespace SkillFlow.Application.Services.Attendees
                         Name = c.Name.Value,
                         RowVersion = c.RowVersion
                     })],
-                    RowVersion = i.RowVersion
+                    RowVersion = i.RowVersion,
+                    CreatedAt = i.CreatedAt
 
                 },
                 _ => new StudentDTO
@@ -207,7 +208,8 @@ namespace SkillFlow.Application.Services.Attendees
                     LastName = a.Name.LastName,
                     PhoneNumber = a.PhoneNumber?.Value,
                     Role = a.Role,
-                    RowVersion = a.RowVersion
+                    RowVersion = a.RowVersion,
+                    CreatedAt = a.CreatedAt
                 }
             };
         }

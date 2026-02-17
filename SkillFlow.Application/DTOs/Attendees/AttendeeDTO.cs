@@ -26,5 +26,7 @@ namespace SkillFlow.Application.DTOs.Attendees
         public Role Role { get; init; }
         public byte[] RowVersion { get; init; } = [];
 
+        public DateTime CreatedAt { get; init; }
+
     }
 }

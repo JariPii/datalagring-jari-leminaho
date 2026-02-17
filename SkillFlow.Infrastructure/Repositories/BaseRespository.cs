@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SkillFlow.Domain.Exceptions;
 using SkillFlow.Domain.Interfaces;
 using SkillFlow.Domain.Primitives;
+using System.ComponentModel.DataAnnotations;
 
 namespace SkillFlow.Infrastructure.Repositories
 {
@@ -14,12 +16,17 @@ namespace SkillFlow.Infrastructure.Repositories
             await _context.Set<T>().AddAsync(entity, ct);
         }
 
-        public virtual Task UpdateAsync(T entity, byte[] rowVersion, CancellationToken ct = default)
+        public virtual Task UpdateAsync(T entity, byte[]? rowVersion, CancellationToken ct = default)
         {
-            _context.Entry(entity).Property("RowVersion").OriginalValue = rowVersion;
+            if (rowVersion is null || rowVersion.Length == 0)
+                throw new MissingRowVersionException();
 
-            if (_context.Entry(entity).State == EntityState.Detached)
+            var entry = _context.Entry(entity);
+
+            if (entry.State == EntityState.Detached)
                 _context.Attach(entity);
+
+            entry.Property("RowVersion").OriginalValue = rowVersion;
 
             return Task.CompletedTask;
         }

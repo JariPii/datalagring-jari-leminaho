@@ -5,7 +5,7 @@ namespace SkillFlow.Domain.Attendees
 {
     public readonly partial record struct AttendeeName
     {
-        public const int MaxLength = 150;
+        public const int MaxLength = 50;
         public string FirstName { get; }
         public string LastName { get; }
 
