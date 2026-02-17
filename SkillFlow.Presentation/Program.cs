@@ -17,6 +17,8 @@ using SkillFlow.Infrastructure;
 using SkillFlow.Infrastructure.Persistence;
 using SkillFlow.Infrastructure.Repositories;
 using SkillFlow.Presentation.Exceptions;
+using SkillFlow.Application;
+using SkillFlow.Presentation.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -38,6 +40,8 @@ builder.Services.Configure<Microsoft.AspNetCore.Mvc.JsonOptions>(options =>
 {
     options.JsonSerializerOptions.Converters.Add(enumConverter);
 });
+
+builder.Services.AddApplication();
 
 builder.Services.AddDbContext<SkillFlowDbContext>(options =>
 {
@@ -100,13 +104,13 @@ attendees.MapGet("/instructors", async (IAttendeeService service, CancellationTo
 attendees.MapGet("/students", async (IAttendeeService service, CancellationToken ct)
     => Results.Ok(await service.GetAllStudentsAsync(ct)));
 
-attendees.MapGet("/search", async (string searchTerm, IAttendeeService service, CancellationToken ct)
-    => Results.Ok(await service.SearchAttendeesByNameAsync(searchTerm, ct)));
+attendees.MapGet("/search", async (string q, IAttendeeService service, CancellationToken ct)
+    => Results.Ok(await service.SearchAttendeesByNameAsync(q, ct)));
 
 attendees.MapGet("/instructors/competence/{name}", async (string name, IAttendeeService service, CancellationToken ct)
     => Results.Ok(await service.GetInstructorsByCompetenceAsync(name, ct)));
 
-attendees.MapGet("/email/{email}", async (string email, IAttendeeService service, CancellationToken ct)
+attendees.MapGet("/by-email", async (string email, IAttendeeService service, CancellationToken ct)
     => Results.Ok(await service.GetAttendeeByEmailAsync(email, ct)));
 
 attendees.MapGet("/{id:guid}", async (Guid id, IAttendeeService service, CancellationToken ct) 
@@ -116,14 +120,14 @@ attendees.MapPost("/", async (CreateAttendeeDTO dto, IAttendeeService service, C
 {
         var result = await service.CreateAttendeeAsync(dto, ct);
         return Results.Created($"/api/attendees/{result.Id}", result);
-});
+}).ValidateBody<CreateAttendeeDTO>();
 
-attendees.MapPut("/{id:guid}", async (Guid id, UpdateAttendeeDTO dto, IAttendeeService service, CancellationToken ct)
+attendees.MapPatch("/{id:guid}", async (Guid id, UpdateAttendeeDTO dto, IAttendeeService service, CancellationToken ct)
     =>
 {
     var updatedAttendee = await service.UpdateAttendeeAsync(id, dto, ct);
     return Results.Ok(updatedAttendee);
-});
+}).ValidateBody<UpdateAttendeeDTO>();
 
 attendees.MapDelete("/{id:guid}", async (Guid id, IAttendeeService service, CancellationToken ct) =>
 {
@@ -135,7 +139,7 @@ attendees.MapPost("/{id:guid}/competences", async (Guid id, AddCompetenceDTO dto
 {
     await service.AddCompetenceToInstructorAsync(id, dto.CompetenceName, dto.RowVersion, ct);
     return Results.Ok(new { message = $"Competence '{dto.CompetenceName}' added successfully." });
-});
+}).ValidateBody<AddCompetenceDTO>();
 
 
 #endregion
@@ -154,13 +158,13 @@ competences.MapPost("/", async (CreateCompetenceDTO dto, ICompetenceService serv
 {
     var result = await service.CreateCompetenceAsync(dto, ct);
     return Results.Created($"/api/competences/{result.Id}", result);
-});
+}).ValidateBody<CreateCompetenceDTO>();
 
-competences.MapPut("/{id:guid}", async (Guid id, UpdateCompetenceDTO dto, ICompetenceService service, CancellationToken ct) =>
+competences.MapPatch("/{id:guid}", async (Guid id, UpdateCompetenceDTO dto, ICompetenceService service, CancellationToken ct) =>
 {
     var updateCompetence = await service.UpdateCompetenceAsync(id, dto, ct);
     return Results.Ok(updateCompetence);
-});
+}).ValidateBody<UpdateCompetenceDTO>();
 
 competences.MapDelete("/{id:guid}", async (Guid id, ICompetenceService service, CancellationToken ct) =>
 {
