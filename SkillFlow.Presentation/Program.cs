@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
+using System.Text.Json.Serialization;
 using SkillFlow.Application.DTOs.Attendees;
 using SkillFlow.Application.DTOs.Competences;
 using SkillFlow.Application.DTOs.Courses;
@@ -26,14 +27,16 @@ builder.Services.AddOpenApi();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 
+var enumConverter = new JsonStringEnumConverter();
+
 builder.Services.ConfigureHttpJsonOptions(options =>
 {
-    options.SerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+    options.SerializerOptions.Converters.Add(enumConverter);
 });
 
 builder.Services.Configure<Microsoft.AspNetCore.Mvc.JsonOptions>(options =>
 {
-    options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+    options.JsonSerializerOptions.Converters.Add(enumConverter);
 });
 
 builder.Services.AddDbContext<SkillFlowDbContext>(options =>
@@ -128,10 +131,10 @@ attendees.MapDelete("/{id:guid}", async (Guid id, IAttendeeService service, Canc
     return Results.NoContent();
 });
 
-attendees.MapPost("/{id:guid}/competences", async (Guid id, AddCompetenceRequest request, IAttendeeService service, CancellationToken ct) =>
+attendees.MapPost("/{id:guid}/competences", async (Guid id, AddCompetenceDTO dto, IAttendeeService service, CancellationToken ct) =>
 {
-    await service.AddCompetenceToInstructorAsync(id, request.CompetenceName, request.RowVersion, ct);
-    return Results.Ok(new { message = $"Competence '{request.CompetenceName}' added successfully." });
+    await service.AddCompetenceToInstructorAsync(id, dto.CompetenceName, dto.RowVersion, ct);
+    return Results.Ok(new { message = $"Competence '{dto.CompetenceName}' added successfully." });
 });
 
 
