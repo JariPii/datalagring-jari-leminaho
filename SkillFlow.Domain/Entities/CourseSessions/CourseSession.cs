@@ -133,7 +133,12 @@ namespace SkillFlow.Domain.Entities.CourseSessions
 
         public void SetEnrollmentStatus(AttendeeId studentId, EnrollmentStatus newStatus)
         {
+            if (newStatus == EnrollmentStatus.Pending)
+                throw new InvalidEnrollmentStatusException("Can not set status to pending");
+
             var enrollment = _enrollments.FirstOrDefault(e => e.StudentId == studentId) ?? throw new StudentNotEnrolledException(studentId, this.Id);
+
+            if (enrollment.Status == newStatus) return;
 
             if (newStatus == EnrollmentStatus.Approved)
             {
@@ -141,13 +146,17 @@ namespace SkillFlow.Domain.Entities.CourseSessions
                     throw new CourseSessionFullException(Capacity);
 
                 enrollment.Approve();
+                UpdateTimeStamp();
+                return;
             }
             else if (newStatus == EnrollmentStatus.Denied)
             {
                 enrollment.Deny();
+                UpdateTimeStamp();
+                return;
             }
 
-            UpdateTimeStamp();
+            throw new InvalidEnrollmentStatusException($"Invalid status: {newStatus}");
         }
     }
 }

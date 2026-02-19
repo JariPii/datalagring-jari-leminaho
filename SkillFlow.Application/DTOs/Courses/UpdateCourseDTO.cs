@@ -6,6 +6,6 @@
 
         public string? CourseDescription { get; init; }
 
-        public byte[] RowVersion { get; init; } = [];
+        public byte[] RowVersion { get; init; } = default!;
     }
 }

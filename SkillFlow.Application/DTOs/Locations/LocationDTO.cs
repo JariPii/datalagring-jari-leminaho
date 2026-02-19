@@ -6,6 +6,6 @@
 
         public string LocationName { get; init; } = string.Empty;
 
-        public byte[] RowVersion { get; init; } = [];
+        public byte[] RowVersion { get; init; } = default!;
     }
 }

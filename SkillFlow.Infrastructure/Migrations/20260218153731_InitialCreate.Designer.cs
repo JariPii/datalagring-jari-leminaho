@@ -13,7 +13,7 @@ using SkillFlow.Infrastructure;
 namespace SkillFlow.Infrastructure.Migrations
 {
     [DbContext(typeof(SkillFlowDbContext))]
-    [Migration("20260211030159_InitialCreate")]
+    [Migration("20260218153731_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -92,14 +92,14 @@ namespace SkillFlow.Infrastructure.Migrations
 
                             b1.Property<string>("FirstName")
                                 .IsRequired()
-                                .HasMaxLength(150)
-                                .HasColumnType("nvarchar(150)")
+                                .HasMaxLength(50)
+                                .HasColumnType("nvarchar(50)")
                                 .HasColumnName("FirstName");
 
                             b1.Property<string>("LastName")
                                 .IsRequired()
-                                .HasMaxLength(150)
-                                .HasColumnType("nvarchar(150)")
+                                .HasMaxLength(50)
+                                .HasColumnType("nvarchar(50)")
                                 .HasColumnName("LastName");
                         });
 
@@ -125,8 +125,8 @@ namespace SkillFlow.Infrastructure.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
@@ -252,8 +252,8 @@ namespace SkillFlow.Infrastructure.Migrations
 
                     b.Property<string>("CourseName")
                         .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("CourseType")
                         .IsRequired()
@@ -290,8 +290,8 @@ namespace SkillFlow.Infrastructure.Migrations
 
                     b.Property<string>("LocationName")
                         .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
