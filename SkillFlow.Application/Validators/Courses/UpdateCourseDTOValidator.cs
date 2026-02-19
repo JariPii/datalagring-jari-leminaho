@@ -1,8 +1,5 @@
 ﻿using FluentValidation;
 using SkillFlow.Application.DTOs.Courses;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace SkillFlow.Application.Validators.Courses
 {

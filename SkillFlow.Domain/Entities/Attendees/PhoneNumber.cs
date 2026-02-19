@@ -12,7 +12,7 @@ namespace SkillFlow.Domain.Entities.Attendees
         {
             if (string.IsNullOrWhiteSpace(value)) return null;
 
-            if (value.Length < MaxLength)
+            if (value.Length > MaxLength)
                 throw new InvalidPhoneNumberException($"Name can not exceed {MaxLength} characters");
 
             return new PhoneNumber(value);

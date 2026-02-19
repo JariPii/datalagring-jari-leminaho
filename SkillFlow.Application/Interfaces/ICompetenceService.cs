@@ -1,6 +1,4 @@
-﻿
-
-using SkillFlow.Application.DTOs.Competences;
+﻿using SkillFlow.Application.DTOs.Competences;
 
 namespace SkillFlow.Application.Interfaces
 {

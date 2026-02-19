@@ -11,7 +11,6 @@ using SkillFlow.Domain.Entities.Locations;
 using SkillFlow.Domain.Enums;
 using SkillFlow.Domain.Exceptions;
 using SkillFlow.Domain.Interfaces;
-using SkillFlow.Infrastructure;
 using System.Data;
 
 namespace SkillFlow.Application.Services.CourseSessions

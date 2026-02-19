@@ -1,5 +1,4 @@
-﻿using SkillFlow.Domain.Courses;
-using SkillFlow.Domain.Entities.Attendees;
+﻿using SkillFlow.Domain.Entities.Attendees;
 using SkillFlow.Domain.Interfaces;
 using SkillFlow.Domain.Primitives;
 

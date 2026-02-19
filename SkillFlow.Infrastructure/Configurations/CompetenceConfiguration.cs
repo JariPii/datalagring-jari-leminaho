@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using SkillFlow.Domain.Courses;
 using SkillFlow.Domain.Entities.Competences;
 
 namespace SkillFlow.Infrastructure.Configurations

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace SkillFlow.Application.DTOs.Competences
+﻿namespace SkillFlow.Application.DTOs.Competences
 {
     public record CreateCompetenceDTO
     {
