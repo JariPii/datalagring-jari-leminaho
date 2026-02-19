@@ -1,8 +1,5 @@
 ﻿using FluentValidation;
 using SkillFlow.Application.DTOs.Locations;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace SkillFlow.Application.Validators.Locations
 {

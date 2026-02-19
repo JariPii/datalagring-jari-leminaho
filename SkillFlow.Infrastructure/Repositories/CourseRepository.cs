@@ -2,7 +2,6 @@
 using SkillFlow.Domain.Courses;
 using SkillFlow.Domain.Entities.Courses;
 using SkillFlow.Domain.Enums;
-using SkillFlow.Domain.Exceptions;
 using SkillFlow.Domain.Interfaces;
 using SkillFlow.Infrastructure.Primitives;
 

@@ -1,8 +1,4 @@
-﻿using SkillFlow.Domain.Courses;
-using SkillFlow.Domain.Entities.Competences;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using SkillFlow.Domain.Entities.Competences;
 
 namespace SkillFlow.Domain.Interfaces
 {

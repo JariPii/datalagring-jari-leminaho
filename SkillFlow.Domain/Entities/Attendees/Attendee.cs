@@ -1,6 +1,5 @@
 ﻿using SkillFlow.Domain.Attendees;
 using SkillFlow.Domain.Enums;
-using SkillFlow.Domain.Exceptions;
 using SkillFlow.Domain.Interfaces;
 using SkillFlow.Domain.Primitives;
 

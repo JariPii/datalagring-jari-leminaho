@@ -1,5 +1,4 @@
 ﻿using SkillFlow.Domain.Enums;
-using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
 namespace SkillFlow.Application.DTOs.Attendees

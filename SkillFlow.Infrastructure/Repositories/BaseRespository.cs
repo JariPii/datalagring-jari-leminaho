@@ -2,7 +2,6 @@
 using SkillFlow.Domain.Exceptions;
 using SkillFlow.Domain.Interfaces;
 using SkillFlow.Domain.Primitives;
-using System.ComponentModel.DataAnnotations;
 
 namespace SkillFlow.Infrastructure.Repositories
 {

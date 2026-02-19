@@ -14,7 +14,7 @@ namespace SkillFlow.Domain.Entities.Attendees
             if (string.IsNullOrWhiteSpace(value))
                 throw new InvalidEmailException($"Email is required");
 
-            if (!value.Contains("@"))
+            if (!value.Contains('@'))
                 throw new InvalidEmailException($"Invalid email format");
 
             return new Email(value.Trim().ToLowerInvariant());
