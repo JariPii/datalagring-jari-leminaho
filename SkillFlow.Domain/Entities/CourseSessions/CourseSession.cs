@@ -66,6 +66,8 @@ namespace SkillFlow.Domain.Entities.CourseSessions
         public virtual IReadOnlyCollection<Enrollment> Enrollments => _enrollments.AsReadOnly();
         public virtual IReadOnlyCollection<Instructor> Instructors => _instructors.AsReadOnly();
 
+        public int ApprovedEnrollmentsCount => _enrollments.Count(e => e.Status == EnrollmentStatus.Approved);
+
         public void UpdateCapacity(int newCapacity)
         {
             if (newCapacity < 1)
@@ -94,7 +96,7 @@ namespace SkillFlow.Domain.Entities.CourseSessions
         public void AddInstructor(Instructor instructor)
         {
             if (instructor is null)
-                throw new InstructorIsRequiredException("Instrucotr is required");
+                throw new InstructorIsRequiredException("Instructor is required");
 
             if (_instructors.Any(i => i.Id == instructor.Id))
                 throw new InstructorAlreadyExistsException(instructor.Id, this.Id);
@@ -122,9 +124,8 @@ namespace SkillFlow.Domain.Entities.CourseSessions
 
         public void CheckCapacity(int requestedCapacity)
         {
-            int approvedStudents = _enrollments.Count(e => e.Status == EnrollmentStatus.Approved);
-            if (requestedCapacity < approvedStudents)
-                throw new InvalidCapacityException($"Can not lower capacity to {requestedCapacity} because there is {approvedStudents}");
+            if (requestedCapacity < ApprovedEnrollmentsCount)
+                throw new InvalidCapacityException($"Can not lower capacity to {requestedCapacity} because there is {ApprovedEnrollmentsCount}");
 
             if (requestedCapacity > MaxCapacity)
                 throw new InvalidCapacityException($"Max capacity is {MaxCapacity}");
@@ -132,23 +133,30 @@ namespace SkillFlow.Domain.Entities.CourseSessions
 
         public void SetEnrollmentStatus(AttendeeId studentId, EnrollmentStatus newStatus)
         {
+            if (newStatus == EnrollmentStatus.Pending)
+                throw new InvalidEnrollmentStatusException("Can not set status to pending");
+
             var enrollment = _enrollments.FirstOrDefault(e => e.StudentId == studentId) ?? throw new StudentNotEnrolledException(studentId, this.Id);
+
+            if (enrollment.Status == newStatus) return;
 
             if (newStatus == EnrollmentStatus.Approved)
             {
-                int approvedStudents = _enrollments.Count(e => e.Status == EnrollmentStatus.Approved);
-
-                if (approvedStudents >= Capacity)
+                if (ApprovedEnrollmentsCount >= Capacity)
                     throw new CourseSessionFullException(Capacity);
 
                 enrollment.Approve();
+                UpdateTimeStamp();
+                return;
             }
             else if (newStatus == EnrollmentStatus.Denied)
             {
                 enrollment.Deny();
+                UpdateTimeStamp();
+                return;
             }
 
-            UpdateTimeStamp();
+            throw new InvalidEnrollmentStatusException($"Invalid status: {newStatus}");
         }
     }
 }

@@ -2,8 +2,6 @@
 {
     public record UpdateAttendeeDTO
     {
-        public Guid Id { get; init; }
-
         public string? Email { get; init; }
 
         public string? FirstName { get; init; }
@@ -12,6 +10,6 @@
 
         public string? PhoneNumber { get; init; }
 
-        public byte[] RowVersion { get; init; } = [];
+        public byte[] RowVersion { get; init; } = default!;
     }
 }

@@ -2,9 +2,6 @@
 {
     public record CreateCourseSessionDTO
     {
-        //public Guid CourseId { get; init; }
-
-        //public Guid LocationId { get; init; }
         public string CourseCode { get; init; } = string.Empty;
         public string LocationName { get; init; } = string.Empty;
         public DateTime StartDate { get; init; }

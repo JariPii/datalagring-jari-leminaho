@@ -9,7 +9,6 @@ namespace SkillFlow.Application.DTOs.Courses
 
         public string CourseCode { get; init; } = string.Empty;
 
-        [JsonConverter(typeof(JsonStringEnumConverter))]
         public CourseType CourseType { get; init;  }
 
         public string CourseTypeName { get; init; } = string.Empty;
@@ -18,6 +17,6 @@ namespace SkillFlow.Application.DTOs.Courses
 
         public string CourseDescription { get; init; } = string.Empty;
 
-        public byte[] RowVersion { get; init; } = [];
+        public byte[] RowVersion { get; init; } = default!;
     }
 }

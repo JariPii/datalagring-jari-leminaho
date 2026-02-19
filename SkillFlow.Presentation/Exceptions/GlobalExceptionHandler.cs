@@ -8,9 +8,9 @@ namespace SkillFlow.Presentation.Exceptions
     {
         public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
         {
-            logger.LogError(exception, "Exception occurred: {Message}", exception.Message);
+            //logger.LogError(exception, "Exception occurred: {Message}", exception.Message);
 
-            var (statusCode, title) = exception switch
+            var (statusCode, title, logAsError) = exception switch
             {
                 // Custom 404
                 AttendeeNotFoundException or
@@ -19,7 +19,7 @@ namespace SkillFlow.Presentation.Exceptions
                 CourseNotFoundException or
                 LocationNotFoundException or
                 CourseSessionNotFoundException
-                    => (StatusCodes.Status404NotFound, "Resource not found"),
+                    => (StatusCodes.Status404NotFound, "Resource not found", false),
 
                 // Custom 409
                 EmailAlreadyExistsException or
@@ -29,8 +29,9 @@ namespace SkillFlow.Presentation.Exceptions
                 CourseNameAllreadyExistsException or
                 LocationNameAllreadyExistsException or
                 InstructorAlreadyExistsException or
-                CompetenceAllreadyAssignedException
-                    => (StatusCodes.Status409Conflict, "Resource conflict"),
+                ConcurrencyException or 
+                Microsoft.EntityFrameworkCore.DbUpdateConcurrencyException
+                    => (StatusCodes.Status409Conflict, "Resource conflict", false),
 
                 // Custom 400
                 InvalidRoleException or
@@ -47,30 +48,40 @@ namespace SkillFlow.Presentation.Exceptions
                 AttendeeIsRequiredException or
                 StudentIsRequiredException or
                 InstructorIsRequiredException or
-                InstructorIsMissingCompetenceException
-                    => (StatusCodes.Status400BadRequest, "Business Rule Violation"),
+                InstructorIsMissingCompetenceException or
+                MissingRowVersionException or
+                InvalidEnrollmentStatusException
+                    => (StatusCodes.Status400BadRequest, "Business Rule Violation", false),
 
                 // Custom 422
                 CourseInUseException or
+                LocationInUseException or
                 LocationHasCourseSessionException or
                 InstructorHasActiveSessionsException or
                 StudentHasActiveEnrollmentsException
-                    => (StatusCodes.Status422UnprocessableEntity, "Dependency Conflict"),
+                    => (StatusCodes.Status422UnprocessableEntity, "Dependency Conflict", false),
 
-                ConcurrencyException or Microsoft.EntityFrameworkCore.DbUpdateConcurrencyException
-                    => (StatusCodes.Status409Conflict, "Concurrency Conflict"),
-
-                _ => (StatusCodes.Status500InternalServerError, "Internal Server Error")
+                _ => (StatusCodes.Status500InternalServerError, "Internal Server Error", true)
             };
 
-            var problemDetails = new ProblemDetails()
+            if (logAsError)
+                logger.LogError(exception, "Exception occorred: {Message}", exception.Message);
+            else
+                logger.LogWarning(exception, "Request failed: {Message}", exception.Message);
+
+            var problemDetails = new ProblemDetails
             {
                 Status = statusCode,
                 Title = title,
                 Detail = exception.Message,
-                Type = exception.GetType().Name,
+                Type = $"https://httpstatuses.com/{statusCode}",
                 Instance = httpContext.Request.Path
             };
+
+            problemDetails.Extensions["errorCode"] = exception.GetType().Name;
+            problemDetails.Extensions["traceId"] = httpContext.TraceIdentifier;
+            problemDetails.Extensions["timestamp"] = DateTimeOffset.UtcNow;
+
 
             httpContext.Response.StatusCode = statusCode;
             await httpContext.Response.WriteAsJsonAsync(problemDetails, cancellationToken);

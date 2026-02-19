@@ -5,8 +5,9 @@ using System.Text;
 
 namespace SkillFlow.Application.DTOs.CourseSessions
 {
-    internal class UpdateEnrollmentStatusDTO
+   public record UpdateEnrollmentStatusDTO
     {
         public EnrollmentStatus NewStatus { get; init; }
+        public byte[] RowVersion { get; init; } = default!;
     }
 }

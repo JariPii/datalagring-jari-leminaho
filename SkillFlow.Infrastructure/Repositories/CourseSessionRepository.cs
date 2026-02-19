@@ -9,25 +9,6 @@ namespace SkillFlow.Infrastructure.Repositories;
 
 public class CourseSessionRepository(SkillFlowDbContext context) : BaseRespository<CourseSession, CourseSessionId>(context), ICourseSessionRepository
 {
-
-    public override async Task<bool> DeleteAsync(CourseSessionId id, CancellationToken ct)
-    {
-        var courseSession = await _context.CourseSessions.FirstOrDefaultAsync(s => s.Id == id, ct);
-
-        if (courseSession is null) return false;
-
-        try
-        {
-            _context.CourseSessions.Remove(courseSession);
-            await _context.SaveChangesAsync(ct);
-            return true;
-        }
-        catch
-        {
-            return false;
-        }
-    }
-
     public async Task<IEnumerable<CourseSession>> GetByCourseCodeAsync(CourseCode code, CancellationToken ct)
     {
         return await _context.CourseSessions
@@ -37,15 +18,17 @@ public class CourseSessionRepository(SkillFlowDbContext context) : BaseResposito
     }
 
     public override async Task<CourseSession?> GetByIdAsync(CourseSessionId id, CancellationToken ct)
-        => await _context.CourseSessions.FirstOrDefaultAsync(c => c.Id == id, ct);
+        => await _context.CourseSessions.FindAsync([id], ct);
 
     public async Task<CourseSession?> GetByIdWithInstructorsAndEnrollmentsAsync(CourseSessionId id, CancellationToken ct)
     {
         return await _context.CourseSessions
+            .AsSplitQuery()
             .Include(s => s.Course)
             .Include(s => s.Location)
             .Include(s => s.Instructors)
             .Include(s => s.Enrollments)
+            .ThenInclude(e => e.Student)
             .FirstOrDefaultAsync(s => s.Id == id, ct);
     }
 
@@ -69,6 +52,7 @@ public class CourseSessionRepository(SkillFlowDbContext context) : BaseResposito
     public async Task<IEnumerable<CourseSession>> GetSessionsWithAvailableCapacityAsync(CancellationToken ct)
     {
         return await _context.CourseSessions
+            .AsNoTracking()
             .Include(s => s.Course)
             .Include(s => s.Location)
             .Where(s => s.Enrollments.Count(e => e.Status == EnrollmentStatus.Approved) < s.Capacity)
@@ -106,10 +90,12 @@ public class CourseSessionRepository(SkillFlowDbContext context) : BaseResposito
                     JOIN Locations l ON s.LocationId = l.Id
                     WHERE c.CourseName LIKE {searchPattern}
                         OR l.LocationName LIKE {searchPattern}
-                        OR s.CourseCode_Value LIKE {searchPattern}
+                        OR s.CourseCode LIKE {searchPattern}
                     ")
+            .AsNoTracking()
             .Include(s => s.Course)
             .Include(s => s.Location)
+            .Include(i => i.Instructors)
             .ToListAsync(ct);
     }
 
@@ -124,12 +110,12 @@ public class CourseSessionRepository(SkillFlowDbContext context) : BaseResposito
             .ToListAsync(ct);
     }
 
-    //public async Task<int> CountSessionsForCourseAndYear(string cityPart, string coursePart, int year, CancellationToken ct = default)
-    //{
-    //    return await _context.CourseSessions
-    //        .AsNoTracking()
-    //        .CountAsync(s => s.CourseCode.CityPart == cityPart &&
-    //        s.CourseCode.CoursePart == coursePart &&
-    //        s.CourseCode.CourseYear == year, ct);
-    //}
+    public async Task<IEnumerable<Enrollment>> GetEnrollmentsBySessionIdAsync(CourseSessionId sessionId, CancellationToken ct = default)
+    {
+        return await _context.Enrollments
+            .AsNoTracking()
+            .Include(e => e.Student)
+            .Where(e => e.CourseSessionId == sessionId)
+            .ToListAsync(ct);
+    }
 }

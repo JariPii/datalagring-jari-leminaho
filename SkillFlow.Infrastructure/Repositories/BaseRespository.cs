@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SkillFlow.Domain.Exceptions;
 using SkillFlow.Domain.Interfaces;
 using SkillFlow.Domain.Primitives;
+using System.ComponentModel.DataAnnotations;
 
 namespace SkillFlow.Infrastructure.Repositories
 {
@@ -12,28 +14,35 @@ namespace SkillFlow.Infrastructure.Repositories
         public virtual async Task AddAsync(T entity, CancellationToken ct = default)
         {
             await _context.Set<T>().AddAsync(entity, ct);
-            await _context.SaveChangesAsync(ct);
         }
 
-        public virtual async Task UpdateAsync(T entity, byte[] rowVersion, CancellationToken ct = default)
+        public virtual Task UpdateAsync(T entity, byte[]? rowVersion, CancellationToken ct = default)
         {
-            _context.Entry(entity).Property("RowVersion").OriginalValue = rowVersion;
-            await _context.SaveChangesAsync(ct);
+            if (rowVersion is null || rowVersion.Length == 0)
+                throw new MissingRowVersionException();
+
+            var entry = _context.Entry(entity);
+
+            if (entry.State == EntityState.Detached)
+                _context.Attach(entity);
+
+            entry.Property("RowVersion").OriginalValue = rowVersion;
+
+            return Task.CompletedTask;
         }
 
         public virtual async Task<bool> DeleteAsync(TId id, CancellationToken ct = default)
         {
-            var entity = await _context.Set<T>().FirstOrDefaultAsync(e => e.Id!.Equals(id), ct);
+            var entity = await _context.Set<T>().FindAsync([id], ct);
 
             if (entity is null) return false;
 
             _context.Set<T>().Remove(entity);
-            await _context.SaveChangesAsync(ct);
             return true;
         }
 
-        public virtual async Task<T?> GetByIdAsync(TId id, CancellationToken ct = default)
-            => await _context.Set<T>().FirstOrDefaultAsync(e => e.Id!.Equals(id), ct);
+        public virtual async Task<T?> GetByIdAsync(TId id, CancellationToken ct = default) =>
+            await _context.Set<T>().FindAsync([id], ct);
         
 
         public virtual async Task<bool> ExistsByIdAsync(TId id, CancellationToken ct = default)
@@ -45,6 +54,7 @@ namespace SkillFlow.Infrastructure.Repositories
         {
             return await _context.Set<T>()
                 .AsNoTracking()
+                .OrderByDescending(e => e.CreatedAt)
                 .ToListAsync(ct);
         }
     }

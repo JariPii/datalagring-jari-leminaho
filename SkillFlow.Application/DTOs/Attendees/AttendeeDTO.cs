@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 namespace SkillFlow.Application.DTOs.Attendees
 {
     [JsonPolymorphic(TypeDiscriminatorPropertyName = "$type")]
-    [JsonDerivedType(typeof(AttendeeDTO), "student")]
+    [JsonDerivedType(typeof(StudentDTO), "student")]
     [JsonDerivedType(typeof(InstructorDTO), "instructor")]
     public record AttendeeDTO
     {
@@ -22,10 +22,11 @@ namespace SkillFlow.Application.DTOs.Attendees
 
         public string? PhoneNumber { get; init; }
 
-        [JsonConverter(typeof(JsonStringEnumConverter))]
         [JsonPropertyOrder(-10)]
         public Role Role { get; init; }
-        public byte[] RowVersion { get; init; } = [];
+        public byte[] RowVersion { get; init; } = default!;
+
+        public DateTime CreatedAt { get; init; }
 
     }
 }

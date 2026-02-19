@@ -5,7 +5,7 @@ namespace SkillFlow.Domain.Courses
 {
     public readonly partial record struct CourseName
     {
-        public const int MaxLength = 200;
+        public const int MaxLength = 50;
         public string Value { get; }
 
         private CourseName(string value) => Value = value;

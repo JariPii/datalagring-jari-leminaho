@@ -1,10 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SkillFlow.Domain.Courses;
 using SkillFlow.Domain.Entities.Attendees;
 using SkillFlow.Domain.Entities.Competences;
-using SkillFlow.Domain.Enums;
 using SkillFlow.Domain.Interfaces;
-//using Microsoft.EntityFrameworkCore.Query
 
 namespace SkillFlow.Infrastructure.Repositories
 {
@@ -13,23 +10,6 @@ namespace SkillFlow.Infrastructure.Repositories
           IAttendeeRepository,
           IAttendeeQueries
     {
-
-        public override async Task<bool> DeleteAsync(AttendeeId id, CancellationToken ct)
-        {
-            var attendee = await _context.Attendees.FirstOrDefaultAsync(a => a.Id == id, ct);
-            if (attendee is null) return false;
-
-            try
-            {
-                _context.Attendees.Remove(attendee);
-                await _context.SaveChangesAsync(ct);
-                return true;
-            }
-            catch (DbUpdateException)
-            {
-                return false;
-            }
-        }
 
         public async Task<bool> ExistsByEmailAsync(Email email, CancellationToken ct)
         {
@@ -55,14 +35,16 @@ namespace SkillFlow.Infrastructure.Repositories
         public async Task<IEnumerable<Instructor>> GetAllInstructorsAsync(CancellationToken ct)
         {
             return await _context.Instructors
-                .Include(i => i.Competences)
                 .AsNoTracking()
+                .Include(i => i.Competences)
+                .AsSplitQuery()
+                .OrderByDescending(i => i.CreatedAt)
                 .ToListAsync(ct);
         }
 
         public async Task<IEnumerable<Student>> GetAllStudentsAsync(CancellationToken ct)
         {
-            return await _context.Students.AsNoTracking().ToListAsync(ct);
+            return await _context.Students.AsNoTracking().OrderByDescending(s => s.CreatedAt).ToListAsync(ct);
         }
 
         public async Task<Attendee?> GetByEmailAsync(Email email, CancellationToken ct) 
@@ -98,11 +80,12 @@ namespace SkillFlow.Infrastructure.Repositories
 
             return await _context.Instructors
                 .FromSqlInterpolated($@"
-                    SELECT a.*
+                    SELECT a.*, a.FirstName AS Name_FirstName, a.LastName AS Name_LastName
                     FROM Attendees AS a
                     INNER JOIN InstructorCompetences AS ic ON a.Id = ic.InstructorsId
                     INNER JOIN Competences AS c ON ic.CompetencesId = c.Id
-                    WHERE c.Name LIKE {pattern}")
+                    WHERE c.Name LIKE {pattern}
+                    AND a.Role = 'Instructor'")
                 .AsNoTracking()
                 .ToListAsync(ct);
         }
@@ -116,22 +99,10 @@ namespace SkillFlow.Infrastructure.Repositories
 
             return await _context.Attendees
                 .FromSqlInterpolated($@"
-                    SELECT *
+                    SELECT *, FirstName AS Name_FirstName, LastName AS Name_LastName
                     FROM Attendees 
                     WHERE FirstName LIKE {searchPattern}
                     OR LastName LIKE {searchPattern} ")
-                .AsNoTracking()
-                .ToListAsync(ct);
-        }
-
-        public async Task<IEnumerable<Attendee>> SearchByRoleAsync(Role role, CancellationToken ct)
-        {
-            var roleName = role.ToString();
-
-            return await _context.Attendees
-                .FromSqlInterpolated($@"
-                    SELECT *, 
-                    FROM Attendees WHERE Role = {roleName}")
                 .AsNoTracking()
                 .ToListAsync(ct);
         }

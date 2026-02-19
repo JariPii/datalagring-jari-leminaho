@@ -10,5 +10,7 @@ namespace SkillFlow.Domain.Interfaces
 
         Task<IEnumerable<Location>> SearchByNameAsync(string searchTerm, CancellationToken ct = default);
 
+        void Remove(Location location);
+
     }
 }

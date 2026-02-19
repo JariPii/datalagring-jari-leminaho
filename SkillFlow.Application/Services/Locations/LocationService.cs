@@ -1,4 +1,5 @@
-﻿using SkillFlow.Application.DTOs.Locations;
+﻿using Microsoft.EntityFrameworkCore;
+using SkillFlow.Application.DTOs.Locations;
 using SkillFlow.Application.Interfaces;
 using SkillFlow.Domain.Entities.Locations;
 using SkillFlow.Domain.Exceptions;
@@ -6,7 +7,7 @@ using SkillFlow.Domain.Interfaces;
 
 namespace SkillFlow.Application.Services.Locations
 {
-    public class LocationService(ILocationRepository repository) : ILocationService
+    public class LocationService(ILocationRepository repository, IUnitOfWork unitOfWork) : ILocationService
     {
         public async Task<LocationDTO> CreateLocationAsync(CreateLocationDTO dto, CancellationToken ct)
         {
@@ -19,6 +20,8 @@ namespace SkillFlow.Application.Services.Locations
 
             await repository.AddAsync(location, ct);
 
+            await unitOfWork.SaveChangesAsync(ct);
+
             return MapToDTO(location);
         }
 
@@ -26,10 +29,19 @@ namespace SkillFlow.Application.Services.Locations
         {
             var locationId = new LocationId(id);
 
-            var success = await repository.DeleteAsync(locationId, ct);
-
-            if (!success)
+            var location = await repository.GetByIdAsync(locationId, ct) ??
                 throw new LocationNotFoundException(locationId);
+
+            repository.Remove(location);
+
+            try
+            {
+                await unitOfWork.SaveChangesAsync(ct);
+            }
+            catch (DbUpdateException)
+            {
+                throw new LocationInUseException(location.LocationName);
+            }
         }
 
         public async Task<IEnumerable<LocationDTO>> GetAllLocationsAsync(CancellationToken ct)
@@ -55,9 +67,9 @@ namespace SkillFlow.Application.Services.Locations
             return [.. locations.Select(MapToDTO)];
         }
 
-        public async Task<LocationDTO> UpdateLocationAsync(UpdateLocationDTO dto, CancellationToken ct)
+        public async Task<LocationDTO> UpdateLocationAsync(Guid id, UpdateLocationDTO dto, CancellationToken ct)
         {
-            var locationId = new LocationId(dto.Id);
+            var locationId = new LocationId(id);
 
             var location = await repository.GetByIdAsync(locationId, ct) ??
                 throw new LocationNotFoundException(locationId);
@@ -69,10 +81,13 @@ namespace SkillFlow.Application.Services.Locations
             location.UpdateLocationName(newName);
 
             await repository.UpdateAsync(location, dto.RowVersion, ct);
+
+            await unitOfWork.SaveChangesAsync(ct);
+
             return MapToDTO(location);
         }
 
-        private static LocationDTO MapToDTO(Location location)
+        public static LocationDTO MapToDTO(Location location)
         {
             return new LocationDTO
             {

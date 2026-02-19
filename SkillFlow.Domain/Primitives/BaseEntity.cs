@@ -3,7 +3,7 @@
     public abstract class BaseEntity<TId>
     {
         public TId Id { get; protected set; } = default!;
-        public byte[] RowVersion { get; private set; } = [];
+        public byte[] RowVersion { get; private set; } = default!;
         public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
         public DateTime? UpdatedAt { get; protected set; }
 
