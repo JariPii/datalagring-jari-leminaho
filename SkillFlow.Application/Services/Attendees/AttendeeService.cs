@@ -174,7 +174,6 @@ namespace SkillFlow.Application.Services.Attendees
 
             await unitOfWork.SaveChangesAsync(ct);
 
-            //return MapToDTOList([attendee]).First();
             return MapToDTO(attendee);
         }
 

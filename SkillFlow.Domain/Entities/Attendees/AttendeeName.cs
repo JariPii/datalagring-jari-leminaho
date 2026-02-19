@@ -1,4 +1,5 @@
 ﻿using SkillFlow.Domain.Exceptions;
+using SkillFlow.Domain.Primitives;
 using System.Text.RegularExpressions;
 
 namespace SkillFlow.Domain.Attendees
@@ -17,22 +18,19 @@ namespace SkillFlow.Domain.Attendees
 
         public static AttendeeName Create(string firstName, string lastName)
         {
-            if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName))
-                throw new InvalidNameException($"First name and last name is required");
+            //if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName))
+            //    throw new InvalidNameException($"First name and last name is required");
 
-            var generateCleanFirstName = MyRegex().Replace(firstName.Trim(), " ");
-            var generatedCleanLastName = MyRegex().Replace(lastName.Trim(), " ");
+            var cleanFirstName = firstName.NormalizeName();
+            var cleanLastName = lastName.NormalizeName();
 
-            if (generateCleanFirstName.Length > MaxLength || generatedCleanLastName.Length > MaxLength)
+            if (cleanFirstName.Length > MaxLength || cleanLastName.Length > MaxLength)
                 throw new InvalidNameException($"Name can not exceed {MaxLength} characters");
 
-            return new AttendeeName(generateCleanFirstName, generatedCleanLastName);
+            return new AttendeeName(cleanFirstName, cleanLastName);
         }
 
         public string Fullname => $"{FirstName} {LastName}";
         public override string ToString() => Fullname;
-
-        [GeneratedRegex(@"\s+")]
-        private static partial Regex MyRegex();
     }
 }

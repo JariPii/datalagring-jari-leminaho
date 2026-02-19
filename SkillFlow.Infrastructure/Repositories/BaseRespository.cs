@@ -25,7 +25,10 @@ namespace SkillFlow.Infrastructure.Repositories
             if (entry.State == EntityState.Detached)
                 _context.Attach(entity);
 
-            entry.Property("RowVersion").OriginalValue = rowVersion;
+            var rowVersionProperty = entry.Property("RowVersion");
+
+            rowVersionProperty.OriginalValue = rowVersion;
+            rowVersionProperty.IsModified = false;
 
             return Task.CompletedTask;
         }

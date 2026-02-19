@@ -1,4 +1,5 @@
 ﻿using SkillFlow.Domain.Exceptions;
+using SkillFlow.Domain.Primitives;
 using System.Text.RegularExpressions;
 
 namespace SkillFlow.Domain.Entities.Competences
@@ -12,22 +13,18 @@ namespace SkillFlow.Domain.Entities.Competences
 
         public static CompetenceName Create(string value)
         {
-            if(string.IsNullOrWhiteSpace(value))
+            var cleanValue = value.NormalizeName();
+
+            if (cleanValue.Length == 0)
                 throw new InvalidCompetenceNameException("A competence name is required");
 
-            var generatedValue = MyRegEx().Replace(value.Trim(), " ");
-
-            if (generatedValue.Length > MaxLength)
+            if (cleanValue.Length > MaxLength)
                 throw new InvalidCompetenceNameException($"The competence name cannot contain more than {MaxLength} characters");
 
-            return new CompetenceName(generatedValue);
-
+            return new CompetenceName(cleanValue);
         }
 
         public override string ToString() => Value;
-
-        [GeneratedRegex(@"\s+")]
-        private static partial Regex MyRegEx();
 
     }
 }
