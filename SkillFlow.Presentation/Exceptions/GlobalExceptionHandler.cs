@@ -49,7 +49,8 @@ namespace SkillFlow.Presentation.Exceptions
                 StudentIsRequiredException or
                 InstructorIsRequiredException or
                 InstructorIsMissingCompetenceException or
-                MissingRowVersionException
+                MissingRowVersionException or
+                InvalidEnrollmentStatusException
                     => (StatusCodes.Status400BadRequest, "Business Rule Violation", false),
 
                 // Custom 422

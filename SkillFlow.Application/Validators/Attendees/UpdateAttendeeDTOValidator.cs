@@ -10,9 +10,9 @@ namespace SkillFlow.Application.Validators.Attendees
     {
         public UpdateAttendeeDTOValidator()
         {
+            RuleLevelCascadeMode = CascadeMode.Stop;
 
             RuleFor(x => x.Email)
-                .Cascade(CascadeMode.Stop)
                 .NotEmpty()
                 .MaximumLength(50)
                 .EmailAddress()
@@ -20,21 +20,18 @@ namespace SkillFlow.Application.Validators.Attendees
 
 
             RuleFor(x => x.FirstName)
-                .Cascade(CascadeMode.Stop)
                 .NotEmpty()
                 .MaximumLength(50)
                 .When(x => x.FirstName is not null);
 
 
             RuleFor(x => x.LastName)
-                .Cascade(CascadeMode.Stop)
                 .NotEmpty()
                 .MaximumLength(50)
                 .When(x => x.LastName is not null);
 
 
             RuleFor(x => x.PhoneNumber)
-                .Cascade(CascadeMode.Stop)
                 .NotEmpty()
                 .MaximumLength(30)
                 .When(x => x.PhoneNumber is not null);

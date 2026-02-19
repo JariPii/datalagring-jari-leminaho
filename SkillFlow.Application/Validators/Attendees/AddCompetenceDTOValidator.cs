@@ -12,8 +12,7 @@ namespace SkillFlow.Application.Validators.Attendees
                 .MaximumLength(50);
 
             RuleFor(x => x.RowVersion)
-                .NotNull()
-                .Must(rv => rv.Length > 0)
+                .NotEmpty()
                 .WithMessage("RowVersion is required.");
         }
     }

@@ -226,7 +226,7 @@ locations.MapPost("/", async (CreateLocationDTO dto, ILocationService service, C
     return Results.Created($"/api/locations/{result.Id}", result);
 });
 
-locations.MapPut("/{id:guid}", async (Guid id, UpdateLocationDTO dto, ILocationService service, CancellationToken ct) =>
+locations.MapPatch("/{id:guid}", async (Guid id, UpdateLocationDTO dto, ILocationService service, CancellationToken ct) =>
 {
 
     var updateLocation = await service.UpdateLocationAsync(id, dto, ct);
@@ -269,7 +269,7 @@ courseSessions.MapPost("/", async (CreateCourseSessionDTO dto, ICourseSessionSer
     return Results.Created($"/api/courseSessions/{result.Id}", result);
 });
 
-courseSessions.MapPut("/{id:guid}", async (Guid id, UpdateCourseSessionDTO dto, ICourseSessionService service, CancellationToken ct) =>
+courseSessions.MapPatch("/{id:guid}", async (Guid id, UpdateCourseSessionDTO dto, ICourseSessionService service, CancellationToken ct) =>
 {
     var updated = await service.UpdateCourseSessionAsync(id, dto, ct);
     return Results.Ok(updated);
@@ -295,7 +295,7 @@ courseSessions.MapPost("/{id:guid}/enrollments", async(Guid id, EnrollStudentDTO
 
 courseSessions.MapGet("/{id:guid}/enrollments", async (Guid id, ICourseSessionService service, CancellationToken ct) => Results.Ok(await service.GetEnrollmentsBySessionIdAsync(id, ct)));
 
-courseSessions.MapPut("/{id:guid}/enrollment/{studentId:guid}/status", async (Guid id, Guid studentId, UpdateEnrollmentStatusDTO dto, ICourseSessionService service, CancellationToken ct) =>
+courseSessions.MapPatch("/{id:guid}/enrollment/{studentId:guid}/status", async (Guid id, Guid studentId, UpdateEnrollmentStatusDTO dto, ICourseSessionService service, CancellationToken ct) =>
 {
     await service.SetEnrollmentStatusAsync(id, studentId, dto.NewStatus, dto.RowVersion, ct);
     return Results.Ok();

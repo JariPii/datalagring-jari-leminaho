@@ -24,7 +24,7 @@ namespace SkillFlow.Application.DTOs.Attendees
 
         [JsonPropertyOrder(-10)]
         public Role Role { get; init; }
-        public byte[] RowVersion { get; init; } = [];
+        public byte[] RowVersion { get; init; } = default!;
 
         public DateTime CreatedAt { get; init; }
 

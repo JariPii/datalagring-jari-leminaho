@@ -1,19 +1,17 @@
 ﻿using FluentValidation;
-using SkillFlow.Application.DTOs.Competences;
+using SkillFlow.Application.DTOs.Locations;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace SkillFlow.Application.Validators.Competences
+namespace SkillFlow.Application.Validators.Locations
 {
-    public sealed class UpdateCompetenceDTOValidator : AbstractValidator<UpdateCompetenceDTO>
+    public sealed class UpdateLocationDTOValidator : AbstractValidator<UpdateLocationDTO>
     {
-        public UpdateCompetenceDTOValidator()
+        public UpdateLocationDTOValidator()
         {
-            RuleLevelCascadeMode = CascadeMode.Stop;
-
-
             RuleFor(x => x.Name)
+                .Cascade(CascadeMode.Stop)
                 .NotEmpty()
                 .MaximumLength(50)
                 .When(x => x.Name is not null);

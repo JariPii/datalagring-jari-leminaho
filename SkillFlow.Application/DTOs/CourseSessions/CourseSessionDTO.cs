@@ -24,6 +24,6 @@ namespace SkillFlow.Application.DTOs.CourseSessions
 
         public int ApprovedEnrollmentsCount { get; init; }
 
-        public byte[] RowVersion { get; init; } = [];
+        public byte[] RowVersion { get; init; } = default!;
     }
 }
