@@ -1,11 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
-using System.Text.Json.Serialization;
-using SkillFlow.Application.DTOs.Attendees;
-using SkillFlow.Application.DTOs.Competences;
-using SkillFlow.Application.DTOs.Courses;
-using SkillFlow.Application.DTOs.CourseSessions;
-using SkillFlow.Application.DTOs.Locations;
+using SkillFlow.Application;
 using SkillFlow.Application.Interfaces;
 using SkillFlow.Application.Services.Attendees;
 using SkillFlow.Application.Services.Competences;
@@ -16,9 +11,9 @@ using SkillFlow.Domain.Interfaces;
 using SkillFlow.Infrastructure;
 using SkillFlow.Infrastructure.Persistence;
 using SkillFlow.Infrastructure.Repositories;
+using SkillFlow.Presentation.Endpoints;
 using SkillFlow.Presentation.Exceptions;
-using SkillFlow.Application;
-using SkillFlow.Presentation.Filters;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -89,218 +84,15 @@ if(app.Environment.IsDevelopment())
     app.MapScalarApiReference();
 }
 
+app.UseHttpsRedirection();
+
 app.UseCors("NextJsPolicy");
 
-#region Attendees
-
-var attendees = app.MapGroup("/api/attendees");
-
-attendees.MapGet("/", async (IAttendeeService service, CancellationToken ct)
-    => Results.Ok(await service.GetAllAttendeesAsync(ct)));
-
-attendees.MapGet("/instructors", async (IAttendeeService service, CancellationToken ct)
-    => Results.Ok(await service.GetAllInstructorsAsync(ct)));
-
-attendees.MapGet("/students", async (IAttendeeService service, CancellationToken ct)
-    => Results.Ok(await service.GetAllStudentsAsync(ct)));
-
-attendees.MapGet("/search", async (string q, IAttendeeService service, CancellationToken ct)
-    => Results.Ok(await service.SearchAttendeesByNameAsync(q, ct)));
-
-attendees.MapGet("/instructors/competence/{name}", async (string name, IAttendeeService service, CancellationToken ct)
-    => Results.Ok(await service.GetInstructorsByCompetenceAsync(name, ct)));
-
-attendees.MapGet("/by-email", async (string email, IAttendeeService service, CancellationToken ct)
-    => Results.Ok(await service.GetAttendeeByEmailAsync(email, ct)));
-
-attendees.MapGet("/{id:guid}", async (Guid id, IAttendeeService service, CancellationToken ct) 
-    => Results.Ok(await service.GetAttendeeByIdAsync(id, ct)));
-
-attendees.MapPost("/", async (CreateAttendeeDTO dto, IAttendeeService service, CancellationToken ct) =>
-{
-        var result = await service.CreateAttendeeAsync(dto, ct);
-        return Results.Created($"/api/attendees/{result.Id}", result);
-}).ValidateBody<CreateAttendeeDTO>();
-
-attendees.MapPatch("/{id:guid}", async (Guid id, UpdateAttendeeDTO dto, IAttendeeService service, CancellationToken ct)
-    =>
-{
-    var updatedAttendee = await service.UpdateAttendeeAsync(id, dto, ct);
-    return Results.Ok(updatedAttendee);
-}).ValidateBody<UpdateAttendeeDTO>();
-
-attendees.MapDelete("/{id:guid}", async (Guid id, IAttendeeService service, CancellationToken ct) =>
-{
-    await service.DeleteAttendeeAsync(id, ct);
-    return Results.NoContent();
-});
-
-attendees.MapPost("/{id:guid}/competences", async (Guid id, AddCompetenceDTO dto, IAttendeeService service, CancellationToken ct) =>
-{
-    await service.AddCompetenceToInstructorAsync(id, dto.CompetenceName, dto.RowVersion, ct);
-    return Results.Ok(new { message = $"Competence '{dto.CompetenceName}' added successfully." });
-}).ValidateBody<AddCompetenceDTO>();
-
-
-#endregion
-
-#region Competences
-
-var competences = app.MapGroup("/api/competences");
-
-competences.MapGet("/", async (ICompetenceService service, CancellationToken ct) =>
-Results.Ok(await service.GetAllCompetencesAsync(ct)));
-
-competences.MapGet("/{id:guid}", async (Guid id, ICompetenceService service, CancellationToken ct) =>
-Results.Ok(await service.GetCompetenceDetailsAsync(id, ct)));
-
-competences.MapPost("/", async (CreateCompetenceDTO dto, ICompetenceService service, CancellationToken ct) =>
-{
-    var result = await service.CreateCompetenceAsync(dto, ct);
-    return Results.Created($"/api/competences/{result.Id}", result);
-}).ValidateBody<CreateCompetenceDTO>();
-
-competences.MapPatch("/{id:guid}", async (Guid id, UpdateCompetenceDTO dto, ICompetenceService service, CancellationToken ct) =>
-{
-    var updateCompetence = await service.UpdateCompetenceAsync(id, dto, ct);
-    return Results.Ok(updateCompetence);
-}).ValidateBody<UpdateCompetenceDTO>();
-
-competences.MapDelete("/{id:guid}", async (Guid id, ICompetenceService service, CancellationToken ct) =>
-{
-    await service.DeleteCompetenceAsync(id, ct);
-    return Results.NoContent();
-});
-
-#endregion
-
-#region Courses
-
-var courses = app.MapGroup("/api/courses");
-
-courses.MapGet("/", async (ICourseService service, CancellationToken ct) =>
-    Results.Ok(await service.GetAllCoursesAsync(ct)));
-
-courses.MapGet("/search", async (string searchTerm, ICourseService service, CancellationToken ct)
-    => Results.Ok(await service.SearchCoursesAsync(searchTerm, ct)));
-
-courses.MapGet("/{name}", async (string name, ICourseService service, CancellationToken ct)
-    => Results.Ok(await service.GetCourseByNameAsync(name, ct)));
-
-courses.MapPost("/", async (CreateCourseDTO dto, ICourseService service, CancellationToken ct) =>
-{
-        var result = await service.CreateCourseAsync(dto, ct);
-        return Results.Created($"/api/courses/{result.Id}", result);
-}).ValidateBody<CreateCourseDTO>();
-
-courses.MapPatch("/{id:guid}", async (Guid id, UpdateCourseDTO dto, ICourseService service, CancellationToken ct) =>
-{
-    var updateCourse = await service.UpdateCourseAsync(id, dto, ct);
-    return Results.Ok(updateCourse);
-}).ValidateBody<UpdateCourseDTO>();
-
-courses.MapDelete("/{id:guid}", async (Guid id, ICourseService service, CancellationToken ct) =>
-{
-    await service.DeleteCourseAsync(id, ct);
-    return Results.NoContent();
-});
-
-#endregion
-
-#region Location
-
-var locations = app.MapGroup("/api/locations");
-
-locations.MapGet("/", async (ILocationService service, CancellationToken ct) =>
-    Results.Ok(await service.GetAllLocationsAsync(ct)));
-
-locations.MapGet("/{id:guid}", async (Guid id, ILocationService service, CancellationToken ct) =>
-    Results.Ok(await service.GetLocationByIdAsync(id, ct)));
-
-locations.MapGet("/search", async (string searchTerm, ILocationService service, CancellationToken ct) =>
-    Results.Ok(await service.SearchLocationsAsync(searchTerm, ct)));
-
-locations.MapPost("/", async (CreateLocationDTO dto, ILocationService service, CancellationToken ct) =>
-{
-    var result = await service.CreateLocationAsync(dto, ct);
-    return Results.Created($"/api/locations/{result.Id}", result);
-});
-
-locations.MapPatch("/{id:guid}", async (Guid id, UpdateLocationDTO dto, ILocationService service, CancellationToken ct) =>
-{
-
-    var updateLocation = await service.UpdateLocationAsync(id, dto, ct);
-    return Results.Ok(updateLocation);
-});
-
-locations.MapDelete("/{id:guid}", async (Guid id, ILocationService service, CancellationToken ct) =>
-{
-    await service.DeleteLocationAsync(id, ct);
-    return Results.NoContent();
-});
-
-#endregion
-
-#region CourseSessions
-
-var courseSessions = app.MapGroup("/api/courseSessions");
-
-courseSessions.MapGet("/", async (ICourseSessionService service, CancellationToken ct) =>
-    Results.Ok(await service.GetAllCourseSessionsAsync(ct)));
-
-courseSessions.MapGet("/{id:guid}", async (Guid id,ICourseSessionService service, CancellationToken ct) =>
-    Results.Ok(await service.GetCourseSessionByIdAsync(id, ct)));
-
-courseSessions.MapGet("/available", async (ICourseSessionService service, CancellationToken ct) =>
-    Results.Ok(await service.GetAvailableCourseSessionsAsync(ct)));
-
-courseSessions.MapGet("/search", async (string searchTerm, ICourseSessionService service, CancellationToken ct) =>
-    Results.Ok(await service.SearchCourseSessionsAsync(searchTerm, ct)));
-
-courseSessions.MapGet("/date/{date:datetime}", async (DateTime date, ICourseSessionService service, CancellationToken ct) => 
-    Results.Ok(await service.GetCourseSessionsByDateAsync(date, ct)));
-
-courseSessions.MapGet("/location/{locationId:guid}", async(Guid locationId, ICourseSessionService service, CancellationToken ct) =>
-    Results.Ok(await service.GetCourseSessionsByLocationAsync(locationId, ct)));
-
-courseSessions.MapPost("/", async (CreateCourseSessionDTO dto, ICourseSessionService service, CancellationToken ct) =>
-{
-    var result = await service.CreateCourseSessionAsync(dto, ct);
-    return Results.Created($"/api/courseSessions/{result.Id}", result);
-});
-
-courseSessions.MapPatch("/{id:guid}", async (Guid id, UpdateCourseSessionDTO dto, ICourseSessionService service, CancellationToken ct) =>
-{
-    var updated = await service.UpdateCourseSessionAsync(id, dto, ct);
-    return Results.Ok(updated);
-});
-
-courseSessions.MapDelete("/{id:guid}", async (Guid id, ICourseSessionService service, CancellationToken ct) =>
-{
-    await service.DeleteCourseSessionAsync(id, ct);
-    return Results.NoContent();
-});
-
-courseSessions.MapPost("/{id:guid}/instructors", async (Guid id, AddInstructorToCourseSessionDTO dto, ICourseSessionService service, CancellationToken ct) =>
-{
-    await service.AddInstructorToCourseSessionAsync(id, dto.InstructorId, dto.RowVersion, ct);
-    return Results.Ok();
-});
-
-courseSessions.MapPost("/{id:guid}/enrollments", async(Guid id, EnrollStudentDTO dto, ICourseSessionService service, CancellationToken ct) =>
-{
-    await service.EnrollStudentAsync(id, dto.StudentId, dto.RowVersion, ct);
-    return Results.Ok();
-});
-
-courseSessions.MapGet("/{id:guid}/enrollments", async (Guid id, ICourseSessionService service, CancellationToken ct) => Results.Ok(await service.GetEnrollmentsBySessionIdAsync(id, ct)));
-
-courseSessions.MapPatch("/{id:guid}/enrollment/{studentId:guid}/status", async (Guid id, Guid studentId, UpdateEnrollmentStatusDTO dto, ICourseSessionService service, CancellationToken ct) =>
-{
-    await service.SetEnrollmentStatusAsync(id, studentId, dto.NewStatus, dto.RowVersion, ct);
-    return Results.Ok();
-});
-#endregion
+app.MapAttenteesEnpoints();
+app.MapCoursesEndpoints();
+app.MapCompetencesEndpoints();
+app.MapLocationsEndpoints();
+app.MapCourseSessionsEndpoints();
 
 app.Run();
 
