@@ -18,9 +18,6 @@ namespace SkillFlow.Domain.Attendees
 
         public static AttendeeName Create(string firstName, string lastName)
         {
-            //if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName))
-            //    throw new InvalidNameException($"First name and last name is required");
-
             var cleanFirstName = firstName.NormalizeName();
             var cleanLastName = lastName.NormalizeName();
 

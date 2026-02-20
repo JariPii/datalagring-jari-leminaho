@@ -12,7 +12,7 @@ namespace SkillFlow.Domain.Primitives
 
             var collapsed = WhitespaceRegex().Replace(value.Trim(), " ");
 
-            return CultureInfo.CurrentCulture.TextInfo.ToTitleCase(collapsed.ToLower());
+            return CultureInfo.InvariantCulture.TextInfo.ToTitleCase(collapsed.ToLowerInvariant());
         }
 
 

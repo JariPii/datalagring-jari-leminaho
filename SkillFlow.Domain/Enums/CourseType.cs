@@ -4,9 +4,13 @@ namespace SkillFlow.Domain.Enums
 {
     public enum CourseType
     {
-        [Display(Name = "Grundkurs")]
-        GRD,
-        [Display(Name = "Försdjupningskurs")]
-        FDJ
+        [Display(Name = "Basic")]
+        BAS,
+        [Display(Name = "Intermediate")]
+        INT,
+        [Display(Name =  "Advanced")]
+        ADV,
+        [Display(Name = "Expert")]
+        EXP
     }
 }
