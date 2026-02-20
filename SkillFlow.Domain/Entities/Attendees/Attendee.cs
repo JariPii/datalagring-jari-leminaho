@@ -9,6 +9,8 @@ namespace SkillFlow.Domain.Entities.Attendees
     {
         public Role Role { get; private init; }
         public Email Email { get; private set; }
+
+        public string EmailUnique { get; private set; } = default!;
         public AttendeeName Name { get; private set; }
         public PhoneNumber? PhoneNumber { get; private set; }
 
@@ -22,6 +24,7 @@ namespace SkillFlow.Domain.Entities.Attendees
         {
             Id = id;
             Email = email;
+            EmailUnique = email.UniqueValue;
             Name = name;
             PhoneNumber = phoneNumber;
             Role = role;
@@ -35,6 +38,7 @@ namespace SkillFlow.Domain.Entities.Attendees
             if (Email == newEmail) return;
 
             Email = newEmail;
+            EmailUnique = newEmail.UniqueValue;
             UpdateTimeStamp();
         }
 

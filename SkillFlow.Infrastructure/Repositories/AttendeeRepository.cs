@@ -13,7 +13,7 @@ namespace SkillFlow.Infrastructure.Repositories
 
         public async Task<bool> ExistsByEmailAsync(Email email, CancellationToken ct)
         {
-            return await _context.Attendees.AnyAsync(e => e.Email == email, ct);
+            return await _context.Attendees.AnyAsync(e => e.EmailUnique == email.UniqueValue, ct);
         }
 
         public override async Task<IEnumerable<Attendee>> GetAllAsync(CancellationToken ct)

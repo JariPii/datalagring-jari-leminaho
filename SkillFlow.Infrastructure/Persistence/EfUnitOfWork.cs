@@ -1,4 +1,6 @@
-﻿using SkillFlow.Domain.Interfaces;
+﻿using Microsoft.EntityFrameworkCore;
+using SkillFlow.Domain.Exceptions;
+using SkillFlow.Domain.Interfaces;
 
 namespace SkillFlow.Infrastructure.Persistence
 {
@@ -17,7 +19,16 @@ namespace SkillFlow.Infrastructure.Persistence
             return new EfTransaction(transaction);
         }
 
-        public Task<int> SaveChangesAsync(CancellationToken ct = default) =>
-            _context.SaveChangesAsync(ct);
+        public async Task<int> SaveChangesAsync(CancellationToken ct = default)
+        {
+            try
+            {
+                return await _context.SaveChangesAsync(ct);
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                throw new ConcurrencyException(ex);
+            }
+        }
     }
 }

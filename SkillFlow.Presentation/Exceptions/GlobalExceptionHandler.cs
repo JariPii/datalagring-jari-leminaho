@@ -8,8 +8,6 @@ namespace SkillFlow.Presentation.Exceptions
     {
         public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
         {
-            //logger.LogError(exception, "Exception occurred: {Message}", exception.Message);
-
             var (statusCode, title, logAsError) = exception switch
             {
                 // Custom 404
@@ -82,8 +80,8 @@ namespace SkillFlow.Presentation.Exceptions
             problemDetails.Extensions["traceId"] = httpContext.TraceIdentifier;
             problemDetails.Extensions["timestamp"] = DateTimeOffset.UtcNow;
 
-
             httpContext.Response.StatusCode = statusCode;
+
             await httpContext.Response.WriteAsJsonAsync(problemDetails, cancellationToken);
 
             return true;

@@ -1,4 +1,5 @@
 ﻿using SkillFlow.Domain.Exceptions;
+using SkillFlow.Domain.Primitives;
 using System.Text.RegularExpressions;
 
 namespace SkillFlow.Domain.Courses
@@ -11,20 +12,18 @@ namespace SkillFlow.Domain.Courses
         private CourseName(string value) => Value = value;
         public static CourseName Create(string value)
         {
-            if (string.IsNullOrWhiteSpace(value))
-                throw new InvalidCourseNameException("Course name is required");
 
-            var genereatedCleanCourseName = MyRegex().Replace(value.Trim(), " ");
+            var cleanCourseName = value.NormalizeName();
 
-            if (genereatedCleanCourseName.Length > MaxLength)
+            if (cleanCourseName.Length == 0)
+                throw new InvalidCourseNameException("A course name is required");
+
+            if (cleanCourseName.Length > MaxLength)
                 throw new InvalidCourseNameException($"Course description can not contain more than {MaxLength} characters");
 
-            return new CourseName(genereatedCleanCourseName);
+            return new CourseName(cleanCourseName);
         }
 
         public override string ToString() => Value;
-
-        [GeneratedRegex(@"\s+")]
-        private static partial Regex MyRegex();
     }
 }

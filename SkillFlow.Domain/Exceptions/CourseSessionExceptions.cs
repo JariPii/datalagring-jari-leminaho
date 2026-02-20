@@ -19,7 +19,7 @@ namespace SkillFlow.Domain.Exceptions
 
     public class InvalidCapacityException(string message) : DomainException(message);
 
-    public class ConcurrencyException() : DomainException("Someone just updated the session, please try again");
+
 
     public class InstructorIsRequiredException(string message) : DomainException(message);
 

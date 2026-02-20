@@ -20,7 +20,11 @@ namespace SkillFlow.Infrastructure.Configurations
                 .HasMaxLength(150)
                 .IsRequired();
 
-            builder.HasIndex(a => a.Email).IsUnique();
+            builder.Property(a => a.EmailUnique)
+                .HasMaxLength(254)
+                .IsRequired();
+
+            builder.HasIndex(a => a.EmailUnique).IsUnique();
 
             builder.ComplexProperty(a => a.Name, name =>            
             {

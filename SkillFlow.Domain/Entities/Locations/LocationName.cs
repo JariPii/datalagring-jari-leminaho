@@ -1,4 +1,7 @@
-﻿namespace SkillFlow.Domain.Entities.Locations
+﻿using SkillFlow.Domain.Exceptions;
+using SkillFlow.Domain.Primitives;
+
+namespace SkillFlow.Domain.Entities.Locations
 {
     public readonly record struct LocationName
     {
@@ -13,14 +16,16 @@
 
         public static LocationName Create(string value)
         {
-            ArgumentException.ThrowIfNullOrWhiteSpace(value, nameof(value));
 
-            var trimmedLocationName = value.Trim();
+            var cleanLocationName = value.NormalizeName();
 
-            if (trimmedLocationName.Length > MaxLength)
-                throw new ArgumentException($"Location name cannot exceed {MaxLength} characters", nameof(value));
+            if (cleanLocationName.Length == 0)
+                throw new InvalidLocationNameException("Location name is required");
 
-            return new LocationName(trimmedLocationName);
+            if (cleanLocationName.Length > MaxLength)
+                throw new InvalidLocationNameException($"Location name cannot exceed {MaxLength} characters");
+
+            return new LocationName(cleanLocationName);
         }
 
         public override string ToString() => Value;

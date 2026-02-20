@@ -39,12 +39,8 @@ namespace SkillFlow.Application.Services.Attendees
                 await repository.UpdateAsync(instructor, rowVersion, ct);
 
                 await unitOfWork.SaveChangesAsync(ct);
+
                 await tx.CommitAsync(ct);
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                await tx.RollbackAsync(ct);
-                throw new ConcurrencyException();
             }
             catch
             {
@@ -150,7 +146,7 @@ namespace SkillFlow.Application.Services.Attendees
             var attendee = await repository.GetByIdAsync(attendeeId, ct) ??
                 throw new AttendeeNotFoundException(attendeeId);
 
-            if (!string.IsNullOrWhiteSpace(dto.Email) && dto.Email != attendee.Email.Value)
+            if (dto.Email is not null && dto.Email != attendee.Email.Value)
             {
                 var newEmail = Email.Create(dto.Email);
 
@@ -165,7 +161,7 @@ namespace SkillFlow.Application.Services.Attendees
             attendee.UpdateFirstName(dto.FirstName ?? attendee.Name.FirstName);
             attendee.UpdateLastName(dto.LastName ?? attendee.Name.LastName);
 
-            if (dto.PhoneNumber != null)
+            if (dto.PhoneNumber is not null && dto.PhoneNumber != attendee.PhoneNumber?.Value)
             {
                 attendee.UpdatePhoneNumber(PhoneNumber.Create(dto.PhoneNumber));
             }
@@ -174,7 +170,6 @@ namespace SkillFlow.Application.Services.Attendees
 
             await unitOfWork.SaveChangesAsync(ct);
 
-            //return MapToDTOList([attendee]).First();
             return MapToDTO(attendee);
         }
 

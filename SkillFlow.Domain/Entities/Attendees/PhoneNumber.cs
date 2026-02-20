@@ -6,7 +6,7 @@ namespace SkillFlow.Domain.Entities.Attendees
     {
         public string Value { get; }
 
-        public const int MaxLength = 8;
+        public const int MaxLength = 18;
         private PhoneNumber(string value) => Value = value;
         public static PhoneNumber? Create(string? value)
         {
