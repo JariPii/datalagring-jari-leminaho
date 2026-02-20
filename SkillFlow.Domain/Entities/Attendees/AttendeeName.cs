@@ -24,8 +24,14 @@ namespace SkillFlow.Domain.Attendees
             if (cleanFirstName.Length > MaxLength || cleanLastName.Length > MaxLength)
                 throw new InvalidNameException($"Name can not exceed {MaxLength} characters");
 
+            if (!NameRegex().IsMatch(cleanFirstName) || !NameRegex().IsMatch(cleanLastName))
+                throw new InvalidNameException("Name contains invalid charachters");
+
             return new AttendeeName(cleanFirstName, cleanLastName);
         }
+
+        [GeneratedRegex(@"^[\p{L}]+(?:[ '-][\p{L}]+)*$")]
+        private static partial Regex NameRegex();
 
         public string Fullname => $"{FirstName} {LastName}";
         public override string ToString() => Fullname;

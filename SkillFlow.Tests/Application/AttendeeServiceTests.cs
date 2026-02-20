@@ -22,24 +22,39 @@ namespace SkillFlow.Tests.Application
         private AttendeeService CreateSut()
             => new AttendeeService(_repo.Object, _uow.Object, _queries.Object, _competenceRepo.Object);
 
-        [Fact]
-        public async Task CreateAttendeeAsync_should_throw_when_email_already_exists()
-        {
-            var dto = new CreateAttendeeDTO
+        private static CreateAttendeeDTO CreateDto(Role role, string email = "test@gmail.com")
+            => new()
             {
-                Email = "test@gmail.com",
+                Email = email,
                 FirstName = "John",
                 LastName = "Doe",
                 PhoneNumber = null,
-                Role = Role.Student
+                Role = role
             };
+
+        private static Attendee CreateStudent(string email = "old@gmail.com")
+            => Attendee.CreateStudent(
+                Email.Create(email),
+                AttendeeName.Create("John", "Doe"),
+                PhoneNumber.Create(null));
+
+        private static Instructor CreateInstructor(string email = "teacher@gmail.com")
+            => Attendee.CreateInstructor(
+                Email.Create(email),
+                AttendeeName.Create("Ada", "Lovelace"),
+                PhoneNumber.Create(null));
+
+        [Fact]
+        public async Task CreateAttendeeAsync_should_throw_when_email_already_exists()
+        {
+            var dto = CreateDto(Role.Student, "test@gmail.com");
 
             _repo.Setup(r => r.ExistsByEmailAsync(It.IsAny<Email>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(true);
 
             var sut = CreateSut();
 
-            var act = async () => await sut.CreateAttendeeAsync(dto, CancellationToken.None);
+            Func<Task> act = () => sut.CreateAttendeeAsync(dto, CancellationToken.None);
 
             await act.Should().ThrowAsync<EmailAlreadyExistsException>();
 
@@ -52,14 +67,7 @@ namespace SkillFlow.Tests.Application
         [InlineData(Role.Instructor, typeof(InstructorDTO))]
         public async Task CreateAttendeeAsync_should_create_expected_type_and_save(Role role, Type expectedDtoType)
         {
-            var dto = new CreateAttendeeDTO
-            {
-                Email = "teacher@gmail.com",
-                FirstName = "Ada",
-                LastName = "Lovelace",
-                PhoneNumber = null,
-                Role = role
-            };
+            var dto = CreateDto(role, "teacher@gmail.com");
 
             _repo.Setup(r => r.ExistsByEmailAsync(It.IsAny<Email>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(false);
@@ -97,7 +105,7 @@ namespace SkillFlow.Tests.Application
 
             var sut = CreateSut();
 
-            var act = async () => await sut.DeleteAttendeeAsync(id, CancellationToken.None);
+            Func<Task> act = () => sut.DeleteAttendeeAsync(id, CancellationToken.None);
 
             await act.Should().ThrowAsync<AttendeeNotFoundException>();
 
@@ -130,7 +138,7 @@ namespace SkillFlow.Tests.Application
 
             var sut = CreateSut();
 
-            var act = async () => await sut.GetAttendeeByEmailAsync("test@gmail.com", CancellationToken.None);
+            Func<Task> act = () => sut.GetAttendeeByEmailAsync("test@gmail.com", CancellationToken.None);
 
             await act.Should().ThrowAsync<AttendeeNotFoundException>();
         }
@@ -139,11 +147,7 @@ namespace SkillFlow.Tests.Application
         public async Task UpdateAttendeeAsync_should_throw_when_new_email_already_exists()
         {
             var id = Guid.NewGuid();
-
-            var existing = Attendee.CreateStudent(
-                Email.Create("old@gmail.com"),
-                AttendeeName.Create("John", "Doe"),
-                PhoneNumber.Create(null));
+            var existing = CreateStudent("old@gmail.com");
 
             _repo.Setup(r => r.GetByIdAsync(It.IsAny<AttendeeId>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(existing);
@@ -162,7 +166,7 @@ namespace SkillFlow.Tests.Application
 
             var sut = CreateSut();
 
-            var act = async () => await sut.UpdateAttendeeAsync(id, dto, CancellationToken.None);
+            Func<Task> act = () => sut.UpdateAttendeeAsync(id, dto, CancellationToken.None);
 
             await act.Should().ThrowAsync<EmailAlreadyExistsException>();
 
@@ -174,16 +178,11 @@ namespace SkillFlow.Tests.Application
         public async Task UpdateAttendeeAsync_should_update_and_save()
         {
             var id = Guid.NewGuid();
-
-            var existing = Attendee.CreateStudent(
-                Email.Create("old@gmail.com"),
-                AttendeeName.Create("John", "Doe"),
-                PhoneNumber.Create(null));
+            var existing = CreateStudent("old@gmail.com");
 
             _repo.Setup(r => r.GetByIdAsync(It.IsAny<AttendeeId>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(existing);
 
-            // email check (only used if email changed)
             _repo.Setup(r => r.ExistsByEmailAsync(It.IsAny<Email>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(false);
 
@@ -198,7 +197,7 @@ namespace SkillFlow.Tests.Application
                 Email = "new@gmail.com",
                 FirstName = "Ada",
                 LastName = "Lovelace",
-                PhoneNumber = "0701234567",
+                PhoneNumber = "+46701234567", // E.164
                 RowVersion = new byte[] { 9, 9, 9 }
             };
 
@@ -209,7 +208,7 @@ namespace SkillFlow.Tests.Application
             result.Email.Should().Be("new@gmail.com");
             result.FirstName.Should().Be("Ada");
             result.LastName.Should().Be("Lovelace");
-            result.PhoneNumber.Should().Be("0701234567");
+            result.PhoneNumber.Should().Be("+46701234567");
 
             _repo.Verify(r => r.UpdateAsync(It.IsAny<Attendee>(), dto.RowVersion, It.IsAny<CancellationToken>()), Times.Once);
             _uow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
@@ -221,10 +220,7 @@ namespace SkillFlow.Tests.Application
             var instructorId = Guid.NewGuid();
             var rowVersion = new byte[] { 1, 1, 1 };
 
-            var instructor = Attendee.CreateInstructor(
-                Email.Create("teacher@gmail.com"),
-                AttendeeName.Create("Ada", "Lovelace"),
-                PhoneNumber.Create(null));
+            var instructor = CreateInstructor("teacher@gmail.com");
 
             var tx = new Mock<ITransaction>();
             _uow.Setup(u => u.BeginTransactionAsync(It.IsAny<CancellationToken>()))
@@ -269,8 +265,8 @@ namespace SkillFlow.Tests.Application
 
             var sut = CreateSut();
 
-            var act = async () =>
-                await sut.AddCompetenceToInstructorAsync(instructorId, "C#", rowVersion, CancellationToken.None);
+            Func<Task> act = () =>
+                sut.AddCompetenceToInstructorAsync(instructorId, "C#", rowVersion, CancellationToken.None);
 
             await act.Should().ThrowAsync<AttendeeNotFoundException>();
 

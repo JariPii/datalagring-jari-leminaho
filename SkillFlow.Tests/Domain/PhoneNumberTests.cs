@@ -19,19 +19,32 @@ namespace SkillFlow.Tests.Domain
         }
 
         [Fact]
-        public void Create_should_return_phone_number_when_value_is_present()
+        public void Create_should_return_phone_number_when_value_is_valid_e164()
         {
-            var phone = PhoneNumber.Create("0701234567")!.Value;
+            var phone = PhoneNumber.Create("+46701234567")!.Value;
 
-            phone.Value.Should().Be("0701234567");
+            phone.Should().NotBeNull();
+            phone!.Value.Should().Be("+46701234567");
         }
 
         [Fact]
-        public void Create_should_throw_when_value_exceeds_max_length()
+        public void Create_should_trim_and_clean_input_before_validation()
         {
-            var tooLong = new string('1', PhoneNumber.MaxLength + 1);
+            var phone = PhoneNumber.Create(" +46 70-123 45 67 ");
 
-            var act = () => PhoneNumber.Create(tooLong);
+            phone.Should().NotBeNull();
+            phone!.Value.Value.Should().Be("+46701234567");
+        }
+
+        [Theory]
+        [InlineData("0701234567")]      // missing +
+        [InlineData("+0701234567")]     // country code cannot start with 0
+        [InlineData("+46")]             // too short
+        [InlineData("+461234567890123456")] // too long (>15 digits)
+        [InlineData("+46abc123456")]    // invalid characters
+        public void Create_should_throw_when_format_is_invalid(string input)
+        {
+            var act = () => PhoneNumber.Create(input);
 
             act.Should().Throw<InvalidPhoneNumberException>();
         }
@@ -39,9 +52,9 @@ namespace SkillFlow.Tests.Domain
         [Fact]
         public void ToString_should_return_value()
         {
-            var phone = PhoneNumber.Create("0701234567")!.Value;
+            var phone = PhoneNumber.Create("+46701234567")!.Value;
 
-            phone.ToString().Should().Be("0701234567");
+            phone.ToString().Should().Be("+46701234567");
         }
     }
 }
