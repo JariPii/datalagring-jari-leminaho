@@ -8,12 +8,19 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="coverlet.collector" Version="8.0.0">
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		  <PrivateAssets>all</PrivateAssets>
+		</PackageReference>
 		<PackageReference Include="FluentValidation" Version="12.1.1" />
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
 		<PackageReference Include="xunit" Version="2.9.0" />
 		<PackageReference Include="xunit.runner.visualstudio" Version="2.8.2">
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
+
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.0-preview.*" />
+		<PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.0-preview.*" />
 
 		<PackageReference Include="FluentAssertions" Version="8.8.0" />
 		<PackageReference Include="Moq" Version="4.20.72" />
@@ -26,7 +33,6 @@
 		<ProjectReference Include="..\SkillFlow.Domain\SkillFlow.Domain.csproj" />
 		<ProjectReference Include="..\SkillFlow.Infrastructure\SkillFlow.Infrastructure.csproj" />
 		<ProjectReference Include="..\SkillFlow.Presentation\SkillFlow.Presentation.csproj" />
-	</ItemGroup>
-	
+	</ItemGroup>	
 
 </Project>

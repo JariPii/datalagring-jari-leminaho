@@ -15,6 +15,7 @@ public class TestWebAppFactory : WebApplicationFactory<Program>
     public Mock<ICourseSessionService> CourseSessionServiceMock { get; } = new();
     public Mock<ICompetenceService> CompetenceServiceMock { get; } = new();
     public Mock<ICourseService> CourseServiceMock { get; } = new();
+    public Mock<ILocationService> LocationServiceMock { get; } = new();
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -33,6 +34,9 @@ public class TestWebAppFactory : WebApplicationFactory<Program>
 
             services.RemoveAll(typeof(ICourseService));
             services.AddSingleton(CourseServiceMock.Object);
+
+            services.RemoveAll(typeof(ILocationService));
+            services.AddSingleton(LocationServiceMock.Object);
         });
     }
 }
