@@ -10,7 +10,7 @@ using SkillFlow.Domain.Exceptions;
 using SkillFlow.Domain.Interfaces;
 using Xunit;
 
-namespace SkillFlow.Tests.Application
+namespace SkillFlow.Tests.Application.Services
 {
     public class AttendeeServiceTests
     {

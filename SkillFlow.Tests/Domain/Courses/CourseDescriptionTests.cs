@@ -20,8 +20,6 @@ namespace SkillFlow.Tests.Domain.Courses
         {
             var desc = CourseDescription.Create("   Intro to backend   ");
 
-            // Anpassa detta beroende på vad NormalizeText() gör.
-            // Vanligast är Trim().
             desc.Value.Should().Be("Intro to backend");
         }
 
@@ -79,6 +77,30 @@ namespace SkillFlow.Tests.Domain.Courses
             var desc = CourseDescription.Create("Hello   World");
 
             desc.Value.Should().Be("Hello World");
+        }
+
+        [Fact]
+        public void Create_ShouldTrimWhitespace()
+        {
+            var desc = CourseDescription.Create("   Hello   ");
+
+            desc.Value.Should().Be("Hello");
+        }
+
+        [Fact]
+        public void Create_ShouldCollapseMultipleSpaces()
+        {
+            var desc = CourseDescription.Create("Hello     world");
+
+            desc.Value.Should().Be("Hello world");
+        }
+
+        [Fact]
+        public void Create_ShouldNotChangeCase()
+        {
+            var desc = CourseDescription.Create("HELLO world");
+
+            desc.Value.Should().Be("HELLO world");
         }
     }
 }

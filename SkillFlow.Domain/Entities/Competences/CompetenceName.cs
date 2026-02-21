@@ -16,7 +16,7 @@ namespace SkillFlow.Domain.Entities.Competences
             var cleanValue = value.NormalizeName();
 
             if (cleanValue.Length == 0)
-                throw new InvalidCompetenceNameException("A competence name is required");
+                throw new InvalidCompetenceNameException($"A competence name is required");
 
             if (cleanValue.Length > MaxLength)
                 throw new InvalidCompetenceNameException($"The competence name cannot contain more than {MaxLength} characters");
