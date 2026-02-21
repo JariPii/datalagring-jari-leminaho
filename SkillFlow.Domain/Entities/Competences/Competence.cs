@@ -43,6 +43,5 @@ namespace SkillFlow.Domain.Entities.Competences
                 UpdateTimeStamp();
             }
         }
-
     }
 }

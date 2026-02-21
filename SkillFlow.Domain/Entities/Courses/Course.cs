@@ -49,6 +49,5 @@ namespace SkillFlow.Domain.Entities.Courses
             UpdateTimeStamp();
         }
     }
-
 }
 

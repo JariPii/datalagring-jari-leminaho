@@ -38,7 +38,8 @@ namespace SkillFlow.Application.Validators.CourseSessions
                 .WithMessage("InstructorIds can not be empty GUID");
 
             RuleFor(x => x.InstructorIds)
-                .Must(ids => ids.Distinct().Count() == ids.Count)
+                .Must(ids => ids!.Distinct().Count() == ids.Count)
+                .When(x => x.InstructorIds is not null)
                 .WithMessage("InstructorsIds must be unique");
         }
     }

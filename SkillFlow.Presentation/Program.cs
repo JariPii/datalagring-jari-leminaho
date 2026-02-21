@@ -33,3 +33,4 @@ app.MapCourseSessionsEndpoints();
 
 app.Run();
 
+public partial class Program { }

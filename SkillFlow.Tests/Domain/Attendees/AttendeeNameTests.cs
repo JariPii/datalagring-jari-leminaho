@@ -4,7 +4,7 @@ using SkillFlow.Domain.Exceptions;
 using SkillFlow.Domain.Primitives;
 using Xunit;
 
-namespace SkillFlow.Tests.Domain
+namespace SkillFlow.Tests.Domain.Attendees
 {
     public class AttendeeNameTests
     {
@@ -26,7 +26,6 @@ namespace SkillFlow.Tests.Domain
         [Fact]
         public void Create_should_throw_when_first_name_exceeds_max_length_after_normalization()
         {
-            // Normalization won't shorten this (no extra whitespace), so it's safely > MaxLength
             var tooLong = new string('a', AttendeeName.MaxLength + 1);
 
             var act = () => AttendeeName.Create(tooLong, "Doe");
@@ -45,15 +44,15 @@ namespace SkillFlow.Tests.Domain
         }
 
         [Theory]
-        [InlineData("Jari2", "Doe")]        // digits
-        [InlineData("John", "D0e")]         // digits
-        [InlineData("John_", "Doe")]        // invalid char
-        [InlineData("John", "Doe@")]        // invalid char
-        [InlineData("  ", "Doe")]           // becomes empty after NormalizeName
-        [InlineData("John", "   ")]         // becomes empty after NormalizeName
-        [InlineData("-John", "Doe")]        // starts with separator
-        [InlineData("John", "Doe-")]        // ends with separator
-        [InlineData("John--Paul", "Doe")]   // double separator
+        [InlineData("Jari2", "Doe")]
+        [InlineData("John", "D0e")]
+        [InlineData("John_", "Doe")]
+        [InlineData("John", "Doe@")]
+        [InlineData("  ", "Doe")]
+        [InlineData("John", "   ")]
+        [InlineData("-John", "Doe")]
+        [InlineData("John", "Doe-")]
+        [InlineData("John--Paul", "Doe")]
         public void Create_should_throw_when_name_contains_invalid_characters(string first, string last)
         {
             var act = () => AttendeeName.Create(first, last);

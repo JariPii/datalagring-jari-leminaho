@@ -3,7 +3,7 @@ using SkillFlow.Domain.Entities.Attendees;
 using SkillFlow.Domain.Exceptions;
 using Xunit;
 
-namespace SkillFlow.Tests.Domain
+namespace SkillFlow.Tests.Domain.Attendees
 {
     public class EmailTests
     {
