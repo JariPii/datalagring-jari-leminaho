@@ -29,6 +29,10 @@ namespace SkillFlow.Infrastructure.Persistence
             {
                 throw new ConcurrencyException(ex);
             }
+            catch (DbUpdateException ex)
+            {
+                throw new PersistenceException(ex);
+            }
         }
     }
 }

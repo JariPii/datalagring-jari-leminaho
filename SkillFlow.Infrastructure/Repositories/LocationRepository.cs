@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SkillFlow.Domain.Entities.CourseSessions;
 using SkillFlow.Domain.Entities.Locations;
 using SkillFlow.Domain.Interfaces;
 using SkillFlow.Domain.Primitives;
@@ -30,6 +31,13 @@ namespace SkillFlow.Infrastructure.Repositories
             }
 
             return await GetPagedAsync(page, pageSize, filter, ct: ct);
+        }
+
+        public async Task<bool> IsLocationInUseAsync(LocationId id, CancellationToken ct = default)
+        {
+            return await _context.Set<CourseSession>()
+                .AsNoTracking()
+                .AnyAsync(cs => cs.LocationId == id, ct);
         }
 
         public void Remove(Location location)

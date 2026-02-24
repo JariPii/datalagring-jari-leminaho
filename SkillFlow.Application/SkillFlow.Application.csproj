@@ -13,7 +13,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SkillFlow.Domain\SkillFlow.Domain.csproj" />
-    <ProjectReference Include="..\SkillFlow.Infrastructure\SkillFlow.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

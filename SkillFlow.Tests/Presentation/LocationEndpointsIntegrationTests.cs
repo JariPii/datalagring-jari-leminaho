@@ -126,13 +126,13 @@ public class LocationEndpointsIntegrationTests : IClassFixture<TestWebAppFactory
 
         var dto = new CreateLocationDTO
         {
-            Name = "Stockholm"
+            LocationName = "Stockholm"
         };
 
         var created = new LocationDTO
         {
             Id = Guid.NewGuid(),
-            LocationName = dto.Name,
+            LocationName = dto.LocationName,
             RowVersion = new byte[] { 1, 2, 3 }
         };
 
@@ -151,7 +151,7 @@ public class LocationEndpointsIntegrationTests : IClassFixture<TestWebAppFactory
     {
         var client = _factory.CreateClient();
 
-        var invalid = new CreateLocationDTO { Name = "" };
+        var invalid = new CreateLocationDTO { LocationName = "" };
 
         var response = await client.PostAsJsonAsync("/api/locations", invalid);
 
@@ -167,12 +167,12 @@ public class LocationEndpointsIntegrationTests : IClassFixture<TestWebAppFactory
     {
         var client = _factory.CreateClient();
 
-        var dto = new CreateLocationDTO { Name = "Stockholm" };
+        var dto = new CreateLocationDTO { LocationName = "Stockholm" };
 
         // Om exception tar LocationName VO: LocationName.Create(dto.Name)
         _factory.LocationServiceMock
             .Setup(s => s.CreateLocationAsync(It.IsAny<CreateLocationDTO>(), It.IsAny<CancellationToken>()))
-            .ThrowsAsync(new LocationNameAllreadyExistsException(LocationName.Create(dto.Name)));
+            .ThrowsAsync(new LocationNameAllreadyExistsException(LocationName.Create(dto.LocationName)));
 
         var response = await client.PostAsJsonAsync("/api/locations", dto);
 
@@ -196,14 +196,14 @@ public class LocationEndpointsIntegrationTests : IClassFixture<TestWebAppFactory
 
         var dto = new UpdateLocationDTO
         {
-            Name = "Gothenburg",
+            LocationName = "Gothenburg",
             RowVersion = new byte[] { 9, 9, 9 }
         };
 
         var updated = new LocationDTO
         {
             Id = id,
-            LocationName = dto.Name!,
+            LocationName = dto.LocationName!,
             RowVersion = new byte[] { 1, 1, 1 }
         };
 
@@ -225,7 +225,7 @@ public class LocationEndpointsIntegrationTests : IClassFixture<TestWebAppFactory
         // Name empty (when not null) + RowVersion required
         var invalid = new UpdateLocationDTO
         {
-            Name = "",
+            LocationName = "",
             RowVersion = Array.Empty<byte>()
         };
 

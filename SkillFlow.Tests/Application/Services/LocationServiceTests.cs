@@ -25,7 +25,7 @@ namespace SkillFlow.Tests.Application.Services
         public async Task CreateLocationAsync_WhenNameExists_ShouldThrow_AndNotAddOrSave()
         {
             var sut = CreateSut();
-            var dto = new CreateLocationDTO { Name = "Stockholm" };
+            var dto = new CreateLocationDTO { LocationName = "Stockholm" };
 
             _repo.Setup(x => x.ExistsByNameAsync(It.IsAny<LocationName>(), It.IsAny<CancellationToken>()))
                  .ReturnsAsync(true);
@@ -42,7 +42,7 @@ namespace SkillFlow.Tests.Application.Services
         public async Task CreateLocationAsync_HappyPath_ShouldAdd_Save_AndReturnDto()
         {
             var sut = CreateSut();
-            var dto = new CreateLocationDTO { Name = "   göteborg   " };
+            var dto = new CreateLocationDTO { LocationName = "   göteborg   " };
 
             _repo.Setup(x => x.ExistsByNameAsync(It.IsAny<LocationName>(), It.IsAny<CancellationToken>()))
                  .ReturnsAsync(false);
@@ -65,10 +65,10 @@ namespace SkillFlow.Tests.Application.Services
             result.Id.Should().NotBe(Guid.Empty);
 
             // Name normaliseras via NormalizeName()
-            result.LocationName.Should().Be(LocationName.Create(dto.Name).Value);
+            result.LocationName.Should().Be(LocationName.Create(dto.LocationName).Value);
 
             added.Should().NotBeNull();
-            added!.LocationName.Should().Be(LocationName.Create(dto.Name));
+            added!.LocationName.Should().Be(LocationName.Create(dto.LocationName));
         }
 
         // -------------------------
@@ -223,7 +223,7 @@ namespace SkillFlow.Tests.Application.Services
 
             var dto = new UpdateLocationDTO
             {
-                Name = "New Name",
+                LocationName = "New Name",
                 RowVersion = new byte[] { 1 }
             };
 
@@ -250,7 +250,7 @@ namespace SkillFlow.Tests.Application.Services
 
             var dto = new UpdateLocationDTO
             {
-                Name = "Göteborg",
+                LocationName = "Göteborg",
                 RowVersion = new byte[] { 1 }
             };
 
@@ -280,7 +280,7 @@ namespace SkillFlow.Tests.Application.Services
 
             var dto = new UpdateLocationDTO
             {
-                Name = "  stockholm   city ",
+                LocationName = "  stockholm   city ",
                 RowVersion = new byte[] { 7 }
             };
 
@@ -314,7 +314,7 @@ namespace SkillFlow.Tests.Application.Services
 
             var dto = new UpdateLocationDTO
             {
-                Name = "Göteborg",
+                LocationName = "Göteborg",
                 RowVersion = new byte[] { 1, 2 }
             };
 

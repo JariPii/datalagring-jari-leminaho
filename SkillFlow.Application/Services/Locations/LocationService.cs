@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using SkillFlow.Application.DTOs;
+﻿using SkillFlow.Application.DTOs;
 using SkillFlow.Application.DTOs.Locations;
 using SkillFlow.Application.Interfaces;
 using SkillFlow.Domain.Entities.Locations;
@@ -33,16 +32,12 @@ namespace SkillFlow.Application.Services.Locations
             var location = await repository.GetByIdAsync(locationId, ct) ??
                 throw new LocationNotFoundException(locationId);
 
+            if (await repository.IsLocationInUseAsync(locationId, ct))
+                throw new LocationInUseException(location.LocationName);
+
             repository.Remove(location);
 
-            try
-            {
-                await unitOfWork.SaveChangesAsync(ct);
-            }
-            catch (DbUpdateException)
-            {
-                throw new LocationInUseException(location.LocationName);
-            }
+            await unitOfWork.SaveChangesAsync(ct);
         }
 
         public async Task<IEnumerable<LocationDTO>> GetAllLocationsAsync(CancellationToken ct)

@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SkillFlow.Domain.Courses;
 using SkillFlow.Domain.Entities.Courses;
+using SkillFlow.Domain.Entities.CourseSessions;
 using SkillFlow.Domain.Enums;
 using SkillFlow.Domain.Interfaces;
 using SkillFlow.Domain.Primitives;
@@ -75,6 +76,13 @@ namespace SkillFlow.Infrastructure.Repositories
             }
 
             return await GetPagedAsync(page, pageSize, filter, ct: ct);
+        }
+
+        public async Task<bool> IsCourseInUseAsync(CourseId id, CancellationToken ct = default)
+        {
+            return await _context.Set<CourseSession>()
+                .AsNoTracking()
+                .AnyAsync(cs => cs.CourseId == id, ct);
         }
     }
 }

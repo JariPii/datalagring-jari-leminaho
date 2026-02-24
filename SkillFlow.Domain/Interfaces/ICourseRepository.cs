@@ -15,6 +15,7 @@ namespace SkillFlow.Domain.Interfaces
         Task<int> GetMaxSuffixAsync(string coursePart, CourseType type, CancellationToken ct = default);
         void Remove(Course course);
         Task<PagedResult<Course>> GetCoursePagedAsync(int page, int pageSize, string? q, CancellationToken ct = default);
+        Task<bool> IsCourseInUseAsync(CourseId id, CancellationToken ct = default);
 
     }
 }

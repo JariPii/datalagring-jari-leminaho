@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using SkillFlow.Application.DTOs;
+﻿using SkillFlow.Application.DTOs;
 using SkillFlow.Application.DTOs.Courses;
 using SkillFlow.Application.Helpers;
 using SkillFlow.Application.Interfaces;
@@ -41,16 +40,12 @@ namespace SkillFlow.Application.Services.Courses
             var course = await repository.GetByIdAsync(courseId, ct) ??
                 throw new CourseNotFoundException(courseId);
 
+            if (await repository.IsCourseInUseAsync(courseId, ct))
+                throw new CourseInUseException(course.CourseName);
+
             repository.Remove(course);
 
-            try
-            {
-                await unitOfWork.SaveChangesAsync(ct);
-            }
-            catch (DbUpdateException)
-            {
-                throw new CourseInUseException(course.CourseName);
-            }
+            await unitOfWork.SaveChangesAsync(ct);
         }
 
         public async Task<IEnumerable<CourseDTO>> GetAllCoursesAsync(CancellationToken ct)

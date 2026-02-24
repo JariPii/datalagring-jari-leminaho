@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SkillFlow.Domain\SkillFlow.Domain.csproj" />
+	  <ProjectReference Include="..\SkillFlow.Application\SkillFlow.Application.csproj" />
   </ItemGroup>
 
 </Project>

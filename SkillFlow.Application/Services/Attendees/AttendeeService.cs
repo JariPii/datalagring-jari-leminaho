@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using SkillFlow.Application.DTOs;
+﻿using SkillFlow.Application.DTOs;
 using SkillFlow.Application.DTOs.Attendees;
 using SkillFlow.Application.DTOs.Competences;
 using SkillFlow.Application.Interfaces;

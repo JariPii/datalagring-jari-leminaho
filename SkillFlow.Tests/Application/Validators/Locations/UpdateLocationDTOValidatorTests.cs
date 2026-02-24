@@ -27,31 +27,31 @@ namespace SkillFlow.Tests.Application.Validators.Locations
         [Fact]
         public void Name_WhenNull_ShouldNotHaveError()
         {
-            var dto = ValidDto() with { Name = null };
+            var dto = ValidDto() with { LocationName = null };
 
             var result = _validator.TestValidate(dto);
 
-            result.ShouldNotHaveValidationErrorFor(x => x.Name);
+            result.ShouldNotHaveValidationErrorFor(x => x.LocationName);
         }
 
         [Fact]
         public void Name_WhenEmpty_ShouldHaveError()
         {
-            var dto = ValidDto() with { Name = "" };
+            var dto = ValidDto() with { LocationName = "" };
 
             var result = _validator.TestValidate(dto);
 
-            result.ShouldHaveValidationErrorFor(x => x.Name);
+            result.ShouldHaveValidationErrorFor(x => x.LocationName);
         }
 
         [Fact]
         public void Name_WhenTooLong_ShouldHaveError()
         {
-            var dto = ValidDto() with { Name = new string('A', 51) };
+            var dto = ValidDto() with { LocationName = new string('A', 51) };
 
             var result = _validator.TestValidate(dto);
 
-            result.ShouldHaveValidationErrorFor(x => x.Name);
+            result.ShouldHaveValidationErrorFor(x => x.LocationName);
         }
 
         // ---------------------------
@@ -87,7 +87,7 @@ namespace SkillFlow.Tests.Application.Validators.Locations
         private static UpdateLocationDTO ValidDto()
             => new()
             {
-                Name = "Stockholm",
+                LocationName = "Stockholm",
                 RowVersion = new byte[] { 1, 2, 3 }
             };
     }

@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using SkillFlow.Application.DTOs;
+﻿using SkillFlow.Application.DTOs;
 using SkillFlow.Application.DTOs.CourseSessions;
 using SkillFlow.Application.Interfaces;
 using SkillFlow.Application.Services.Attendees;
@@ -199,7 +198,7 @@ namespace SkillFlow.Application.Services.CourseSessions
 
                 await tx.CommitAsync(ct);
             }
-            catch (DbUpdateConcurrencyException)
+            catch (ConcurrencyException)
             {
                 await tx.RollbackAsync(ct);
                 throw new ConcurrencyException();
