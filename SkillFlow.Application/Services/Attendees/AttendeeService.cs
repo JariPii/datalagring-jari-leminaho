@@ -1,4 +1,5 @@
-﻿using SkillFlow.Application.DTOs;
+﻿using SkillFlow.Application.Abstractions.Caching;
+using SkillFlow.Application.DTOs;
 using SkillFlow.Application.DTOs.Attendees;
 using SkillFlow.Application.DTOs.Competences;
 using SkillFlow.Application.Interfaces;
@@ -11,7 +12,7 @@ using SkillFlow.Domain.Interfaces;
 
 namespace SkillFlow.Application.Services.Attendees
 {
-    public class AttendeeService(IAttendeeRepository repository, IUnitOfWork unitOfWork, IAttendeeQueries queries, ICompetenceRepository competenceRepository) : IAttendeeService
+    public class AttendeeService(IAttendeeRepository repository, IUnitOfWork unitOfWork, IAttendeeQueries queries, ICompetenceRepository competenceRepository, IAttendeeCacheBuster cacheBuster) : IAttendeeService
     {
         public async Task AddCompetenceToInstructorAsync(Guid instructorId, string competenceName, byte[] rowVersion, CancellationToken ct)
         {
@@ -41,6 +42,8 @@ namespace SkillFlow.Application.Services.Attendees
                 await unitOfWork.SaveChangesAsync(ct);
 
                 await tx.CommitAsync(ct);
+
+                cacheBuster.Bump();
             }
             catch
             {
@@ -69,6 +72,8 @@ namespace SkillFlow.Application.Services.Attendees
 
             await unitOfWork.SaveChangesAsync(ct);
 
+            cacheBuster.Bump();
+
             return MapToDTO(attendee);
         }
 
@@ -82,6 +87,7 @@ namespace SkillFlow.Application.Services.Attendees
                 throw new AttendeeNotFoundException(attendeeId);
 
             await unitOfWork.SaveChangesAsync(ct);
+            cacheBuster.Bump();
         }
 
         public async Task<IEnumerable<AttendeeDTO>> GetAllAttendeesAsync(CancellationToken ct)
@@ -169,6 +175,8 @@ namespace SkillFlow.Application.Services.Attendees
             await repository.UpdateAsync(attendee, dto.RowVersion, ct);
 
             await unitOfWork.SaveChangesAsync(ct);
+
+            cacheBuster.Bump();
 
             return MapToDTO(attendee);
         }

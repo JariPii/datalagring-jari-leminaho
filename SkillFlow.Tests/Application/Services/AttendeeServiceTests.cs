@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using Moq;
+using SkillFlow.Application.Abstractions.Caching;
 using SkillFlow.Application.DTOs.Attendees;
 using SkillFlow.Application.Services.Attendees;
 using SkillFlow.Domain.Attendees;
@@ -18,9 +19,10 @@ namespace SkillFlow.Tests.Application.Services
         private readonly Mock<IUnitOfWork> _uow = new();
         private readonly Mock<IAttendeeQueries> _queries = new();
         private readonly Mock<ICompetenceRepository> _competenceRepo = new();
+        private readonly Mock<IAttendeeCacheBuster> _cacheBuster = new();
 
         private AttendeeService CreateSut()
-            => new AttendeeService(_repo.Object, _uow.Object, _queries.Object, _competenceRepo.Object);
+            => new AttendeeService(_repo.Object, _uow.Object, _queries.Object, _competenceRepo.Object, _cacheBuster.Object);
 
         private static CreateAttendeeDTO CreateDto(Role role, string email = "test@gmail.com")
             => new()
