@@ -202,7 +202,7 @@ public class CourseSessionEndpointsIntegrationTests : IClassFixture<TestWebAppFa
     }
 
     [Fact]
-    public async Task Patch_enrollment_status_should_return_409_problem_details_on_concurrency_exception()
+    public async Task Put_enrollment_status_should_return_409_problem_details_on_concurrency_exception()
     {
         var client = _factory.CreateClient();
         var sessionId = Guid.NewGuid();
@@ -210,24 +210,41 @@ public class CourseSessionEndpointsIntegrationTests : IClassFixture<TestWebAppFa
 
         var dto = new UpdateEnrollmentStatusDTO
         {
-            NewStatus = EnrollmentStatus.Approved, // string-enum ok
+            NewStatus = EnrollmentStatus.Approved,
             RowVersion = new byte[] { 9, 9, 9 }
         };
 
         _factory.CourseSessionServiceMock
-            .Setup(s => s.SetEnrollmentStatusAsync(sessionId, studentId, dto.NewStatus, dto.RowVersion, It.IsAny<CancellationToken>()))
-            .ThrowsAsync(new ConcurrencyException(new Exception("conflict")));
+            .Setup(s => s.SetEnrollmentStatusAsync(
+                sessionId,
+                studentId,
+                dto.NewStatus,
+                dto.RowVersion,
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new ConcurrencyException());
 
-        var response = await client.PatchAsync(
+        var response = await client.PutAsync(
             $"/api/courseSessions/{sessionId}/enrollment/{studentId}/status",
             JsonContent.Create(dto, options: JsonOptions));
 
         response.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
         var env = await ReadProblemAsync(response);
+
         env.Problem.Status.Should().Be(409);
+
+        // Behåll om du verkligen mappar Title exakt så här:
         env.Problem.Title.Should().Be("Resource conflict");
+
+        // Om du lägger errorCode i extensions istället: anpassa ReadProblemAsync.
         env.ErrorCode.Should().Be(nameof(ConcurrencyException));
+
+        _factory.CourseSessionServiceMock.Verify(s => s.SetEnrollmentStatusAsync(
+            sessionId,
+            studentId,
+            dto.NewStatus,
+            dto.RowVersion,
+            It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]

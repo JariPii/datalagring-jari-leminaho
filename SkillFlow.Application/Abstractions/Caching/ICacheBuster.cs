@@ -1,6 +1,6 @@
 ﻿namespace SkillFlow.Application.Abstractions.Caching
 {
-    public interface IAttendeeCacheBuster
+    public interface ICacheBuster
     {
         int CurrentVersion { get; }
         void Bump();

@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Moq;
+using SkillFlow.Application.Abstractions.Caching;
 using SkillFlow.Application.DTOs.Courses;
 using SkillFlow.Application.Services.Courses;
 using SkillFlow.Domain.Courses;
@@ -16,8 +17,9 @@ namespace SkillFlow.Tests.Application.Services
     {
         private readonly Mock<ICourseRepository> _repo = new();
         private readonly Mock<IUnitOfWork> _uow = new();
+        private readonly Mock<ICourseCacheBuster> _cacheBuster = new();
 
-        private CourseService CreateSut() => new(_repo.Object, _uow.Object);
+        private CourseService CreateSut() => new(_repo.Object, _uow.Object, _cacheBuster.Object);
 
         // -------------------------
         // CreateCourseAsync
@@ -139,23 +141,23 @@ namespace SkillFlow.Tests.Application.Services
         }
 
         [Fact]
-        public async Task DeleteCourseAsync_WhenDbUpdateException_ShouldThrowCourseInUseException()
+        public async Task DeleteCourseAsync_WhenCourseIsInUse_ShouldThrowCourseInUseException()
         {
             var sut = CreateSut();
-
             var course = CreateCourse();
 
             _repo.Setup(x => x.GetByIdAsync(It.IsAny<CourseId>(), It.IsAny<CancellationToken>()))
                  .ReturnsAsync(course);
 
-            _uow.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
-                .ThrowsAsync(new DbUpdateException("FK"));
+            _repo.Setup(x => x.IsCourseInUseAsync(It.IsAny<CourseId>(), It.IsAny<CancellationToken>()))
+                 .ReturnsAsync(true);
 
             var act = async () => await sut.DeleteCourseAsync(Guid.NewGuid(), CancellationToken.None);
 
             await act.Should().ThrowAsync<CourseInUseException>();
 
-            _repo.Verify(x => x.Remove(course), Times.Once);
+            _repo.Verify(x => x.Remove(It.IsAny<Course>()), Times.Never);
+            _uow.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
         }
 
         // -------------------------

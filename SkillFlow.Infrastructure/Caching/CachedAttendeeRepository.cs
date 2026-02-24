@@ -25,19 +25,19 @@ namespace SkillFlow.Infrastructure.Caching
             _buster = buster;
         }
 
-        private string V(string key) => $"V{_buster.CurrentVersion}:{key}";
+        private string V(string key) => CacheKey.V(_buster.CurrentVersion, key);
 
 
         public Task<Attendee?> GetByEmailAsync(Email email, CancellationToken ct = default)
         {
             var key = V($"attendee:email:{email.Value.Trim().ToLowerInvariant()}");
-            return GetOrCreateAsync(key, DefaultTtl, () => _inner.GetByEmailAsync(email, ct));
+            return _cache.GetOrCreateAsync(key, DefaultTtl, () => _inner.GetByEmailAsync(email, ct));
         }
 
         public Task<Attendee?> GetByIdAsync(AttendeeId id, CancellationToken ct = default)
         {
             var key = V($"attendee:id:{id.Value}");
-            return GetOrCreateAsync(key, DefaultTtl, () => _inner.GetByIdAsync(id, ct));
+            return _cache.GetOrCreateAsync(key, DefaultTtl, () => _inner.GetByIdAsync(id, ct));
         }
 
         public Task AddAsync(Attendee entity, CancellationToken ct = default) => _inner.AddAsync(entity, ct);
@@ -54,21 +54,5 @@ namespace SkillFlow.Infrastructure.Caching
 
         public Task<PagedResult<Attendee>> GetPagedAsync(int page, int pageSize, Expression<Func<Attendee, bool>>? filter = null, Func<IQueryable<Attendee>, IQueryable<Attendee>>? include = null, CancellationToken ct = default) =>
             _inner.GetPagedAsync(page, pageSize, filter, include, ct);
-
-
-        private async Task<T> GetOrCreateAsync<T>(string key, TimeSpan ttl, Func<Task<T>> factory)
-        {
-            if (_cache.TryGetValue(key, out T? cached))
-                return cached!;
-
-            var value = await factory();
-
-            _cache.Set(key, value, new MemoryCacheEntryOptions
-            {
-                AbsoluteExpirationRelativeToNow = ttl
-            });
-
-            return value;
-        }
     }
 }

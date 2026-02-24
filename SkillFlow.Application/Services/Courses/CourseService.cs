@@ -1,4 +1,5 @@
-﻿using SkillFlow.Application.DTOs;
+﻿using SkillFlow.Application.Abstractions.Caching;
+using SkillFlow.Application.DTOs;
 using SkillFlow.Application.DTOs.Courses;
 using SkillFlow.Application.Helpers;
 using SkillFlow.Application.Interfaces;
@@ -9,7 +10,7 @@ using SkillFlow.Domain.Interfaces;
 
 namespace SkillFlow.Application.Services.Courses
 {
-    public class CourseService(ICourseRepository repository, IUnitOfWork unitOfWork) : ICourseService
+    public class CourseService(ICourseRepository repository, IUnitOfWork unitOfWork, ICourseCacheBuster cacheBuster) : ICourseService
     {
         public async Task<CourseDTO> CreateCourseAsync(CreateCourseDTO dto, CancellationToken ct)
         {
@@ -30,6 +31,8 @@ namespace SkillFlow.Application.Services.Courses
 
             await unitOfWork.SaveChangesAsync(ct);
 
+            cacheBuster.Bump();
+
             return MapToDTO(course);
         }
 
@@ -46,6 +49,8 @@ namespace SkillFlow.Application.Services.Courses
             repository.Remove(course);
 
             await unitOfWork.SaveChangesAsync(ct);
+
+            cacheBuster.Bump();
         }
 
         public async Task<IEnumerable<CourseDTO>> GetAllCoursesAsync(CancellationToken ct)
@@ -103,6 +108,8 @@ namespace SkillFlow.Application.Services.Courses
             await repository.UpdateAsync(course, dto.RowVersion, ct);
 
             await unitOfWork.SaveChangesAsync(ct);
+
+            cacheBuster.Bump();
 
             return MapToDTO(course);
         }

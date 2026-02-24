@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using Moq;
+using SkillFlow.Application.Abstractions.Caching;
 using SkillFlow.Application.DTOs.Competences;
 using SkillFlow.Application.Services.Competences;
 using SkillFlow.Domain.Attendees;
@@ -15,9 +16,10 @@ namespace SkillFlow.Tests.Application.Services
     {
         private readonly Mock<ICompetenceRepository> _repo = new();
         private readonly Mock<IUnitOfWork> _uow = new();
+        private readonly Mock<ICompetenceCacheBuster> _cacheBuster = new();
 
         private CompetenceService CreateSut()
-            => new(_repo.Object, _uow.Object);
+            => new(_repo.Object, _uow.Object, _cacheBuster.Object);
 
         // -------------------------
         // CreateCompetenceAsync

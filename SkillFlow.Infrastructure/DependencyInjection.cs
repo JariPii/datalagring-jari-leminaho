@@ -17,12 +17,15 @@ namespace SkillFlow.Infrastructure
 
             services.AddMemoryCache();
 
-            services.AddSingleton<IAttendeeCacheBuster, MemoryAttendeeCacheBuster>();
+            services.AddSingleton<IAttendeeCacheBuster, AttendeeCacheBuster>();
+            services.AddSingleton<ICourseCacheBuster, CourseCacheBuster>();
+            services.AddSingleton<ILocationCacheBuster, LocationCacheBuster>();
+            services.AddSingleton<ICompetenceCacheBuster, CompetenceCacheBuster>();
+            services.AddSingleton<ICourseSessionCacheBuster, CourseSessionCacheBuster>();
 
             services.AddScoped<IUnitOfWork, EfUnitOfWork>();
 
             services.AddScoped<AttendeeRepository>();
-
             services.AddScoped<IAttendeeRepository>(sp =>
             new CachedAttendeeRepository(
                 sp.GetRequiredService<AttendeeRepository>(),
@@ -35,10 +38,33 @@ namespace SkillFlow.Infrastructure
                 sp.GetRequiredService<IMemoryCache>(),
                 sp.GetRequiredService<IAttendeeCacheBuster>()));
 
-            services.AddScoped<ICourseRepository, CourseRepository>();
-            services.AddScoped<ICourseSessionRepository, CourseSessionRepository>();
-            services.AddScoped<ILocationRepository, LocationRepository>();
-            services.AddScoped<ICompetenceRepository, CompetenceRepository>();
+            services.AddScoped<CourseRepository>();
+            services.AddScoped<ICourseRepository>(sp =>
+            new CachedCourseRepository(
+                sp.GetRequiredService<CourseRepository>(),
+                sp.GetRequiredService<IMemoryCache>(),
+                sp.GetRequiredService<ICourseCacheBuster>()));
+
+            services.AddScoped<LocationRepository>();
+            services.AddScoped<ILocationRepository>(sp =>
+            new CachedLocationRepository(
+                sp.GetRequiredService<LocationRepository>(),
+                sp.GetRequiredService<IMemoryCache>(),
+                sp.GetRequiredService<ILocationCacheBuster>()));
+
+            services.AddScoped<CompetenceRepository>();
+            services.AddScoped<ICompetenceRepository>(sp =>
+            new CachedCompetenceRepository(
+                sp.GetRequiredService<CompetenceRepository>(),
+                sp.GetRequiredService<IMemoryCache>(),
+                sp.GetRequiredService<ICompetenceCacheBuster>()));
+
+            services.AddScoped<CourseSessionRepository>();
+            services.AddScoped<ICourseSessionRepository>(sp =>
+            new CachedCourseSessionRepository(
+                sp.GetRequiredService<CourseSessionRepository>(),
+                sp.GetRequiredService<IMemoryCache>(),
+                sp.GetRequiredService<ICourseSessionCacheBuster>()));
 
             return services;
         }

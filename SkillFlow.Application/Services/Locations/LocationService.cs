@@ -1,4 +1,5 @@
-﻿using SkillFlow.Application.DTOs;
+﻿using SkillFlow.Application.Abstractions.Caching;
+using SkillFlow.Application.DTOs;
 using SkillFlow.Application.DTOs.Locations;
 using SkillFlow.Application.Interfaces;
 using SkillFlow.Domain.Entities.Locations;
@@ -7,7 +8,7 @@ using SkillFlow.Domain.Interfaces;
 
 namespace SkillFlow.Application.Services.Locations
 {
-    public class LocationService(ILocationRepository repository, IUnitOfWork unitOfWork) : ILocationService
+    public class LocationService(ILocationRepository repository, IUnitOfWork unitOfWork, ILocationCacheBuster cacheBuster) : ILocationService
     {
         public async Task<LocationDTO> CreateLocationAsync(CreateLocationDTO dto, CancellationToken ct)
         {
@@ -21,6 +22,8 @@ namespace SkillFlow.Application.Services.Locations
             await repository.AddAsync(location, ct);
 
             await unitOfWork.SaveChangesAsync(ct);
+
+            cacheBuster.Bump();
 
             return MapToDTO(location);
         }
@@ -38,6 +41,8 @@ namespace SkillFlow.Application.Services.Locations
             repository.Remove(location);
 
             await unitOfWork.SaveChangesAsync(ct);
+
+            cacheBuster.Bump();
         }
 
         public async Task<IEnumerable<LocationDTO>> GetAllLocationsAsync(CancellationToken ct)
@@ -79,6 +84,8 @@ namespace SkillFlow.Application.Services.Locations
             await repository.UpdateAsync(location, dto.RowVersion, ct);
 
             await unitOfWork.SaveChangesAsync(ct);
+
+            cacheBuster.Bump();
 
             return MapToDTO(location);
         }

@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Moq;
+using SkillFlow.Application.Abstractions.Caching;
 using SkillFlow.Application.DTOs.CourseSessions;
 using SkillFlow.Application.Services.CourseSessions;
 using SkillFlow.Domain.Attendees;
@@ -24,6 +25,7 @@ namespace SkillFlow.Tests.Application.Services
         private readonly Mock<ICourseRepository> _courseRepo = new();
         private readonly Mock<ILocationRepository> _locationRepo = new();
         private readonly Mock<IUnitOfWork> _uow = new();
+        private readonly Mock<ICourseSessionCacheBuster> _cacheBuster = new();
 
         private CourseSessionService CreateSut()
             => new(
@@ -31,7 +33,8 @@ namespace SkillFlow.Tests.Application.Services
                 _attendeeRepo.Object,
                 _courseRepo.Object,
                 _locationRepo.Object,
-                _uow.Object
+                _uow.Object,
+                _cacheBuster.Object
             );
 
         [Fact]
@@ -457,6 +460,7 @@ namespace SkillFlow.Tests.Application.Services
             var tx = new Mock<ITransaction>(MockBehavior.Strict);
             tx.Setup(x => x.RollbackAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
             tx.Setup(x => x.DisposeAsync()).Returns(ValueTask.CompletedTask);
+            tx.Setup(x => x.CommitAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
             _uow
                 .Setup(x => x.BeginTransactionAsync(It.IsAny<CancellationToken>()))
@@ -470,7 +474,11 @@ namespace SkillFlow.Tests.Application.Services
 
             _sessionRepo
                 .Setup(x => x.UpdateAsync(It.IsAny<CourseSession>(), It.IsAny<byte[]>(), It.IsAny<CancellationToken>()))
-                .ThrowsAsync(new DbUpdateConcurrencyException());
+                .Returns(Task.CompletedTask);
+
+            _uow
+                .Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new ConcurrencyException());
 
             var studentId = session.Enrollments.First().StudentId.Value;
 

@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Moq;
+using SkillFlow.Application.Abstractions.Caching;
 using SkillFlow.Application.DTOs.Locations;
 using SkillFlow.Application.Services.Locations;
 using SkillFlow.Domain.Entities.Locations;
@@ -14,8 +15,9 @@ namespace SkillFlow.Tests.Application.Services
     {
         private readonly Mock<ILocationRepository> _repo = new();
         private readonly Mock<IUnitOfWork> _uow = new();
+        private readonly Mock<ILocationCacheBuster> _cacheBuster = new();
 
-        private LocationService CreateSut() => new(_repo.Object, _uow.Object);
+        private LocationService CreateSut() => new(_repo.Object, _uow.Object, _cacheBuster.Object);
 
         // -------------------------
         // CreateLocationAsync
@@ -110,7 +112,7 @@ namespace SkillFlow.Tests.Application.Services
         }
 
         [Fact]
-        public async Task DeleteLocationAsync_WhenDbUpdateException_ShouldThrowLocationInUseException()
+        public async Task DeleteLocationAsync_WhenLocationIsInUse_ShouldThrowLocationInUseException()
         {
             var sut = CreateSut();
             var location = CreateLocation("Stockholm");
@@ -118,14 +120,15 @@ namespace SkillFlow.Tests.Application.Services
             _repo.Setup(x => x.GetByIdAsync(It.IsAny<LocationId>(), It.IsAny<CancellationToken>()))
                  .ReturnsAsync(location);
 
-            _uow.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
-                .ThrowsAsync(new DbUpdateException("FK"));
+            _repo.Setup(x => x.IsLocationInUseAsync(It.IsAny<LocationId>(), It.IsAny<CancellationToken>()))
+                 .ReturnsAsync(true);
 
             var act = async () => await sut.DeleteLocationAsync(Guid.NewGuid(), CancellationToken.None);
 
             await act.Should().ThrowAsync<LocationInUseException>();
 
-            _repo.Verify(x => x.Remove(location), Times.Once);
+            _repo.Verify(x => x.Remove(It.IsAny<Location>()), Times.Never);
+            _uow.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
         }
 
         // -------------------------

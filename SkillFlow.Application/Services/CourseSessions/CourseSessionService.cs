@@ -1,4 +1,5 @@
-﻿using SkillFlow.Application.DTOs;
+﻿using SkillFlow.Application.Abstractions.Caching;
+using SkillFlow.Application.DTOs;
 using SkillFlow.Application.DTOs.CourseSessions;
 using SkillFlow.Application.Interfaces;
 using SkillFlow.Application.Services.Attendees;
@@ -20,7 +21,8 @@ namespace SkillFlow.Application.Services.CourseSessions
         IAttendeeRepository attendeeRepository,
         ICourseRepository courseRepository,
         ILocationRepository locationRepository,
-        IUnitOfWork unitOfWork
+        IUnitOfWork unitOfWork,
+        ICourseSessionCacheBuster cacheBuster
         ) : ICourseSessionService
     {
         public async Task AddInstructorToCourseSessionAsync(Guid sessionId, Guid instructorId, byte[] rowVersion, CancellationToken ct)
@@ -45,6 +47,7 @@ namespace SkillFlow.Application.Services.CourseSessions
 
             await unitOfWork.SaveChangesAsync(ct);
 
+            cacheBuster.Bump();
         }
 
         public async Task<CourseSessionDTO> CreateCourseSessionAsync(CreateCourseSessionDTO dto, CancellationToken ct)
@@ -88,6 +91,8 @@ namespace SkillFlow.Application.Services.CourseSessions
 
             await unitOfWork.SaveChangesAsync(ct);
 
+            cacheBuster.Bump();
+
             return await GetCourseSessionByIdAsync(session.Id.Value, ct);
         }
 
@@ -101,6 +106,8 @@ namespace SkillFlow.Application.Services.CourseSessions
                 throw new CourseSessionNotFoundException(courseSessionId);
 
             await unitOfWork.SaveChangesAsync(ct);
+
+            cacheBuster.Bump();
         }
 
         public async Task EnrollStudentAsync(Guid sessionId, Guid studentId, byte[] rowVersion, CancellationToken ct)
@@ -120,6 +127,8 @@ namespace SkillFlow.Application.Services.CourseSessions
             session.AddStudent(student);
 
             await unitOfWork.SaveChangesAsync(ct);
+
+            cacheBuster.Bump();
         }
 
         public async Task<IEnumerable<CourseSessionDTO>> GetAllCourseSessionsAsync(CancellationToken ct)
@@ -197,11 +206,13 @@ namespace SkillFlow.Application.Services.CourseSessions
                 await unitOfWork.SaveChangesAsync(ct);
 
                 await tx.CommitAsync(ct);
+
+                cacheBuster.Bump();
             }
             catch (ConcurrencyException)
             {
                 await tx.RollbackAsync(ct);
-                throw new ConcurrencyException();
+                throw;
             }
             catch
             {
@@ -258,6 +269,8 @@ namespace SkillFlow.Application.Services.CourseSessions
 
             await sessionRepository.UpdateAsync(session, dto.RowVersion, ct);
             await unitOfWork.SaveChangesAsync(ct);
+
+            cacheBuster.Bump();
 
             return MapToDTO(session);
         }

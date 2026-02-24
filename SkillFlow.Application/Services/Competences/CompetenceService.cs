@@ -1,4 +1,5 @@
-﻿using SkillFlow.Application.DTOs;
+﻿using SkillFlow.Application.Abstractions.Caching;
+using SkillFlow.Application.DTOs;
 using SkillFlow.Application.DTOs.Attendees;
 using SkillFlow.Application.DTOs.Competences;
 using SkillFlow.Application.Interfaces;
@@ -9,7 +10,7 @@ using SkillFlow.Domain.Interfaces;
 
 namespace SkillFlow.Application.Services.Competences
 {
-    public class CompetenceService(ICompetenceRepository repository, IUnitOfWork unitOfWork) : ICompetenceService
+    public class CompetenceService(ICompetenceRepository repository, IUnitOfWork unitOfWork, ICompetenceCacheBuster cacheBuster) : ICompetenceService
     {
         public async Task<CompetenceDTO> CreateCompetenceAsync(CreateCompetenceDTO dto, CancellationToken ct = default)
         {
@@ -24,6 +25,8 @@ namespace SkillFlow.Application.Services.Competences
 
             await unitOfWork.SaveChangesAsync(ct);
 
+            cacheBuster.Bump();
+
             return MapToDTO(competence);
         }
 
@@ -37,6 +40,8 @@ namespace SkillFlow.Application.Services.Competences
                 throw new CompetenceNotFoundException(competenceId);
 
             await unitOfWork.SaveChangesAsync(ct);
+
+            cacheBuster.Bump();
         }
 
         public async Task<IEnumerable<CompetenceDetailsDTO>> GetAllCompetencesAsync(CancellationToken ct = default)
@@ -71,6 +76,8 @@ namespace SkillFlow.Application.Services.Competences
             await repository.UpdateAsync(competence, dto.RowVersion, ct);
 
             await unitOfWork.SaveChangesAsync(ct);
+
+            cacheBuster.Bump();
 
             return MapToDTO(competence);
         }

@@ -27,63 +27,45 @@ namespace SkillFlow.Infrastructure.Caching
             _buster = buster;
         }
 
-        private string V(string key) => $"v{_buster.CurrentVersion}:{key}";
+        private string V(string key) => CacheKey.V(_buster.CurrentVersion, key);
 
         public Task<IEnumerable<Attendee>> GetAllAsync(CancellationToken ct = default) =>
-            GetOrCreateAsync(V("attendees:all"), DefaultTtl, () => _inner.GetAllAsync(ct));
+            _cache.GetOrCreateAsync(V("attendees:all"), DefaultTtl, () => _inner.GetAllAsync(ct));
 
         public Task<IEnumerable<Instructor>> GetAllInstructorsAsync(CancellationToken ct = default) =>
-            GetOrCreateAsync(V("attendees:instructors:all"), DefaultTtl, () => _inner.GetAllInstructorsAsync(ct));
+            _cache.GetOrCreateAsync(V("attendees:instructors:all"), DefaultTtl, () => _inner.GetAllInstructorsAsync(ct));
 
         public Task<IEnumerable<Student>> GetAllStudentsAsync(CancellationToken ct = default) =>
-            GetOrCreateAsync(V("attendees:students:all"), DefaultTtl, () => _inner.GetAllStudentsAsync(ct));
+            _cache.GetOrCreateAsync(V("attendees:students:all"), DefaultTtl, () => _inner.GetAllStudentsAsync(ct));
 
         public Task<Competence?> GetCompetenceByNameAsync(CompetenceName name, CancellationToken ct = default)
         {
             var key = V($"competence:{name.Value}");
-            return GetOrCreateAsync(key, LongTtl, () => _inner.GetCompetenceByNameAsync(name, ct));
+            return _cache.GetOrCreateAsync(key, LongTtl, () => _inner.GetCompetenceByNameAsync(name, ct));
         }
 
         public Task<IEnumerable<Instructor>> GetInstructorsByCompetenceAsync(string competenceName, CancellationToken ct = default)
         {
-            var key = V($"attendees:instructors:competence:{Normalize(competenceName)}");
-            return GetOrCreateAsync(key, DefaultTtl, () => _inner.GetInstructorsByCompetenceAsync(competenceName, ct));
+            var key = V($"attendees:instructors:competence:{CacheKey.Normalize(competenceName)}");
+            return _cache.GetOrCreateAsync(key, DefaultTtl, () => _inner.GetInstructorsByCompetenceAsync(competenceName, ct));
         }
 
         public Task<PagedResult<Instructor>> GetInstructorsPagedAsync(int page, int pageSize, string? q, CancellationToken ct = default)
         {
-            var key = V($"instructors:paged:p{page}:s{pageSize}:q{Normalize(q)}");
-            return GetOrCreateAsync(key, DefaultTtl, () => _inner.GetInstructorsPagedAsync(page, pageSize, q, ct));
+            var key = V($"instructors:paged:p{page}:s{pageSize}:q{CacheKey.Normalize(q)}");
+            return _cache.GetOrCreateAsync(key, DefaultTtl, () => _inner.GetInstructorsPagedAsync(page, pageSize, q, ct));
         }
 
         public Task<PagedResult<Student>> GetStudentsPagedAsync(int page, int pageSize, string? q, CancellationToken ct = default)
         {
-            var key = V($"students:paged:p{page}:s{pageSize}:q:{Normalize(q)}");
-            return GetOrCreateAsync(key, ShortTtl, () => _inner.GetStudentsPagedAsync(page, pageSize, q, ct));
+            var key = V($"students:paged:p{page}:s{pageSize}:q:{CacheKey.Normalize(q)}");
+            return _cache.GetOrCreateAsync(key, ShortTtl, () => _inner.GetStudentsPagedAsync(page, pageSize, q, ct));
         }
 
         public Task<IEnumerable<Attendee>> SearchByNameAsync(string searchTerm, CancellationToken ct = default)
         {
-            var key = V($"attendees:search:{Normalize(searchTerm)}");
-            return GetOrCreateAsync(key, ShortTtl, () => _inner.SearchByNameAsync(searchTerm, ct));
+            var key = V($"attendees:search:{CacheKey.Normalize(searchTerm)}");
+            return _cache.GetOrCreateAsync(key, ShortTtl, () => _inner.SearchByNameAsync(searchTerm, ct));
         }
-
-        private async Task<T> GetOrCreateAsync<T>(string key, TimeSpan ttl, Func<Task<T>> factory)
-        {
-            if (_cache.TryGetValue(key, out T? cached) && cached is not null)
-                return cached;
-
-            var value = await factory();
-
-            _cache.Set(key, value, new MemoryCacheEntryOptions
-            {
-                AbsoluteExpirationRelativeToNow = ttl
-            });
-
-            return value;
-        }
-
-        private static string Normalize(string? s) =>
-            string.IsNullOrWhiteSpace(s) ? "-" : s.Trim().ToLowerInvariant();
     }
 }

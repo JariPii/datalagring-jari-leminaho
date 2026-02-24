@@ -17,5 +17,5 @@ namespace SkillFlow.Domain.Interfaces
         Task<IEnumerable<CourseSession>> SearchAsync(string searchTerm, CancellationToken ct = default);
         Task<bool> ExistsByIdAsync(CourseSessionId id, CancellationToken ct = default);
         Task<PagedResult<CourseSession>> GetCourseSessionsPagedAsync(int page, int pageSize, string? q, CancellationToken ct = default);
-}
+    }
 }
