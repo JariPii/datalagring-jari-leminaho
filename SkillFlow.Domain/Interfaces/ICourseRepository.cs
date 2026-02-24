@@ -1,6 +1,7 @@
 ﻿using SkillFlow.Domain.Courses;
 using SkillFlow.Domain.Entities.Courses;
 using SkillFlow.Domain.Enums;
+using SkillFlow.Domain.Primitives;
 
 namespace SkillFlow.Domain.Interfaces
 {
@@ -12,8 +13,8 @@ namespace SkillFlow.Domain.Interfaces
         Task<bool> ExistsByCourseCodeAsync(CourseCode code, CancellationToken ct = default);
         Task<IEnumerable<Course>> SearchByNameAsync(string searchTerm, CancellationToken ct = default);
         Task<int> GetMaxSuffixAsync(string coursePart, CourseType type, CancellationToken ct = default);
-
         void Remove(Course course);
+        Task<PagedResult<Course>> GetCoursePagedAsync(int page, int pageSize, string? q, CancellationToken ct = default);
 
     }
 }

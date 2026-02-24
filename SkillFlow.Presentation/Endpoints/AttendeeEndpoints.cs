@@ -16,8 +16,11 @@ namespace SkillFlow.Presentation.Endpoints
             attendees.MapGet("/instructors", async (IAttendeeService service, CancellationToken ct)
                 => Results.Ok(await service.GetAllInstructorsAsync(ct)));
 
-            attendees.MapGet("/students", async (IAttendeeService service, CancellationToken ct)
-                => Results.Ok(await service.GetAllStudentsAsync(ct)));
+            attendees.MapGet("/instructors/paged", async (int page, int pageSize, string? q, IAttendeeService service, CancellationToken ct)
+                => Results.Ok(await service.GetInstructorsPagedAsync(page, pageSize, q, ct)));
+
+            attendees.MapGet("/students/paged", async (int page, int pageSize, string? q, IAttendeeService service, CancellationToken ct)
+                => Results.Ok(await service.GetStudentsPagedAsync(page, pageSize, q, ct)));
 
             attendees.MapGet("/search", async (string q, IAttendeeService service, CancellationToken ct)
                 => Results.Ok(await service.SearchAttendeesByNameAsync(q, ct)));

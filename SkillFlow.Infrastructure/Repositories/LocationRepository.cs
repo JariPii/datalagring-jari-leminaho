@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SkillFlow.Domain.Entities.Locations;
 using SkillFlow.Domain.Interfaces;
+using SkillFlow.Domain.Primitives;
+using System.Linq.Expressions;
 
 namespace SkillFlow.Infrastructure.Repositories
 {
@@ -14,6 +16,20 @@ namespace SkillFlow.Infrastructure.Repositories
         public async Task<Location?> GetByLocationNameAsync(LocationName name, CancellationToken ct)
         {
             return await _context.Locations.FirstOrDefaultAsync(l => l.LocationName == name, ct);
+        }
+
+        public async Task<PagedResult<Location>> GetLocationsPagedAsync(int page, int pageSize, string? q, CancellationToken ct = default)
+        {
+            Expression<Func<Location, bool>>? filter = null;
+
+            if (!string.IsNullOrWhiteSpace(q))
+            {
+                var term = q.Trim();
+
+                filter = l => EF.Functions.Like(l.LocationName.Value, $"%{term}%");
+            }
+
+            return await GetPagedAsync(page, pageSize, filter, ct: ct);
         }
 
         public void Remove(Location location)

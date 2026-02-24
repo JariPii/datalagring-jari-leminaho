@@ -93,6 +93,52 @@ namespace SkillFlow.Domain.Entities.CourseSessions
             UpdateTimeStamp();
         }
 
+        public void UpdateLocation(LocationId newLocationID)
+        {
+            if (newLocationID.Value == Guid.Empty)
+                throw new LocationNotFoundException(newLocationID);
+
+            if (LocationId == newLocationID) return;
+
+            LocationId = newLocationID;
+            UpdateTimeStamp();
+        }
+
+        public void UpdateCourse(CourseId newCourseId, CourseCode newCourseCode)
+        {
+            if (newCourseId.Value == Guid.Empty)
+                throw new CourseNotFoundException(newCourseId);
+
+            if (CourseId == newCourseId && CourseCode.Equals(newCourseCode)) return;
+
+            CourseId = newCourseId;
+            CourseCode = newCourseCode;
+            UpdateTimeStamp();
+        }
+
+        public void SetInstructors(IEnumerable<Instructor> instructors)
+        {
+            if (instructors is null)
+                throw new InstructorIsRequiredException("Instructor is required");
+
+            var list = instructors.ToList();
+
+            if (list.Count == 0)
+                throw new InstructorIsRequiredException("At least one instructor is required");
+
+            if (list.GroupBy(i => i.Id).Any(g => g.Count() > 1))
+                throw new InstructorAlreadyExistsException(list.First().Id, this.Id);
+
+            var currentIds = _instructors.Select(x => x.Id.Value).OrderBy(x => x).ToArray();
+            var newIds = list.Select(x => x.Id.Value).OrderBy(x => x).ToArray();
+
+            if (currentIds.SequenceEqual(newIds)) return;
+
+            _instructors.Clear();
+            _instructors.AddRange(list);
+            UpdateTimeStamp();
+        }
+
         public void AddInstructor(Instructor instructor)
         {
             if (instructor is null)

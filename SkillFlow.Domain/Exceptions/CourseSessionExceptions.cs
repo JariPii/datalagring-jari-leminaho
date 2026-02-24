@@ -24,5 +24,17 @@ namespace SkillFlow.Domain.Exceptions
     public class InstructorIsRequiredException(string message) : DomainException(message);
 
     public class InvalidEnrollmentStatusException(string message) : DomainException(message);
+    public sealed class InstructorIdsRequiredException : Exception
+    {
+        public InstructorIdsRequiredException()
+            : base("Instructor ids are required.")
+        {
+        }
+
+        public InstructorIdsRequiredException(string message)
+            : base(message)
+        {
+        }
+    }
 
 }

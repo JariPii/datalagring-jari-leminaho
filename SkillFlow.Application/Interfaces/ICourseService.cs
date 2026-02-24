@@ -1,4 +1,5 @@
-﻿using SkillFlow.Application.DTOs.Courses;
+﻿using SkillFlow.Application.DTOs;
+using SkillFlow.Application.DTOs.Courses;
 
 namespace SkillFlow.Application.Interfaces
 {
@@ -13,5 +14,6 @@ namespace SkillFlow.Application.Interfaces
         Task<CourseDTO> CreateCourseAsync(CreateCourseDTO dto, CancellationToken ct = default);
         Task<CourseDTO> UpdateCourseAsync(Guid id, UpdateCourseDTO dto, CancellationToken ct = default);
         Task DeleteCourseAsync(Guid id, CancellationToken ct = default);
+        Task<PagedResultDTO<CourseDTO>> GetCoursesPagedAsync(int page, int pageSize, string? q, CancellationToken ct = default);
     }
 }

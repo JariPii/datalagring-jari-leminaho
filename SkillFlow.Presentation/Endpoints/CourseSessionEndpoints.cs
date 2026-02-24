@@ -13,6 +13,9 @@ namespace SkillFlow.Presentation.Endpoints
             courseSessions.MapGet("/", async (ICourseSessionService service, CancellationToken ct) =>
                 Results.Ok(await service.GetAllCourseSessionsAsync(ct)));
 
+            courseSessions.MapGet("/paged", async (int page, int pageSize, string? q, ICourseSessionService service, CancellationToken ct) =>
+                Results.Ok(await service.GetCourseSessionsPagedAsync(page, pageSize, q, ct)));
+
             courseSessions.MapGet("/{id:guid}", async (Guid id, ICourseSessionService service, CancellationToken ct) =>
                 Results.Ok(await service.GetCourseSessionByIdAsync(id, ct)));
 
@@ -60,7 +63,7 @@ namespace SkillFlow.Presentation.Endpoints
 
             courseSessions.MapGet("/{id:guid}/enrollments", async (Guid id, ICourseSessionService service, CancellationToken ct) => Results.Ok(await service.GetEnrollmentsBySessionIdAsync(id, ct)));
 
-            courseSessions.MapPatch("/{id:guid}/enrollment/{studentId:guid}/status", async (Guid id, Guid studentId, UpdateEnrollmentStatusDTO dto, ICourseSessionService service, CancellationToken ct) =>
+            courseSessions.MapPut("/{id:guid}/enrollment/{studentId:guid}/status", async (Guid id, Guid studentId, UpdateEnrollmentStatusDTO dto, ICourseSessionService service, CancellationToken ct) =>
             {
                 await service.SetEnrollmentStatusAsync(id, studentId, dto.NewStatus, dto.RowVersion, ct);
                 return Results.Ok();

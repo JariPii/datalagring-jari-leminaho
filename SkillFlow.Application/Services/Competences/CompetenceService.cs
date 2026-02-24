@@ -1,4 +1,5 @@
-﻿using SkillFlow.Application.DTOs.Attendees;
+﻿using SkillFlow.Application.DTOs;
+using SkillFlow.Application.DTOs.Attendees;
 using SkillFlow.Application.DTOs.Competences;
 using SkillFlow.Application.Interfaces;
 using SkillFlow.Domain.Entities.Attendees;
@@ -108,6 +109,21 @@ namespace SkillFlow.Application.Services.Competences
                 Role = a.Role,
                 PhoneNumber = a.PhoneNumber?.Value,
                 RowVersion = a.RowVersion
+            };
+        }
+
+        public async Task<PagedResultDTO<CompetenceDTO>> GetCompetencesPagedAsync(int page, int pageSize, string? q, CancellationToken ct = default)
+        {
+            var result = await repository.GetPagedAsync(page, pageSize, q, ct);
+
+            var items = result.Items.Select(MapToDTO).ToList();
+
+            return new PagedResultDTO<CompetenceDTO>
+            {
+                Items = items,
+                Page = result.Page,
+                PageSize = result.PageSize,
+                Total = result.Total
             };
         }
     }

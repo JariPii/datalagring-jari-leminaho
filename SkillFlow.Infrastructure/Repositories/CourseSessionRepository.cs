@@ -4,6 +4,8 @@ using SkillFlow.Domain.Entities.CourseSessions;
 using SkillFlow.Domain.Entities.Locations;
 using SkillFlow.Domain.Enums;
 using SkillFlow.Domain.Interfaces;
+using SkillFlow.Domain.Primitives;
+using System.Linq.Expressions;
 
 namespace SkillFlow.Infrastructure.Repositories;
 
@@ -117,5 +119,23 @@ public class CourseSessionRepository(SkillFlowDbContext context) : BaseResposito
             .Include(e => e.Student)
             .Where(e => e.CourseSessionId == sessionId)
             .ToListAsync(ct);
+    }
+
+    public async Task<PagedResult<CourseSession>> GetCourseSessionsPagedAsync(int page, int pageSize, string? q, CancellationToken ct = default)
+    {
+        Expression<Func<CourseSession, bool>>? filter = null;
+
+        if (!string.IsNullOrWhiteSpace(q))
+        {
+            var term = q.Trim();
+            filter = s => EF.Functions.Like(s.Course.CourseName.Value, $"%{term}%");
+        }
+
+        return await GetPagedAsync(
+            page,
+            pageSize,
+            filter,
+            include: i => i.Include(s => s.Course).Include(s => s.Location).Include(s => s.Instructors).Include(s => s.Enrollments),
+            ct);
     }
 }

@@ -1,7 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using SkillFlow.Domain.Exceptions;
 using SkillFlow.Domain.Interfaces;
 using SkillFlow.Domain.Primitives;
+using System.Linq.Expressions;
 
 namespace SkillFlow.Infrastructure.Repositories
 {
@@ -58,6 +60,33 @@ namespace SkillFlow.Infrastructure.Repositories
                 .AsNoTracking()
                 .OrderByDescending(e => e.CreatedAt)
                 .ToListAsync(ct);
+        }
+
+        public virtual async Task<PagedResult<T>> GetPagedAsync(
+            int page, 
+            int pageSize, 
+            Expression<Func<T, bool>>? filter = null, 
+            Func<IQueryable<T>, IQueryable<T>>? include = null, 
+            CancellationToken ct = default)
+        {
+            page = page < 1 ? 1 : page;
+            var validatedPageSize = Math.Clamp(pageSize, 1, 100);
+
+            var query = _context.Set<T>().AsNoTracking();
+
+            if (include != null) query = include(query);
+
+            if (filter != null) query = query.Where(filter);
+
+            var total = await query.CountAsync(ct);
+
+            var items = await query
+                .OrderByDescending(e => e.CreatedAt)
+                .Skip((page - 1) * validatedPageSize)
+                .Take(validatedPageSize)
+                .ToArrayAsync(ct);
+
+            return new PagedResult<T>(items, page, validatedPageSize, total);
         }
     }
 }

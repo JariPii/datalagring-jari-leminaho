@@ -1,6 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore;
+using SkillFlow.Domain.Entities.Attendees;
 using SkillFlow.Domain.Entities.Competences;
 using SkillFlow.Domain.Interfaces;
+using SkillFlow.Domain.Primitives;
 
 namespace SkillFlow.Infrastructure.Repositories
 {
@@ -28,6 +31,19 @@ namespace SkillFlow.Infrastructure.Repositories
                 .Include(c => c.Instructors)
                 .AsNoTracking()
                 .ToListAsync(ct);
+        }
+
+        public async Task<PagedResult<Competence>> GetPagedAsync(int page, int pageSize, string? q, CancellationToken ct = default)
+        {
+          Expression<Func<Competence, bool>>? filter = null;
+
+          if(!string.IsNullOrWhiteSpace(q))
+            {
+                var term = q.Trim();
+                filter = c => EF.Functions.Like(c.Name.Value, $"{term}");
+            }
+
+            return await GetPagedAsync(page, pageSize, filter, ct: ct);
         }
     }
 

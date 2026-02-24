@@ -7,11 +7,11 @@ namespace SkillFlow.Application.Validators.Locations
     {
         public UpdateLocationDTOValidator()
         {
-            RuleFor(x => x.Name)
+            RuleFor(x => x.LocationName)
                 .Cascade(CascadeMode.Stop)
                 .NotEmpty()
                 .MaximumLength(50)
-                .When(x => x.Name is not null);
+                .When(x => x.LocationName is not null);
 
             RuleFor(x => x.RowVersion)
                 .NotEmpty()

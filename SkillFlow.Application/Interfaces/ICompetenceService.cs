@@ -1,4 +1,5 @@
-﻿using SkillFlow.Application.DTOs.Competences;
+﻿using SkillFlow.Application.DTOs;
+using SkillFlow.Application.DTOs.Competences;
 
 namespace SkillFlow.Application.Interfaces
 {
@@ -9,5 +10,6 @@ namespace SkillFlow.Application.Interfaces
         Task<CompetenceDTO> CreateCompetenceAsync(CreateCompetenceDTO dto, CancellationToken ct = default);
         Task<CompetenceDTO> UpdateCompetenceAsync(Guid id, UpdateCompetenceDTO dto, CancellationToken ct = default);
         Task DeleteCompetenceAsync(Guid id, CancellationToken ct = default);
+        Task<PagedResultDTO<CompetenceDTO>> GetCompetencesPagedAsync(int page, int pageSize, string? q, CancellationToken ct = default);
     }
 }

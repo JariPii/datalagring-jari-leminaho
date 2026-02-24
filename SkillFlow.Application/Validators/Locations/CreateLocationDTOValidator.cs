@@ -7,7 +7,7 @@ namespace SkillFlow.Application.Validators.Locations
     {
         public CreateLocationDTOValidator()
         {
-            RuleFor(x => x.Name)
+            RuleFor(x => x.LocationName)
                 .NotEmpty()
                 .MaximumLength(50);
         }

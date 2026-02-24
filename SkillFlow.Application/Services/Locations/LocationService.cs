@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SkillFlow.Application.DTOs;
 using SkillFlow.Application.DTOs.Locations;
 using SkillFlow.Application.Interfaces;
 using SkillFlow.Domain.Entities.Locations;
@@ -11,7 +12,7 @@ namespace SkillFlow.Application.Services.Locations
     {
         public async Task<LocationDTO> CreateLocationAsync(CreateLocationDTO dto, CancellationToken ct)
         {
-            var locationName = LocationName.Create(dto.Name);
+            var locationName = LocationName.Create(dto.LocationName);
 
             if (await repository.ExistsByNameAsync(locationName, ct))
                 throw new LocationNameAllreadyExistsException(locationName);
@@ -74,7 +75,7 @@ namespace SkillFlow.Application.Services.Locations
             var location = await repository.GetByIdAsync(locationId, ct) ??
                 throw new LocationNotFoundException(locationId);
 
-            var newName = LocationName.Create(dto.Name ?? location.LocationName.Value);
+            var newName = LocationName.Create(dto.LocationName ?? location.LocationName.Value);
             if (location.LocationName != newName && await repository.ExistsByNameAsync(newName, ct))
                 throw new LocationNameAllreadyExistsException(newName);
 
@@ -94,6 +95,21 @@ namespace SkillFlow.Application.Services.Locations
                 Id = location.Id.Value,
                 LocationName = location.LocationName.Value,
                 RowVersion = location.RowVersion
+            };
+        }
+
+        public async Task<PagedResultDTO<LocationDTO>> GetLocationsPagedAsync(int page, int pageSize, string? q, CancellationToken ct = default)
+        {
+            var result = await repository.GetLocationsPagedAsync(page, pageSize, q, ct);
+
+            var items = result.Items.Select(MapToDTO).ToList();
+
+            return new PagedResultDTO<LocationDTO>
+            {
+                Items = items,
+                Page = result.Page,
+                PageSize = result.PageSize,
+                Total = result.Total
             };
         }
     }

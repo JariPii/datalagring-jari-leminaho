@@ -6,7 +6,7 @@
 
         public Guid? LocationId { get; init; }
 
-        public List<Guid> InstructorIds { get; init; } = [];
+        public List<Guid>? InstructorIds { get; init; }
 
         public DateTime? StartDate { get; init; }
 

@@ -3,7 +3,9 @@ using SkillFlow.Domain.Courses;
 using SkillFlow.Domain.Entities.Courses;
 using SkillFlow.Domain.Enums;
 using SkillFlow.Domain.Interfaces;
+using SkillFlow.Domain.Primitives;
 using SkillFlow.Infrastructure.Primitives;
+using System.Linq.Expressions;
 
 namespace SkillFlow.Infrastructure.Repositories
 {
@@ -59,6 +61,20 @@ namespace SkillFlow.Infrastructure.Repositories
         public void Remove(Course course)
         {
             _context.Courses.Remove(course);
+        }
+
+        public async Task<PagedResult<Course>> GetCoursePagedAsync(int page, int pageSize, string? q, CancellationToken ct = default)
+        {
+            Expression<Func<Course, bool>>? filter = null;
+
+            if (!string.IsNullOrWhiteSpace(q))
+            {
+                var term = q.Trim();
+
+                filter = c => EF.Functions.Like(c.CourseName.Value, $"%{term}%");
+            }
+
+            return await GetPagedAsync(page, pageSize, filter, ct: ct);
         }
     }
 }

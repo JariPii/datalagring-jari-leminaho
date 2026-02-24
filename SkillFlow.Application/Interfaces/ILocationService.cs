@@ -1,4 +1,5 @@
-﻿using SkillFlow.Application.DTOs.Locations;
+﻿using SkillFlow.Application.DTOs;
+using SkillFlow.Application.DTOs.Locations;
 
 namespace SkillFlow.Application.Interfaces
 {
@@ -15,5 +16,6 @@ namespace SkillFlow.Application.Interfaces
         Task<LocationDTO> UpdateLocationAsync(Guid id, UpdateLocationDTO dto, CancellationToken ct = default);
 
         Task DeleteLocationAsync(Guid id, CancellationToken ct = default);
+        Task<PagedResultDTO<LocationDTO>> GetLocationsPagedAsync(int page, int pageSize, string? q, CancellationToken ct = default);
     }
 }

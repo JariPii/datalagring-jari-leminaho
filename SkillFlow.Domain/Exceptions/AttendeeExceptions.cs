@@ -40,6 +40,14 @@ namespace SkillFlow.Domain.Exceptions
     public class InstructorIsMissingCompetenceException(AttendeeId id) : DomainException($"{id.Value} does not meet the competence requirements");
 
     public class CompetenceAllreadyAssignedException(AttendeeId id, CompetenceName competence) : DomainException($"{id.Value} is allready assigned {competence.Value}");
+    public class InstructorNotFoundException : DomainException
+    {
+        public InstructorNotFoundException(AttendeeId id)
+            : base($"Instructor '{id.Value}' not found") { }
+
+        public InstructorNotFoundException(IEnumerable<AttendeeId> ids)
+            : base($"Instructor(s) not found: {string.Join(", ", ids.Select(x => x.Value))}") { }
+    }
 
 
 }

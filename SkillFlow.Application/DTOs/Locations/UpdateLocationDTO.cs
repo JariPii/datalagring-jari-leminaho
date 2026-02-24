@@ -2,7 +2,7 @@
 {
     public record UpdateLocationDTO
     {
-        public string? Name { get; init; }
+        public string? LocationName { get; init; }
 
         public byte[] RowVersion { get; init; } = default!;
     }

@@ -1,4 +1,5 @@
-﻿using SkillFlow.Application.DTOs.Attendees;
+﻿using SkillFlow.Application.DTOs;
+using SkillFlow.Application.DTOs.Attendees;
 
 namespace SkillFlow.Application.Interfaces
 {
@@ -18,5 +19,7 @@ namespace SkillFlow.Application.Interfaces
         Task<AttendeeDTO> UpdateAttendeeAsync(Guid id, UpdateAttendeeDTO dto, CancellationToken ct = default);
         Task DeleteAttendeeAsync(Guid id, CancellationToken ct = default);
         Task AddCompetenceToInstructorAsync(Guid instructorId, string competenceName, byte[] rowVersion, CancellationToken ct = default);
+        Task<PagedResultDTO<AttendeeDTO>> GetStudentsPagedAsync(int page, int pageSize, string? q, CancellationToken ct = default);
+        Task<PagedResultDTO<InstructorDTO>> GetInstructorsPagedAsync(int page, int pageSize, string? q, CancellationToken ct = default);
     }
 }

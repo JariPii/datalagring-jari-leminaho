@@ -1,4 +1,5 @@
-﻿using SkillFlow.Application.DTOs.CourseSessions;
+﻿using SkillFlow.Application.DTOs;
+using SkillFlow.Application.DTOs.CourseSessions;
 using SkillFlow.Domain.Enums;
 
 namespace SkillFlow.Application.Interfaces
@@ -18,5 +19,7 @@ namespace SkillFlow.Application.Interfaces
         Task SetEnrollmentStatusAsync(Guid sessionId, Guid studentId, EnrollmentStatus status, byte[] rowVersion, CancellationToken ct = default);
         Task AddInstructorToCourseSessionAsync(Guid sessionId, Guid instructorId, byte[] rowVersion, CancellationToken ct = default);
         Task<IReadOnlyList<EnrollmentDTO>> GetEnrollmentsBySessionIdAsync(Guid sessionId, CancellationToken ct = default);
+        Task<PagedResultDTO<CourseSessionDTO>> GetCourseSessionsPagedAsync(int page, int pageSize, string? q, CancellationToken ct = default);
+
     }
 }

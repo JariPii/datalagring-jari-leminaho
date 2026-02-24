@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SkillFlow.Application.DTOs;
 using SkillFlow.Application.DTOs.Courses;
 using SkillFlow.Application.Helpers;
 using SkillFlow.Application.Interfaces;
@@ -123,6 +124,21 @@ namespace SkillFlow.Application.Services.Courses
                 CourseName = course.CourseName.Value,
                 CourseDescription = course.CourseDescription.Value,
                 RowVersion = course.RowVersion
+            };
+        }
+
+        public async Task<PagedResultDTO<CourseDTO>> GetCoursesPagedAsync(int page, int pageSize, string? q, CancellationToken ct = default)
+        {
+            var result = await repository.GetCoursePagedAsync(page, pageSize, q, ct);
+
+            var items = result.Items.Select(MapToDTO).ToList();
+
+            return new PagedResultDTO<CourseDTO>
+            {
+                Items = items,
+                Page = result.Page,
+                PageSize = result.PageSize,
+                Total = result.Total
             };
         }
     }

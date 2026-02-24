@@ -13,6 +13,9 @@ namespace SkillFlow.Presentation.Endpoints
             locations.MapGet("/", async (ILocationService service, CancellationToken ct) =>
                 Results.Ok(await service.GetAllLocationsAsync(ct)));
 
+            locations.MapGet("/paged", async (int page, int pageSize, string? q, ILocationService service, CancellationToken ct)
+                => Results.Ok(await service.GetLocationsPagedAsync(page, pageSize, q, ct)));
+
             locations.MapGet("/{id:guid}", async (Guid id, ILocationService service, CancellationToken ct) =>
                 Results.Ok(await service.GetLocationByIdAsync(id, ct)));
 

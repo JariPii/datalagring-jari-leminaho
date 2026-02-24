@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SkillFlow.Application.DTOs;
 using SkillFlow.Application.DTOs.Attendees;
 using SkillFlow.Application.DTOs.Competences;
 using SkillFlow.Application.Interfaces;
@@ -219,6 +220,38 @@ namespace SkillFlow.Application.Services.Attendees
             var students = await queries.GetAllStudentsAsync(ct);
 
             return MapToDTOList(students);
+        }
+
+        public async Task<PagedResultDTO<AttendeeDTO>> GetStudentsPagedAsync(int page, int pageSize, string? q, CancellationToken ct = default)
+        {
+            var result = await queries.GetStudentsPagedAsync(page, pageSize, q, ct);
+
+            var items = result.Items.Select(MapToDTO).ToList();
+
+            return new PagedResultDTO<AttendeeDTO>
+            {
+                Items = items,
+                Page = result.Page,
+                PageSize = result.PageSize,
+                Total = result.Total
+            };
+        }
+
+        public async Task<PagedResultDTO<InstructorDTO>> GetInstructorsPagedAsync(int page, int pageSize, string? q, CancellationToken ct = default)
+        {
+            var result = await queries.GetInstructorsPagedAsync(page, pageSize, q, ct);
+
+            var items = result.Items
+                .Select(i => (InstructorDTO)MapToDTO(i))
+                .ToList();
+
+            return new PagedResultDTO<InstructorDTO>
+            {
+                Items = items,
+                Page = result.Page,
+                PageSize = result.PageSize,
+                Total = result.Total
+            };
         }
     }
 

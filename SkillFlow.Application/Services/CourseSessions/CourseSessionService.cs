@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SkillFlow.Application.DTOs;
 using SkillFlow.Application.DTOs.CourseSessions;
 using SkillFlow.Application.Interfaces;
 using SkillFlow.Application.Services.Attendees;
@@ -167,6 +168,7 @@ namespace SkillFlow.Application.Services.CourseSessions
                 throw new CourseSessionNotFoundException(id);
 
             return [.. session.Enrollments.Select(e => new EnrollmentDTO {
+                Id = e.Id.Value,
                 StudentId = e.StudentId.Value,
                 StudentName = e.Student.Name.Fullname,
                 Status = e.Status,
@@ -213,8 +215,8 @@ namespace SkillFlow.Application.Services.CourseSessions
         {
             var courseSessionId = new CourseSessionId(id);
 
-            var session = await sessionRepository.GetByIdWithInstructorsAndEnrollmentsAsync(courseSessionId, ct) ??
-                throw new CourseSessionNotFoundException(courseSessionId);
+            var session = await sessionRepository.GetByIdWithInstructorsAndEnrollmentsAsync(courseSessionId, ct)
+                ?? throw new CourseSessionNotFoundException(courseSessionId);
 
             if (dto.Capacity.HasValue)
                 session.UpdateCapacity(dto.Capacity.Value);
@@ -222,8 +224,40 @@ namespace SkillFlow.Application.Services.CourseSessions
             if (dto.StartDate.HasValue || dto.EndDate.HasValue)
                 session.UpdateDates(dto.StartDate ?? session.StartDate, dto.EndDate ?? session.EndDate);
 
-            await sessionRepository.UpdateAsync(session, dto.RowVersion, ct);
+            if (dto.CourseId.HasValue && dto.CourseId.Value != session.CourseId.Value)
+            {
+                var newCourseId = new CourseId(dto.CourseId.Value);
 
+                var course = await courseRepository.GetByIdAsync(newCourseId, ct)
+                    ?? throw new CourseNotFoundException(newCourseId);
+
+                session.UpdateCourse(newCourseId, course.CourseCode);
+            }
+
+            if (dto.LocationId.HasValue && dto.LocationId.Value != session.LocationId.Value)
+            {
+                session.UpdateLocation(new LocationId(dto.LocationId.Value));
+            }
+
+            if (dto.InstructorIds is not null)
+            {
+                if (dto.InstructorIds.Count == 0)
+                    throw new InstructorIdsRequiredException("At least one instructor is required.");
+
+                var instructorIds = dto.InstructorIds
+                    .Select(x => new AttendeeId(x))
+                    .ToList();
+
+                var instructors = await attendeeRepository.GetInstructorsByIdsAsync(instructorIds, ct);
+
+
+                if (instructors.Count != instructorIds.Count)
+                    throw new InstructorNotFoundException(instructorIds);
+
+                session.SetInstructors(instructors);
+            }
+
+            await sessionRepository.UpdateAsync(session, dto.RowVersion, ct);
             await unitOfWork.SaveChangesAsync(ct);
 
             return MapToDTO(session);
@@ -243,6 +277,21 @@ namespace SkillFlow.Application.Services.CourseSessions
                 ApprovedEnrollmentsCount = courseSession.ApprovedEnrollmentsCount,
                 Instructors = [.. courseSession.Instructors.Select(AttendeeService.MapToDTO)],
                 RowVersion = courseSession.RowVersion
+            };
+        }
+
+        public async Task<PagedResultDTO<CourseSessionDTO>> GetCourseSessionsPagedAsync(int page, int pageSize, string? q, CancellationToken ct = default)
+        {
+            var result = await sessionRepository.GetCourseSessionsPagedAsync(page, pageSize, q, ct);
+
+            var items = result.Items.Select(MapToDTO).ToList();
+
+            return new PagedResultDTO<CourseSessionDTO>()
+            {
+                Items = items,
+                Page = result.Page,
+                PageSize = result.PageSize,
+                Total = result.Total
             };
         }
     }

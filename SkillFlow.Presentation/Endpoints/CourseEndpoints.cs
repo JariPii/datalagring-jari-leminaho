@@ -13,6 +13,9 @@ namespace SkillFlow.Presentation.Endpoints
             courses.MapGet("/", async (ICourseService service, CancellationToken ct) =>
                 Results.Ok(await service.GetAllCoursesAsync(ct)));
 
+            courses.MapGet("/paged", async (int page, int pageSize, string? q, ICourseService service, CancellationToken ct) =>
+                Results.Ok(await service.GetCoursesPagedAsync(page, pageSize, q, ct)));
+
             courses.MapGet("/search", async (string searchTerm, ICourseService service, CancellationToken ct)
                 => Results.Ok(await service.SearchCoursesAsync(searchTerm, ct)));
 

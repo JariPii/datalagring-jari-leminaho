@@ -1,4 +1,6 @@
-﻿using SkillFlow.Domain.Entities.Locations;
+﻿using SkillFlow.Domain.Entities.Attendees;
+using SkillFlow.Domain.Entities.Locations;
+using SkillFlow.Domain.Primitives;
 
 namespace SkillFlow.Domain.Interfaces
 {
@@ -7,10 +9,9 @@ namespace SkillFlow.Domain.Interfaces
         Task<Location?> GetByLocationNameAsync(LocationName name, CancellationToken ct);
         Task<bool> ExistsByIdAsync(LocationId id, CancellationToken ct = default);
         Task<bool> ExistsByNameAsync(LocationName name, CancellationToken ct = default);
-
         Task<IEnumerable<Location>> SearchByNameAsync(string searchTerm, CancellationToken ct = default);
-
         void Remove(Location location);
+        Task<PagedResult<Location>> GetLocationsPagedAsync(int page, int pageSize, string? q, CancellationToken ct = default);
 
     }
 }

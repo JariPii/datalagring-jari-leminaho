@@ -13,6 +13,10 @@ namespace SkillFlow.Presentation.Endpoints
             competences.MapGet("/", async (ICompetenceService service, CancellationToken ct) =>
             Results.Ok(await service.GetAllCompetencesAsync(ct)));
 
+            competences.MapGet("/paged", async (int page, int pageSize, string? q, ICompetenceService service, CancellationToken ct) =>
+            Results.Ok(await service.GetCompetencesPagedAsync(page, pageSize, q, ct)));
+            
+
             competences.MapGet("/{id:guid}", async (Guid id, ICompetenceService service, CancellationToken ct) =>
             Results.Ok(await service.GetCompetenceDetailsAsync(id, ct)));
 
